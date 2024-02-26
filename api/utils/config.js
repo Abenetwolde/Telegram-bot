@@ -1,0 +1,1 @@
+exports.USER_TYPES = ["ADMIN", "SUPERADMIN"];
