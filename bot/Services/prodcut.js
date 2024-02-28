@@ -33,6 +33,32 @@ module.exports = {
           throw new Error('Error fetching products from the database.');
         }
       }, 
+      getProducts: async function (ctx,params) {
+        const category = ctx.scene?.state?.category?.id;
+        const sortBy = ctx.scene?.state?.sortBy;
+        const page = params.page || 1;
+
+        console.log("what is params say",params)
+        const pageSize = params.pageSize || 1;
+     const search=params.search
+        // console.log("sortBy", sortBy);
+    
+        try {
+ const product= await getAllProducts({
+            category: category,
+              search,
+            // sortBy: sortBy||"latest",
+            page: ctx.session.currentPage||1,
+            pageSize: pageSize,
+          });
+    
+         const productsJson = JSON.stringify(product);
+          console.log("Prodcut.........",productsJson)
+          return productsJson
+        } catch (error) {
+          throw new Error('Error fetching products from the database.');
+        }
+      }, 
     // getProdcuts: async function (ctx, pageSize) {
     //    const category = ctx.scene.state?.category?.id;
     //     const sortBy = ctx.scene.state.sortBy;

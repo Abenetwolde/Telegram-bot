@@ -64,6 +64,19 @@ const OrderTable: React.FC = () => {
             ),
         },
         {
+            accessor: 'orderNumber',
+            Header: 'Order Number',
+            Cell: ({ value }: any) => (
+                <div className="flex items-center">
+
+                    <span>
+                        {value&&value}
+                    </span>
+
+                </div>
+            ),
+        },
+        {
             accessor: 'user',
             Header: 'User First Name',
             Cell: ({ value }: any) => (

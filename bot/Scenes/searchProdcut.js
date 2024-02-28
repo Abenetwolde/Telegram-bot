@@ -2,7 +2,7 @@
 const { Scenes, Markup, session } = require("telegraf")
 const axios = require('axios');
 const { replace } = require("lodash");
-const { getAllProducts } = require("../Database/productcontroller");
+const { getAllProducts, searchProducts } = require("../Database/productcontroller");
 const { getProducts } = require("../Services/prodcut");
 const searchProduct = new Scenes.BaseScene('searchProduct');
 const itemsPerPage = 10;
@@ -52,18 +52,31 @@ searchProduct.on('inline_query', async (ctx) => {
     //   },
     // });
 
-    const response = await getProducts(ctx, {
+    const response = await searchProducts({
       search: input,
-      page: 1, // Set the default page value or adjust it based on your requirements
-      pageSize: 10,
     });
 
-    const products = JSON.parse(response);
-
-    const results = products?.products.map((product) => {
+    const products = JSON.parse(JSON.stringify(response));
+console.log("pro......search", products)
+if (products.products.length === 0) {
+  // If no products found, send "No results found" message
+  await ctx.answerInlineQuery([{
+    type: 'article',
+    title: 'No results found',
+    id: 'no-results-found',
+    input_message_content: {
+      message_text: 'No results found.',
+    },
+  }], {
+    cache_time: 0,
+  });
+  return;
+}
+ const results = products?.products.map((product) => {
       const thumbnail = product?.images[0].imageUrl;
       console.log("prodcus titile",product?.name)
       return {
+        
         type: 'article',
         title: product?.name||"Product",
         photo_url: String(thumbnail),

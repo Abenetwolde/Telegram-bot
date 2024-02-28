@@ -13,9 +13,11 @@ exports.createOrder = async (userId, orderInformation, cartItems) => {
   try {
     console.log("cart Item.......s", cartItems);
     const totalPrice = await calculateTotalPrice(cartItems);
-
+let randomNumber = Math.floor(Math.random() * 90000) + 10000;
+console.log('Random Number', randomNumber)
     // Create a new order document in the database without population
     const order = await Order.create({
+      orderNumber:randomNumber,
       telegramid: userId,
       orderItems: cartItems.items.map(cartItem => ({
         product: cartItem.product._id,

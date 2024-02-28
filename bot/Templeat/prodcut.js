@@ -72,7 +72,7 @@ module.exports = {
         //     return;
         // }
         // Get the current image of this product from its images array using the current image productId stored in the session data
-        const image = product?.images[ctx.session.currentImageIndex[productId]].imageUrl;
+        const image = product?.images[ctx.session.currentImageIndex[productId]]?.imageUrl;
         // const response = await axios.get(image, { responseType: 'arraybuffer' });
 
         console.log("imagesa............",image)
@@ -90,13 +90,21 @@ module.exports = {
                 let keyboard = [];
                 let check= ctx.session.currentImageIndex[productId] < product.images.length
                 console.log("check...................",check)
+
                 if (quantity == 0&&product?.images.length>1) {
                     keyboard.push([
                        Markup.button.callback('⬅️', `previous_${productId}`),
-                        viewMore ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
+                         viewMore ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
                        Markup.button.callback('➡️', `next_${productId}`)
                     ]);
                 }else if(quantity > 0&&product?.images.length==1)
+                {
+                    keyboard.push([
+                        // Markup.button.callback('⬅️', `previous_${productId}`),
+                         viewMore ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
+                        // Markup.button.callback('➡️', `next_${productId}`)
+                     ]);
+                }else if(quantity == 0&&product?.images.length==1)
                 {
                     keyboard.push([
                         // Markup.button.callback('⬅️', `previous_${productId}`),
@@ -173,7 +181,7 @@ module.exports = {
                         ctx.session.viewMore[productId] ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
                         Markup.button.callback('➡️', `next_${productId}`),
                         // ...(ctx.session.viewMore[productId] ? [Markup.button.callback('Buy', `buy_${productId}`)] : [])
-                    ] : [],
+                    ] :[],
                     ...(product.quantity > 0 ? [
                         [
                             Markup.button.callback('-', `removeQuantity_${productId}`),

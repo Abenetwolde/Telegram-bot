@@ -391,13 +391,13 @@ mongoClient.connect()
       }
     });
 
-
+    bot.on("pre_checkout_query", async (ctx) => {
+      await ctx.answerPreCheckoutQuery(true)
+    
+    })
   })
 
-bot.on("pre_checkout_query", async (ctx) => {
-  await ctx.answerPreCheckoutQuery(true)
 
-})
 /* This code uses the getWebhookInfo method to check 
    if a webhook is set for your bot. If a webhook is set, it may cause conflicts with the getUpdates 
    method and result in the error message you are seeing. In this case, you should either remove the webhook or switch to using webhooks 
@@ -531,6 +531,73 @@ bot.on < "location" > ('location', async (ctx) => {
   ctx.reply(`Distance to the store: ${distance.toFixed(2)} km\nPrice: ${price}`);
 });
 
+// bot.on("successful_payment", async (ctx) => {
+//   console.log("Success payment from   index File", ctx.message.successful_payment)
+//   // ctx.session.cleanUpState = ctx.session.cleanUpState.map(ctx.session.cleanUpState, function (message) {         // Convert old cart message ID into text to prune
+//   //     if (message.type === "invoice") {
+//   //         message.type = "receipt"
+//   //     }
+//   //     return message
+//   // })
+//   const payment = ctx.message.successful_payment
+//   const invoice = JSON.parse(payment.invoice_payload)
+//   const paymentData = {
+//       user:ctx.from.id,
+//       order: ctx.scene.state.orderId,
+//       total_amount: ctx.message.successful_payment.total_amount,
+//       invoice_id: invoice.id,
+//       telegram_payment_charge_id: ctx.message.successful_payment.telegram_payment_charge_id,
+    
+//   }
+//   const paymentdata=JSON.parse(JSON.stringify(paymentData))
+//   console.log("paymetn data", )
+//   try {
+//       const savedPayment = await createPayment(
+//           paymentdata
+//       );
+//      const orderupdate={
+//           orderId:ctx.scene.state.orderId,
+//           phoneNo:payment.order_info.phone_number,
+//           paymentStatus:"completed",
+//           orderStatus:"pending",
+//           location:ctx.session.orderInformation?.location
+//       }
+// const updatedOrder=await updateOrder(orderupdate)
+// // console.log("orderupdate",orderinfo)
+// let summary = '';
+// let totalPrice = 0;
+// summary += `Order Details:`
+// // const updatedOrder = await updateOrderStatus(ctx.scene.state.orderId, 'completed');
+// // console.log('Order status updated successfully:', updatedOrder.orderItems);
+// for (const orderItem of updatedOrder.orderItems) {
+
+//   summary += `🛒 ${orderItem.product.name}: ${orderItem.quantity} x ${orderItem.product.price} = ${orderItem.quantity * orderItem.product.price} ETB\n`;
+//   totalPrice += orderItem.quantity * orderItem.product.price ;
+//   // await ctx.reply(
+//   //     `Order Details:
+//   //                Product: ${orderItem.product.name}
+//   //                Quantity: ${orderItem.quantity}
+//   //                Total Price: ${orderItem.quantity * orderItem.product.price} ETB
+//   //                Order ID: ${updatedOrder._id}`,
+//   // );
+  
+//   await product.findByIdAndUpdate(orderItem.product._id, {
+//       $inc: {   orderQuantity: +orderItem.quantity }
+//   });
+// }
+// summary += `\nTotal Price: <u>${totalPrice} ETB</u>`;
+
+// // Send a separate message about the product
+// await ctx.reply(`Thank you for your order! The product will be delivered to you soon.`);
+// await ctx.replyWithHTML(summary),
+// ctx.session.orderInformation={}   
+//   } catch (error) {
+//       console.error('Error creating payment:', error);
+//       // Handle error
+//   }
+
+// await ctx.scene.enter("homeScene")
+// })
 
 bot.catch(async (err, ctx) => {
   console.log(`Error while handling update ${ctx.update.update_id}:`, err)

@@ -55,6 +55,30 @@ async function getAllProducts(data) {
     throw new Error('Error fetching products from the database.');
   }
 }
+async function searchProducts(searchTerm) {
+  console.log("serarchTerm",searchTerm)
+  try {
+ 
+    // Construct the filter based on the search term
+    const filter = { name: { $regex: searchTerm?.search, $options: 'i' } };
+
+
+
+    // Find the products matching the search criteria for the current page
+    const products = await Product.find(filter)
+      .populate('category')
+
+
+    return {
+      products: products,
+
+    };
+  } catch (error) {
+    console.log(error)
+    throw new Error('Error fetching products from the database.',error);
+  }
+}
+
 // Database file (e.g., database.js)
 async function getSingleProduct(productId) {
     try {
@@ -68,5 +92,6 @@ async function getSingleProduct(productId) {
   
 module.exports = {
   getAllProducts,
-  getSingleProduct
+  getSingleProduct,
+  searchProducts
 };

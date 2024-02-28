@@ -29,6 +29,7 @@ interface Order extends Document {
   orderStatus: 'pending' | 'completed';
   orderfromtelegram: boolean;
   createdAt: Date;
+  orderNumber:Number
 }
 
 
@@ -53,6 +54,10 @@ interface Order extends Document {
         product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
       },
     ],
+    orderNumber:{
+      type:Number,
+      required:true
+  },
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     payment: { type: Schema.Types.ObjectId, ref: 'Payment', required: false },
     paymentStatus: {

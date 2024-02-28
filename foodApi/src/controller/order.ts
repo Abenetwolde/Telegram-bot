@@ -86,7 +86,7 @@ export const getOrders = async (req: Request, res: Response) => {
           
             .skip(skip)
             .limit(pageSize)
-            .sort(sortQuery);
+            .sort({ createdAt: -1 });
 
         // Count the total number of orders
         const count = await Order.countDocuments(filter);

@@ -61,10 +61,20 @@ const priceLabels=[]
         need_phone_number: true,
       
     })
-    console.log("invoiceData", invoice)
+    // console.log("invoiceData", invoice)
     ctx.session.cleanUpState.push({ id: invoice.message_id, type: "invoice" })
 
 })
+paymentScene.on('pre_checkout_query', async (ctx) => {
+    // Store necessary information related to the payment in the session
+    ctx.session.paymentInfo = {
+      orderId: ctx.scene.state.orderId,
+      // Other payment information as needed
+    };
+  
+    // Answer the pre-checkout query to confirm the payment
+    await ctx.answerPreCheckoutQuery(true);
+  });
 paymentScene.on("successful_payment", async (ctx) => {
     console.log("Success payment", ctx.message.successful_payment)
     ctx.session.cleanUpState = _.map(ctx.session.cleanUpState, function (message) {         // Convert old cart message ID into text to prune

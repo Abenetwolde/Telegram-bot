@@ -73,7 +73,7 @@ myOrderScene.enter(async (ctx) => {
                     );
                     ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
                 } catch (error) {
-                    ctx.reply("erro",error)
+                   await ctx.reply("erro",error)
                     await ctx.scene.leave()
                 }
 

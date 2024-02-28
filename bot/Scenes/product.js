@@ -27,11 +27,11 @@ productSceneTest.enter(async (ctx) => {
     ctx.session.currentPage = 1;
     ctx.session.products = []
    // Default reply text
-const prodcutfirst= await ctx.reply("sendmessage")
-await ctx.session.cleanUpState.push({
-    id: prodcutfirst.message_id,
-    type: 'first'  
-})
+// const prodcutfirst= await ctx.reply("sendmessage")
+// await ctx.session.cleanUpState.push({
+//     id: prodcutfirst.message_id,
+//     type: 'first'  
+// })
     if (category && category.name) {
         replyText = `You are now viewing our ${category.name} products.`;
     } else if (sortBy) {
@@ -210,9 +210,9 @@ productSceneTest.action(/next_(.+)/, (ctx) => {
     const productId = ctx.match[1];
     const products = ctx.session.products;
     const product = products?.filter((p) => p._id == productId)
-    console.log("singleProdcut................", product)
+
     ctx.session.currentImageIndex[productId]++;
-    if (ctx.session.currentImageIndex[productId] >= product[0].images.length) {
+    if (ctx.session.currentImageIndex[productId] >=product[0].images.length) {
          ctx.session.currentImageIndex[productId] = 0;
         // return
     }
@@ -314,12 +314,15 @@ productSceneTest.action(/removeQuantity_(.+)/, async (ctx) => {
     try {
         const userId = ctx.from.id;
         const updatedCart = await updateCartItemQuantity(userId, productId, -1);
-        const productData = await Product.findById(productId).populate("category");
+        console.log("updatecartitem",updatedCart)
+        // const productData = await Product.findById(productId).populate("category");
+        const productData = await Product.findById(productId).populate('category');
         const productArg = { ...productData.toObject(), quantity: updatedCart.items.find(item => item.product.equals(productId)).quantity };
         if (productArg.quantity === 0) {
             await ctx.answerCbQuery(`You have removed ${productArg.name} of product from your cart.`);
-            await removeItemFromCart(userId, productId)
+            await removeItemFromCart(updatedCart._id)
         }
+        // console.log("removed item...",productArg)
         sendProduct(ctx, productId, productArg);
         await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
     } catch (error) {
