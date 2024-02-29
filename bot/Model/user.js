@@ -46,6 +46,17 @@ const userSchema = new mongoose.Schema({
   token: {
     type: String,
   },
+  timestamp: { type: Date, default: Date.now },
+  // spentTime: [{
+  //   duration: {
+  //     type: Number,
+  //     default: 0,
+  //   },
+  //   date: {
+  //     type: Date,
+  //     default: Date.now,
+  //   },
+  // }],
   createdAt: { type: Date, default: Date.now },
 });
 

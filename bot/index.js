@@ -15,7 +15,7 @@ const { checkUserToken } = require('./Utils/checkUserToken');
 const { Mongo } = require("@telegraf/session/mongodb");
 const { MongoClient } = require('mongodb');
 const { createUser, updateUserLanguage } = require('./Database/UserController.js');
-
+const UserKPI=require("./Model/KpiUser");
 const bot = new Telegraf("6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM", {
   timeout: Infinity
 });
@@ -108,6 +108,88 @@ mongoClient.connect()
         console.log('Response time: %sms', ms);
       });
     })
+    bot.use(async (ctx, next) => {
+      // Save user start time to the context
+      ctx.session.startTime = new Date().getTime();
+      // Continue with the next middleware
+      await next();
+    });
+    const calculateDuration = (startTime, endTime) => {
+      return new Date(endTime) - new Date(startTime);
+  };
+  
+  // Function to format duration in HH:MM:SS format
+  const formatDuration = (durationMs) => {
+      const hours = Math.floor(durationMs / 3600000);
+      const minutes = Math.floor((durationMs % 3600000) / 60000);
+      const seconds = Math.floor((durationMs % 60000) / 1000);
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
+  // Function to calculate and format User KPI data
+  const calculateAndFormatUserKPIData = (userKPI) => {
+      // Initialize variables to track scene durations and total duration
+      let totalDuration = 0;
+      const sceneDurations = {};
+  
+      // Iterate over each scene entry in the user's KPI data
+      userKPI.scene.forEach((scene) => {
+          const sceneName = scene.name;
+          const durationMs = calculateDuration(scene.enterTime, scene.leaveTime);
+          totalDuration += durationMs;
+  
+          // Add scene duration to the sceneDurations object
+          if (!sceneDurations[sceneName]) {
+              sceneDurations[sceneName] = 0;
+          }
+          sceneDurations[sceneName] += durationMs;
+      });
+  
+      // Format total duration
+      const totalDurationFormatted = formatDuration(totalDuration);
+  
+      // Format scene durations
+      const sceneDurationsFormatted = {};
+      for (const sceneName in sceneDurations) {
+          const durationMs = sceneDurations[sceneName];
+          sceneDurationsFormatted[sceneName] = formatDuration(durationMs);
+      }
+  
+      return { sceneDurations: sceneDurationsFormatted, totalDuration: totalDurationFormatted };
+  };
+  
+  // Command handler to fetch and display user KPI data
+  const kpiCommandHandler = async (ctx) => {
+      try {
+          // Fetch User KPI data for the current user
+          const userKPI = await UserKPI.findOne({ telegramId: ctx.from.id });
+  
+          // If userKPI is found, calculate and format KPI data
+          if (userKPI) {
+              const { sceneDurations, totalDuration } = calculateAndFormatUserKPIData(userKPI);
+  
+              // Prepare response message with formatted KPI data
+              let responseMessage = 'User KPI Data:\n\n';
+              for (const sceneName in sceneDurations) {
+                  responseMessage += `${sceneName}: ${sceneDurations[sceneName]}\n`;
+              }
+              responseMessage += `\nTotal time spent on the bot today: ${totalDuration}`;
+  
+              // Send the response message
+              await ctx.reply(responseMessage);
+          } else {
+              await ctx.reply('User KPI data not found.');
+          }
+      } catch (error) {
+          console.error('Error in kpiCommandHandler:', error);
+          await ctx.reply('An error occurred while fetching user KPI data.');
+      }
+  };
+  
+  
+  
+  
+  bot.command('kpi', kpiCommandHandler);
 
   //   const checkLanguageMiddleware = async (ctx, next) => {
   //     // Check if the user came from a channel post
@@ -395,6 +477,41 @@ mongoClient.connect()
       await ctx.answerPreCheckoutQuery(true)
     
     })
+    bot.use(async (ctx, next) => {
+      const telegramid = ctx.from.id;
+      const userSpentTime = await User.findOne({ telegramid });
+    
+      if (userSpentTime) {
+        // Calculate the duration spent in milliseconds
+        const currentTime = new Date().getTime();
+        const duration = currentTime - ctx.session.startTime;
+    
+        // Update user spent time with current date
+        const currentDate = new Date();
+        const currentDay = currentDate.getDate();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+    
+        const spentTimeEntryIndex = userSpentTime.spentTime.findIndex(entry => {
+          const entryDate = new Date(entry.date);
+          return entryDate.getDate() === currentDay && entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+        });
+    
+        if (spentTimeEntryIndex !== -1) {
+          // Update existing spent time entry
+          userSpentTime.spentTime[spentTimeEntryIndex].duration += duration; // Add duration for each interaction
+        } else {
+          // Create a new spent time entry for the current day
+          userSpentTime.spentTime.push({ duration, date: currentDate });
+        }
+    
+        // Save the updated user spent time to the database
+        await userSpentTime.save();
+      }
+    
+      // Continue with the next middleware
+      await next();
+    });
   })
 
 
@@ -531,6 +648,7 @@ bot.on < "location" > ('location', async (ctx) => {
   ctx.reply(`Distance to the store: ${distance.toFixed(2)} km\nPrice: ${price}`);
 });
 
+
 // bot.on("successful_payment", async (ctx) => {
 //   console.log("Success payment from   index File", ctx.message.successful_payment)
 //   // ctx.session.cleanUpState = ctx.session.cleanUpState.map(ctx.session.cleanUpState, function (message) {         // Convert old cart message ID into text to prune
@@ -638,7 +756,48 @@ bot.catch(async (err, ctx) => {
   });
   // }
 })
+bot.command('time', async (ctx) => {
+  const telegramid = ctx.from.id;
+  const activities = await User.find({ telegramid }).sort({ timestamp: 1 });
 
+  let totalTime = 0;
+  for (let i = 1; i < activities.length; i++) {
+    const prevTimestamp = activities[i - 1].timestamp;
+    const currentTimestamp = activities[i].timestamp;
+    const duration = currentTimestamp - prevTimestamp;
+    totalTime += duration;
+  }
+
+  const hours = Math.floor(totalTime / 3600000);
+  const minutes = Math.floor((totalTime % 3600000) / 60000);
+
+  ctx.reply(`You've spent ${hours} hours and ${minutes} minutes on this bot! 🕒`);
+});
+bot.command('spendtimeperday', async (ctx) => {
+  const telegramid = ctx.from.id;
+  const userSpentTime = await User.findOne({ telegramid });
+
+  if (userSpentTime) {
+    const currentDate = new Date();
+    const currentDay = currentDate.getDate();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const spentTimeEntry = userSpentTime.spentTime.find(entry => {
+      const entryDate = new Date(entry.date);
+      return entryDate.getDate() === currentDay && entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+    });
+
+    if (spentTimeEntry) {
+      const durationInMinutes = spentTimeEntry.duration / (1000 * 60); // Convert milliseconds to minutes
+      ctx.reply(`You have spent ${durationInMinutes.toFixed(2)} minutes today.`);
+    } else {
+      ctx.reply('No data available for today.');
+    }
+  } else {
+    ctx.reply('No data available for you.');
+  }
+});
 
 
 process.once("SIGINT", () => bot.stop("SIGINT"))
@@ -663,6 +822,7 @@ process.once("SIGTERM", () => bot.stop("SIGTERM"))
 //     limit: 100,
 //   },
 // })
+
 const launch = async () => {
   try {
     await bot.launch({
