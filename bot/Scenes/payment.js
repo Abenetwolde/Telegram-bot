@@ -75,6 +75,7 @@ paymentScene.on('pre_checkout_query', async (ctx) => {
     // Answer the pre-checkout query to confirm the payment
     await ctx.answerPreCheckoutQuery(true);
   });
+  //some  change
 paymentScene.on("successful_payment", async (ctx) => {
     console.log("Success payment", ctx.message.successful_payment)
     ctx.session.cleanUpState = _.map(ctx.session.cleanUpState, function (message) {         // Convert old cart message ID into text to prune
