@@ -39,21 +39,21 @@ module.exports = {
         const formatTelegramMessage = (product) => {
             const { name, description, price, available, warranty, category, highlights, images, createdAt } = product;
 
-            const formattedHighlights = highlights.map((highlight) => `${highlight}`).join(',');
+            const formattedHighlights = highlights?.map((highlight) => `${highlight}`).join(',');
           const formattedprice= product.quantity!==0&& ctx.session.viewMore[productId]?
           `  
-          . 
-          . 
-           ${product.quantity}x${product.price}= ${product.quantity*product.price} ETB`:''
+          ---
+          💳 ${product.quantity}x${product.price}= ${product.quantity*product.price} ETB`:''
             
             return `
-         ${category.icon} ${name} ${category.icon}\n
-         ${description}\n
-         💴 ${price} ETB\n
-         #${category.name} ${category.icon}\n
-         ${formattedHighlights}\n
-         ${formattedprice}\n
-        ${`Images: ${ctx.session.currentImageIndex[productId]+1}/${images.length}`}\n
+         ${category.icon} ${name} ${category.icon}
+         ✨ ${description}
+         💴 ${price} ETB
+         #${category.name} ${category.icon}
+         🚀 ${formattedHighlights}
+         ${formattedprice}
+         ---
+         🖼️ ${`Images: ${ctx.session.currentImageIndex[productId]+1}/${images.length}`}\n
         
         
             `;
@@ -65,7 +65,7 @@ module.exports = {
         let telegramMessage = formatTelegramMessage(product);
 
         if (!ctx.session.viewMore[productId] && caption.length > 50) {
-            telegramMessage = caption.substring(0, 50) + '...';
+            telegramMessage = telegramMessage.substring(0, 50) + '...';
         }
         // Check if the image for this product exists
         // if (!product?.images || !product?.images[ctx.session.currentImageIndex[productId].imageUrl]) {

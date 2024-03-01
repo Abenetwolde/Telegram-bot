@@ -10,7 +10,7 @@ module.exports = {
             const { name, description,images, price, available, warranty, category, highlights } = product;
 
             const formattedHighlights = highlights.map((highlight) => `${highlight}`).join(',');
-           const formattedButton=images.length === 1?"":"Buy"
+        //    const formattedButton=images.length === 1?"":`\n\n[Buy](https://t.me/testecommerce12bot?start=chat_${productId}) `
             const formattedPrice = product.quantity !== 0 ?
                 `\n\n. . .\n\n${product.quantity}x ${product.price} ETB = ${product.quantity * product.price} ETB` : '';
 
@@ -22,7 +22,7 @@ ${formattedHighlights}
 .
 .
 #${category.name} ${category.icon}
-${formattedButton}
+
 
       `;
         };
@@ -71,7 +71,7 @@ ${formattedButton}
         //     },
          
         //   ];
-        if (images.length === 1) {
+        // if (images.length === 1) {
             // If there's only one image, send it with the order link in the caption
             const image = images[0];
             const response = await axios.get(image, { responseType: 'arraybuffer' });
@@ -96,67 +96,23 @@ ${formattedButton}
                 type: 'channelpost',
                 productId: productId,
             });
-        } else {
-            const sentMessage = await ctx.telegram.sendMediaGroup(channelId, mediaGroup, {
-                // message_thread_id: productId, // Use product ID as the message thread ID
-                caption: "caption", // Set the caption for the entire media group
-                reply_markup: paginationKeyboard
-            });
-            // Store the sent message IDs in the session
-            sentMessage.forEach(message => {
-                ctx.session.cleanUpState.push({
-                    id: message.message_id,
-                    type: 'channelpost',
-                    productId: productId,
-                });
-            });
-        }
+        // } 
+        // else {
+        //     const sentMessage = await ctx.telegram.sendMediaGroup(channelId, mediaGroup, {
+        //         // message_thread_id: productId, // Use product ID as the message thread ID
+        //         caption: "caption", // Set the caption for the entire media group
+        //         reply_markup: paginationKeyboard
+        //     });
+            
+            
+        //     // Store the sent message IDs in the session
+        //     sentMessage.forEach(message => {
+        //         ctx.session.cleanUpState.push({
+        //             id: message.message_id,
+        //             type: 'channelpost',
+        //             productId: productId,
+        //         });
+        //     });
+        // }
     }
 }
-
-// Other functions ...
-
-//   // Helper function to handle image pagination
-//   handleImagePagination: function (ctx, productId, messageId, images, action) {
-//       ctx.session.currentImageIndex[productId] += (action === 'nextImage') ? 1 : -1;
-
-//       if (ctx.session.currentImageIndex[productId] >= images.length) {
-//           ctx.session.currentImageIndex[productId] = 0;
-//       } else if (ctx.session.currentImageIndex[productId] < 0) {
-//           ctx.session.currentImageIndex[productId] = images.length - 1;
-//       }
-
-//       updateProductMessage(ctx, productId, messageId);
-//   },
-
-//   // Helper function to handle View More
-//   handleViewMore: function (ctx, productId, messageId, product) {
-//     console.log("view more test")
-//     ctx.session.viewMore[productId] = true;
-//       updateProductMessage(ctx, productId, product,messageId);
-//   },
-
-//   // Helper function to handle View Less
-//   handleViewLess: function (ctx, productId, messageId, product) {
-//       product.quantity = 0; // Reset quantity if View Less is clicked
-//       updateProductMessage(ctx, productId, product,messageId);
-//   },
-
-//   // Helper function to update product message
-//   updateProductMessage: async function (ctx, productId,product, messageId) {
-//       const image = product.images[ctx.session.currentImageIndex[productId]].imageUrl;
-//       const updatedCaption = ctx.session.viewMore[productId]?`🌐 New Product: ${product.name}\n${formatTelegramMessage(product)}`:"view more test";
-
-//       await ctx.telegram.editMessageMedia(
-//           ctx.channelId,
-//           messageId,
-//           null,
-//           {
-//               type: 'photo',
-//               media: image,
-//               caption: updatedCaption,
-//           },
-//           { reply_markup: paginationKeyboard }
-//       );
-//   },
-

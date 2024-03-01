@@ -477,41 +477,41 @@ mongoClient.connect()
       await ctx.answerPreCheckoutQuery(true)
     
     })
-    bot.use(async (ctx, next) => {
-      const telegramid = ctx.from.id;
-      const userSpentTime = await User.findOne({ telegramid });
+    // bot.use(async (ctx, next) => {
+    //   const telegramid = ctx.from.id;
+    //   const userSpentTime = await User.findOne({ telegramid });
     
-      if (userSpentTime) {
-        // Calculate the duration spent in milliseconds
-        const currentTime = new Date().getTime();
-        const duration = currentTime - ctx.session.startTime;
+    //   if (userSpentTime) {
+    //     // Calculate the duration spent in milliseconds
+    //     const currentTime = new Date().getTime();
+    //     const duration = currentTime - ctx.session.startTime;
     
-        // Update user spent time with current date
-        const currentDate = new Date();
-        const currentDay = currentDate.getDate();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
+    //     // Update user spent time with current date
+    //     const currentDate = new Date();
+    //     const currentDay = currentDate.getDate();
+    //     const currentMonth = currentDate.getMonth();
+    //     const currentYear = currentDate.getFullYear();
     
-        const spentTimeEntryIndex = userSpentTime.spentTime.findIndex(entry => {
-          const entryDate = new Date(entry.date);
-          return entryDate.getDate() === currentDay && entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-        });
+    //     const spentTimeEntryIndex = userSpentTime.spentTime?.findIndex(entry => {
+    //       const entryDate = new Date(entry.date);
+    //       return entryDate.getDate() === currentDay && entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+    //     });
     
-        if (spentTimeEntryIndex !== -1) {
-          // Update existing spent time entry
-          userSpentTime.spentTime[spentTimeEntryIndex].duration += duration; // Add duration for each interaction
-        } else {
-          // Create a new spent time entry for the current day
-          userSpentTime.spentTime.push({ duration, date: currentDate });
-        }
+    //     if (spentTimeEntryIndex !== -1) {
+    //       // Update existing spent time entry
+    //       userSpentTime?.spentTime[spentTimeEntryIndex].duration += duration; // Add duration for each interaction
+    //     } else {
+    //       // Create a new spent time entry for the current day
+    //       userSpentTime.spentTime.push({ duration, date: currentDate });
+    //     }
     
-        // Save the updated user spent time to the database
-        await userSpentTime.save();
-      }
+    //     // Save the updated user spent time to the database
+    //     await userSpentTime.save();
+    //   }
     
-      // Continue with the next middleware
-      await next();
-    });
+    //   // Continue with the next middleware
+    //   await next();
+    // });
   })
 
 
@@ -716,7 +716,12 @@ bot.on < "location" > ('location', async (ctx) => {
 
 // await ctx.scene.enter("homeScene")
 // })
+const linkText = '(\n\n[Buy](https://t.me/testecommerce12bot?start=chat_${productId})';
 
+// Attach the link text to a message
+bot.command('link', (ctx) => {
+    ctx.replyWithMarkdown(linkText);
+});
 bot.catch(async (err, ctx) => {
   console.log(`Error while handling update ${ctx.update.update_id}:`, err)
 

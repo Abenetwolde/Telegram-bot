@@ -21,9 +21,9 @@ adminBaseScene.hears('Post Product', async (ctx) => {
   const productsData = {
 // Replace with the category you want to fetch
     page: 1,
-    pageSize: 3,
+    pageSize: 10,
   };
-  const productsResult = await getAllProducts(productsData);
+  const productsResult = await getAllProducts();
   for (const product of productsResult.products) {
     ctx.session.currentImageIndex[product._id] = 0;
     ctx.session.viewMore[product._id] = false;

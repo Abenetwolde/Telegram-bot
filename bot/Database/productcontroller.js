@@ -5,10 +5,10 @@ async function getAllProducts(data) {
     // category, sortBy, page = 1, pageSize = 3 
     console.log("hit the prodcut api",data)
     let filter = {};
-    if (data.category) {
+    if (data?.category) {
         filter = { category: data.category };
     }
-    if (data.search) {
+    if (data?.search) {
         filter.name = { $regex: data.search, $options: 'i' };
     }
     // const sortBy = data.sortBy||"latest";
@@ -30,9 +30,9 @@ async function getAllProducts(data) {
 
 
     // Parse the page and pageSize query parameters
-    const page = parseInt(data.page) || 1;
+    const page = parseInt(data?.page) || null;
     console.log("current page from sesstion...............",page)
-    const pageSize = parseInt(data.pageSize) || 1;
+    const pageSize = parseInt(data?.pageSize) || null;
     
     // Calculate the number of products to skip
     const skip = page * pageSize-pageSize;
