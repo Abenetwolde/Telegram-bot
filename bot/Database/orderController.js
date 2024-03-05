@@ -11,13 +11,19 @@ async function calculateTotalPrice(cartItems) {
 }
 exports.createOrder = async (userId, orderInformation, cartItems) => {
   try {
-    console.log("cart Item.......s", cartItems);
+    // Validate order information
+    if (!userId || !orderInformation  || !cartItems || !cartItems.items || cartItems.items.length === 0) {
+      throw new Error('Incomplete order information.');
+    }
+
+    console.log("cart Items:", cartItems);
     const totalPrice = await calculateTotalPrice(cartItems);
-let randomNumber = Math.floor(Math.random() * 90000) + 10000;
-console.log('Random Number', randomNumber)
+    let randomNumber = Math.floor(Math.random() * 90000) + 10000;
+    console.log('Random Number', randomNumber);
+
     // Create a new order document in the database without population
     const order = await Order.create({
-      orderNumber:randomNumber,
+      orderNumber: randomNumber,
       telegramid: userId,
       orderItems: cartItems.items.map(cartItem => ({
         product: cartItem.product._id,
@@ -46,7 +52,26 @@ console.log('Random Number', randomNumber)
   }
 };
 
+exports.getAllOrder=async()=> {
+  try {
+    const order = await Order.find({}).populate({
+      path: 'orderItems.product',
+      model: 'Product'
+  })
 
+  .limit(30)
+  .sort({ createdAt: -1 });
+
+    if (order) {
+   
+      return { success: true, orders: order };
+    } else {
+      return { success: false, message: 'User not found' };
+    }
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
 exports.getUserOrders = async (userId,status) => {
   try {
     const orders = await Order.find({ telegramid: userId ,orderStatus:status})

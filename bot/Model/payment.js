@@ -26,6 +26,10 @@ const paymentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    paymentType: {
+        type: String,
+        enum: ['Cash', 'online'],
+      },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Payment", paymentSchema);

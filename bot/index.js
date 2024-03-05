@@ -561,8 +561,8 @@ bot.command('mariya', async (ctx) => {
 
 
 const storeLocation = {
-  latitude: 8.987376259110306,// Replace with the actual latitude of your store
-  longitude: 38.78894603158134, // Replace with the actual longitude of your store
+  latitude: 8.988419295555572,// Replace with the actual latitude of your store
+  longitude:  38.770562304441114, // Replace with the actual longitude of your store
 };
 
 
@@ -592,7 +592,7 @@ bot.command('location', (ctx) => {
   ctx.reply('Please share your location:', Markup.keyboard([[Markup.button.locationRequest('Share Location')]]).resize());
 });
 
-bot.on < "location" > ('location', async (ctx) => {
+bot.on('location', async (ctx) => {
   const userLocation = ctx.message.location;
   console.log(userLocation)
   const latitude = ctx.message.location.latitude;

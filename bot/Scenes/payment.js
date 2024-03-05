@@ -142,6 +142,7 @@ paymentScene.on("successful_payment", async (ctx) => {
         total_amount: ctx.message.successful_payment.total_amount,
         invoice_id: invoice.id,
         telegram_payment_charge_id: ctx.message.successful_payment.telegram_payment_charge_id,
+        paymentType:"online"
       
     }
     const paymentdata=JSON.parse(JSON.stringify(paymentData))

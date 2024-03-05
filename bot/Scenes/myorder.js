@@ -59,24 +59,34 @@ myOrderScene.enter(async (ctx) => {
                     `;
                 };
                 try {
-                    const resizeimage = await order?.orderItems[0]?.product?.images[0].imageUrl
-                    console.log("resizeimage", resizeimage)
-                    const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
-                    const imageBuffer = await sharp(response.data)
-                        .resize(200, 200)
-                        .toBuffer();
-                    const orderMessage = await ctx.replyWithPhoto(
-                        { source: imageBuffer },
-                        {
-                            caption: formatTelegramMessage(order?.orderItems[0]?.product, order?.orderItems[0]?.quantity),
-                            ...Markup.inlineKeyboard([Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]),
-                        }
 
-                    );
-                    ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
+                  
+                      
+                        const orderItems = order?.orderItems || []; // Ensure orderItems is an array and not undefined
+
+                        if (orderItems.length > 0 && orderItems[0]?.product?.images?.length > 0) {
+                          // Proceed with sending the order information if the user has order items and the first item has images
+                        //   const imageBuffer = await ImageBuffer(orderItems[0].product.images[0].imageUrl); // Function to get image buffer
+                        const resizeimage = await order?.orderItems[0]?.product?.images[0]?.imageUrl
+                        console.log("resizeimage", resizeimage)
+                        const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
+                        const imageBuffer = await sharp(response.data)
+                            .resize(200, 200)
+                            .toBuffer();
+                          const orderMessage = await ctx.replyWithPhoto(
+                            { source: imageBuffer },
+                            {
+                              caption: formatTelegramMessage(orderItems[0].product, orderItems[0].quantity),
+                              ...Markup.inlineKeyboard([Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]),
+                            }
+                          );
+                          ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
+                        }
+                        
+                   
                 } catch (error) {
                    await ctx.reply("erro",error)
-                    await ctx.scene.leave()
+                    // await ctx.scene.leave()
                 }
 
             }
@@ -141,6 +151,7 @@ myOrderScene.action(/confirm_cancel:(.+)/, async (ctx) => {
     const cancellationResult = await cancelOrder(orderId, ctx.from.id);
     if (cancellationResult.success) {
         await ctx.answerCbQuery("Order canceled successfully.");
+            await ctx.scene.reenter()
     } else {
         await ctx.answerCbQuery("Failed to cancel the order.");
     }

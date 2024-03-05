@@ -477,7 +477,7 @@ productSceneTest.leave(async (ctx) => {
             if (existingUserKPI) {
                 // If the user exists, update the scene details
                 existingUserKPI.scene.push({
-                    name: 'PaymentScene',
+                    name: 'ProductScene',
                     enterTime: enterTime,
                     leaveTime: leaveTime,
                     duration: durationFormatted
@@ -488,7 +488,7 @@ productSceneTest.leave(async (ctx) => {
                 const newUserKPI = new UserKPI({
                     telegramId: ctx.from.id,
                     scene: [{
-                        name: 'PaymentScene',
+                        name: 'ProductScene',
                         enterTime: enterTime,
                         leaveTime: leaveTime,
                         duration: durationFormatted

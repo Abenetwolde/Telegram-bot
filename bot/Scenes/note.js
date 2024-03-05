@@ -261,8 +261,9 @@ noteScene.action("make_order", async (ctx) => {
         const order = await createOrder(userId, orderInformation, cartItems);
         const orderJson = JSON.stringify(order);
         const orderJsonParse = JSON.parse(orderJson);
-      const message=  await ctx.reply(`Payment received for Order ID: ${orderJsonParse._id.toString()}. Total Amount: ${order.totalPrice}`);
+      const message=  await ctx.reply(`Payment received for Order ID: ${orderJsonParse.orderNumber}. Total Amount: ${order.totalPrice}`);
         console.log("  orderJsonParse.orderItems........", orderJsonParse)
+        await ctx.scene.leave()
         // let summary = '';
         // let totalQuantity = 0;
         // let totalPrice = 0;
@@ -301,7 +302,7 @@ noteScene.action("make_order", async (ctx) => {
  
     }
     ctx.session.orderInformation=await []
-    // await ctx.scene.leave()
+    // 
 });
 
 

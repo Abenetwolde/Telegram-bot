@@ -177,9 +177,11 @@ module.exports = {
                 caption: telegramMessage,
                 ...Markup.inlineKeyboard([
                     !product.quantity/*   === 0 */ ? [
-                        Markup.button.callback('⬅️', `previous_${productId}`),
+                        ...(product.images.length !== 1 ? [Markup.button.callback('⬅️', `previous_${productId}`)] : []),
+                    
                         ctx.session.viewMore[productId] ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
-                        Markup.button.callback('➡️', `next_${productId}`),
+                        ...(product.images.length !== 1 ? [Markup.button.callback('➡️', `next_${productId}`)] : []),
+                        // Markup.button.callback('➡️', `next_${productId}`),
                         // ...(ctx.session.viewMore[productId] ? [Markup.button.callback('Buy', `buy_${productId}`)] : [])
                     ] :[],
                     ...(product.quantity > 0 ? [

@@ -9,16 +9,16 @@ module.exports = {
         const formatTelegramMessage = (product) => {
             const { name, description,images, price, available, warranty, category, highlights } = product;
 
-            const formattedHighlights = highlights.map((highlight) => `${highlight}`).join(',');
+            const formattedHighlights = highlights?.map((highlight) => `${highlight}`).join(', ');
         //    const formattedButton=images.length === 1?"":`\n\n[Buy](https://t.me/testecommerce12bot?start=chat_${productId}) `
-            const formattedPrice = product.quantity !== 0 ?
-                `\n\n. . .\n\n${product.quantity}x ${product.price} ETB = ${product.quantity * product.price} ETB` : '';
+           
+        
 
             return `
 ${category.icon} ${name} ${category.icon}
-${description}
+✨ ${description}
 💴 ${price} ETB
-${formattedHighlights}
+🚀 ${formattedHighlights}
 .
 .
 #${category.name} ${category.icon}
@@ -27,7 +27,7 @@ ${formattedHighlights}
       `;
         };
         const productId = productd.toString()
-        const caption = `🌐 New Product: ${product.name}\n${formatTelegramMessage(product)}`;
+        const caption = `${formatTelegramMessage(product)}`;
 
         const paginationKeyboard = Markup.inlineKeyboard([
             Markup.button.url('Order 📔', `https://t.me/testecommerce12bot?start=chat_${productId}`),

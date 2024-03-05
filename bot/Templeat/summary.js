@@ -78,7 +78,12 @@ module.exports = {
                 ).catch(() => { });;
             }
             if (totalQuantity == 0) {
-               await ctx.telegram.deleteMessage(ctx.chat.id, messageId)
+                try {
+                    await ctx.telegram.deleteMessage(ctx.chat.id, messageId)  
+                } catch (error) {
+                    
+                }
+              
                 /* .catch((e) => {ctx.reply(e.message) }); */
 
                const nocartmessage= await ctx.reply("sorry you have no product on the cart.please go to home and buy", {
