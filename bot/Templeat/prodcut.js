@@ -46,10 +46,10 @@ module.exports = {
           💳 ${product.quantity}x${product.price}= ${product.quantity*product.price} ETB`:''
             
             return `
-         ${category.icon} ${name} ${category.icon}
+         ${category?.icon} ${name} ${category?.icon}
          ✨ ${description}
          💴 ${price} ETB
-         #${category.name} ${category.icon}
+         #${category?.name} ${category?.icon}
          🚀 ${formattedHighlights}
          ${formattedprice}
          ---
@@ -156,62 +156,51 @@ module.exports = {
                 .resize(200, 200)
                 .toBuffer();
             console.log("buffer............", imageBuffer)
-
-
-            // const mediaGroup = product.images.map((p) => {
-            //     return { type: 'photo', media: p, caption: 'p.name' };
-            // });
-            // console.log("images......", mediaGroup)
-            // await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup).then((sentMedia) => {
-
-            //     const inlineButtons = Markup.inlineKeyboard([
-            //         Markup.button.url('Button 1', 'https://example.com/button1'),
-            //         Markup.button.callback('Button 2', 'button2_callback'),
-            //     ]);
-
-            //     ctx.reply(caption, inlineButtons);
-            // });
-            // If there is no previous message ID, use the replyWithPhoto method to send a new message with this product's image
-
-            const message = await ctx.replyWithPhoto({ source: imageBuffer }, {
-                caption: telegramMessage,
-                ...Markup.inlineKeyboard([
-                    !product.quantity/*   === 0 */ ? [
-                        ...(product.images.length !== 1 ? [Markup.button.callback('⬅️', `previous_${productId}`)] : []),
+try {
+    const message = await ctx.replyWithPhoto({ source: imageBuffer }, {
+        caption: telegramMessage,
+        ...Markup.inlineKeyboard([
+            !product.quantity/*   === 0 */ ? [
+                ...(product.images.length !== 1 ? [Markup.button.callback('⬅️', `previous_${productId}`)] : []),
+            
+                ctx.session.viewMore[productId] ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
+                ...(product.images.length !== 1 ? [Markup.button.callback('➡️', `next_${productId}`)] : []),
+                // Markup.button.callback('➡️', `next_${productId}`),
+                // ...(ctx.session.viewMore[productId] ? [Markup.button.callback('Buy', `buy_${productId}`)] : [])
+            ] :[],
+            ...(product.quantity > 0 ? [
+                [
+                    Markup.button.callback('-', `removeQuantity_${productId}`),
+                    Markup.button.callback(`${product.quantity}`, `quantity_${productId}`),
+                    Markup.button.callback('+', `addQuantity_${productId}`)
+                ],
+                [
                     
-                        ctx.session.viewMore[productId] ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
-                        ...(product.images.length !== 1 ? [Markup.button.callback('➡️', `next_${productId}`)] : []),
-                        // Markup.button.callback('➡️', `next_${productId}`),
-                        // ...(ctx.session.viewMore[productId] ? [Markup.button.callback('Buy', `buy_${productId}`)] : [])
-                    ] :[],
-                    ...(product.quantity > 0 ? [
-                        [
-                            Markup.button.callback('-', `removeQuantity_${productId}`),
-                            Markup.button.callback(`${product.quantity}`, `quantity_${productId}`),
-                            Markup.button.callback('+', `addQuantity_${productId}`)
-                        ],
-                        [
-                            
-                            Markup.button.callback('Remove', `remove_${productId}`),
-                         
-                        ],
-                        [
-                            Markup.button.callback('Buy', `buy_${productId}`)
-                        ]
-                    ] : (ctx.session.viewMore[productId] ? [
-                        [
-                            Markup.button.callback('Buy', `buy_${productId}`)
-                        ]
-                    ] : []))
-                ])
-            }
+                    Markup.button.callback('Remove', `remove_${productId}`),
+                 
+                ],
+                [
+                    Markup.button.callback('Buy', `buy_${productId}`)
+                ]
+            ] : (ctx.session.viewMore[productId] ? [
+                [
+                    Markup.button.callback('Buy', `buy_${productId}`)
+                ]
+            ] : []))
+        ])
+    }
 
-            );
-            return {
-                id: message.message_id,
-                type: 'product',
-                productId: productId
-            };
+    );
+    return {
+        id: message.message_id,
+        type: 'product',
+        productId: productId
+    }; 
+} catch (error) {
+    console.log(error);
+    throw  error;
+}
+         
         }
 
         // return await ctx.replyWithPhoto("https://th.bing.com/th/id/OIP.y7QJCUnLeQFDE2FXeXH_CwHaHa?pid=ImgDet&rs=1", /* Template.productButtons(categoryName, product, quantity) */)

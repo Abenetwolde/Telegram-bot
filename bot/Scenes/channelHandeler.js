@@ -23,7 +23,7 @@ channelHandeler.enter(async(ctx) => {
     if (!existingUser) {
       console.log("register event channel")
         // If the user doesn't exist, create a new user document
-        existingUser = await User.create({
+        newuser = await User.create({
           telegramid: ctx.from.id,
           first_name: ctx.from.first_name,
           last_name: ctx.from.last_name,
@@ -31,6 +31,8 @@ channelHandeler.enter(async(ctx) => {
           is_bot: ctx.from.is_bot || false,
             from: 'CHANNEL' // Set initial status
         });
+        ctx.session.token = await newuser?.token;
+
     } /* else {
         // If the user exists, update their information
         existingUser.first_name = ctx.from.id;

@@ -18,7 +18,11 @@ interface IProduct extends Document {
   cookTime: string;
   highlights:string[];
 
-  postStatus:boolean
+  postStatus:boolean;
+  video: {
+    videoUrl: string;
+    videoId: string;
+  };// New field for video URL
 }
 
 // Schema definition
@@ -40,6 +44,10 @@ const productSchema: Schema<IProduct> = new Schema<IProduct>({
 postStatus: { type: Boolean, default: true },
   orderQuantity: { type: Number, default: 0 },
   cookTime: { type: String },
+  video: {
+    videoUrl: { type: String },
+    videoId: { type: String },
+  },
 });
 
 // Model definition

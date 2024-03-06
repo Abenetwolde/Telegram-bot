@@ -14,7 +14,8 @@ import {
   getProductsByAvailabilityAndCategory,
   getProductsExpiringSoon,
   ImageUpload,
-  uploadImageToCloudinary
+  uploadImageToCloudinary,
+  uploadToCloudinary
 } from '../controller/product';
 
 
@@ -32,7 +33,16 @@ const storage = multer.diskStorage({
     cb(null, fileName);
   },
 });
-
+const videoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'videos/');
+  },
+  filename: (req, file, cb) => {
+    const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
+    cb(null, fileName);
+  },
+});
+const videoUpload = multer({ storage: videoStorage });
 const upload = multer({ storage: storage });
 // const upload = multer();
 // POST /api/products 
@@ -40,6 +50,7 @@ router.route('/create').post(createProduct);
 // router.route('/upload').post(upload.array('images', 5), ImageUpload);
 router.route('/upload').post(upload.array('images', 5), uploadImageToCloudinary);
 // GET /api/products
+router.route('/upload-video').post(videoUpload.single('video'), uploadToCloudinary);
 router.route('/getproducts').get(getProducts);
  
 // GET /api/products/:productId

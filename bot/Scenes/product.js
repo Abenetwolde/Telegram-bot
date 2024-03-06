@@ -293,37 +293,41 @@ productSceneTest.action(/addQuantity_(.+)/, async (ctx) => {
         const userId = ctx.from.id;
 
         // Call updateCartItemQuantity to add the product to the cart
-        const updatedCart = await updateCartItemQuantity(userId, productId, 1);
+        const updatedCartItem = await updateCartItemQuantity(userId, productId, 1);
+
+        // Parse the returned JSON string to access the data
+        const { product, quantity } = JSON.parse(updatedCartItem);
 
         // Fetch product data
-
-        const productData = await Product.findById(productId).populate('category');
-        const productArg = { ...productData.toObject(), quantity: updatedCart.items.find(item => item.product.equals(productId)).quantity };
-console.log("data when the buy clikc.........",productArg)
+        // const productData = await Product.findById(product._id).populate('category');
+        const productArg = { ...product, quantity };
+console.log("productArg", productArg)
         // Send the product information to the user
         sendProduct(ctx, productId, productArg);
 
         // Send a confirmation message
-        await ctx.answerCbQuery(`You have added ${productArg.quantity} of product ${productArg.name} to your cart.`);
+        await ctx.answerCbQuery(`You have added ${quantity} of product ${productArg.name} to your cart.`);
     } catch (error) {
         console.error('Error handling addQuantity action:', error);
         await ctx.answerCbQuery('Failed to update the quantity.');
     }
 });
 
+
+
 productSceneTest.action(/removeQuantity_(.+)/, async (ctx) => {
     const productId = ctx.match[1];
 
     try {
         const userId = ctx.from.id;
-        const updatedCart = await updateCartItemQuantity(userId, productId, -1);
-        console.log("updatecartitem",updatedCart)
-        // const productData = await Product.findById(productId).populate("category");
-        const productData = await Product.findById(productId).populate('category');
-        const productArg = { ...productData.toObject(), quantity: updatedCart.items.find(item => item.product.equals(productId)).quantity };
+        const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
+
+        // Parse the returned JSON string to access the data
+        const { product, quantity,cartId } = JSON.parse(updatedCartItem);
+        const productArg = { ...product, quantity };
         if (productArg.quantity === 0) {
             await ctx.answerCbQuery(`You have removed ${productArg.name} of product from your cart.`);
-            await removeItemFromCart(updatedCart._id)
+            await removeItemFromCart(cartId)
         }
         // console.log("removed item...",productArg)
         sendProduct(ctx, productId, productArg);

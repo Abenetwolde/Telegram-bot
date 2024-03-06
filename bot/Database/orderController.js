@@ -43,7 +43,7 @@ exports.createOrder = async (userId, orderInformation, cartItems) => {
     const populatedOrder = await Order.findById(order._id).populate('orderItems.product').exec();
 
     // Clear the user's cart after creating the order
-    await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
+    await Cart.findOneAndDelete({ user: userId });
 
     return populatedOrder;
   } catch (error) {
@@ -103,6 +103,8 @@ exports.getOrderById= async (orderId) => {
     throw new Error('Failed to fetch order by ID.');
   }
 };
+
+//unused
 exports.updateOrder = async (data) => {
   try {
     const order = await Order.findById(data.orderId).populate('orderItems.product');

@@ -150,6 +150,66 @@ export const getProducts = async (req: Request, res: Response) => {
 //     cb(null, fileName);
 //   },
 // })
+export const uploadToCloudinary = async (req: Request, res: Response) => {
+  try {
+    console.log("video upload",req.file)
+    // Ensure that files were uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
+
+
+    // Array to store uploaded files data
+    const uploadedFiles: any[] = [];
+
+      const result = await cloudinary.uploader.upload(req.file.path as unknown as Express.Multer.File, { resource_type: 'video'});
+      const videoUrl = result.secure_url;
+      const vedioId = result.public_id;
+
+      // Push image data to the array
+      uploadedFiles.push({ videoUrl, vedioId });
+
+    // Delete the temporary file after upload
+    // fs.unlinkSync(req.file.path);
+      // Push file data to the array
+      // uploadedFiles.push({
+      //   public_id: result.public_id,
+      //   url: result.secure_url,
+      //   resource_type: result.resource_type,
+      // });
+    
+console.log("uploadedFiles",uploadedFiles)
+    // Send the array of file data to the frontend
+    res.json({ files: uploadedFiles });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// Function to update a product with uploaded video information
+export const updateProductWithVideo = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.productId;
+    const { videoUrl, videoId } = req.body;
+
+    // Update the product with the video URL and ID
+    const updatedProduct: any | null = await Product.findByIdAndUpdate(
+      productId,
+      { $set: { 'video.videoUrl': videoUrl, 'video.videoId': videoId } },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json({ message: 'Product updated successfully', product: updatedProduct });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
   export const ImageUpload = async (req: Request, res: Response) => {
     console.log("reach image uplload..........")
     try {
