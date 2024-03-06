@@ -162,10 +162,10 @@ export const uploadToCloudinary = async (req: Request, res: Response) => {
     // Array to store uploaded files data
     const uploadedFiles: any[] = [];
 
-      const result = await cloudinary.uploader.upload(req.file.path as unknown as Express.Multer.File, { resource_type: 'video'});
+      const result = await cloudinary.v2.uploader.upload(req.file.path as unknown as Express.Multer.File, { resource_type: 'video'});
       const videoUrl = result.secure_url;
       const vedioId = result.public_id;
-
+console.log("result", result)
       // Push image data to the array
       uploadedFiles.push({ videoUrl, vedioId });
 
