@@ -33,8 +33,8 @@ const productSchema: Schema<IProduct> = new Schema<IProduct>({
   available: { type: Boolean, default: true },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   images: [{
-    imageId: { type: String, required: true },
-    imageUrl: { type: String, required: true },
+    imageId: { type: String, },
+    imageUrl: { type: String, },
   }],
   highlights: [
     {
@@ -46,7 +46,7 @@ postStatus: { type: Boolean, default: true },
   cookTime: { type: String },
   video: {
     videoUrl: { type: String },
-    videoId: { type: String },
+    vedioId: { type: String },
   },
 });
 

@@ -51,6 +51,10 @@ const productSchema = new mongoose.Schema({
         min: 0,
         max: 255
     },
+    video: {
+        videoUrl: { type: String },
+        vedioId: { type: String },
+      },
     postStatus: { type: Boolean, default: true },
     orderQuantity: Number,
     createdAt: {

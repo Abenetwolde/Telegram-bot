@@ -168,7 +168,7 @@ const ProdcutTable: React.FC = () => {
                 editedRow={editedRow}
                 setEditedRow={setEditedRow}
             />
-            <DeleteUser
+            <DeleteProduct
                isOpen={deleteModalOpen}
                handleClose={() => setDeleteModalOpen(false)}
                deletedItem={deleteRow} 

@@ -10,7 +10,7 @@ export const createProduct = async (req: Request, res: Response) => {
    console.log("create Prodcut")
     try {
       const { name, description, images, price, category, highlights, available, cookTime } = req.body;
- console.log("images,...", images)
+ console.log("images,...", req.body)
 const formattedImages = images.map((image: any) => ({
   imageId: image.imageId, // Assuming you have an imageId in the frontend
   imageUrl: image.imageUrl,

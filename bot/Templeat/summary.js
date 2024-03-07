@@ -56,7 +56,7 @@ module.exports = {
 
         // Check if there is a previous summary message ID stored in the cleanUpState array
         if (ctx.session.cleanUpState && ctx.session.cleanUpState.find(message => message?.type === 'summary')) {
-            const messageId = ctx.session.cleanUpState.find(message => message.type === 'summary').id;
+            const messageId = ctx.session.cleanUpState.find(message => message?.type === 'summary').id;
             console.log(messageId)
             // If there is a previous summary message ID, use the editMessageText method to edit its text and update its content
             if (totalQuantity > 0) {

@@ -1,7 +1,7 @@
 
 const axios = require('axios');
 const sharp = require('sharp');
-const { Scenes, Markup, session } = require("telegraf")
+const { Scenes, Markup, session ,Input} = require("telegraf")
 
 const { ObjectId } = require('mongodb');
 const { getCart } = require('../Database/cartController');
@@ -124,78 +124,149 @@ module.exports = {
                 } else if (viewMore) {
                     keyboard.push([Markup.button.callback('Buy', `buy_${productId}`)]);
                 }
-
-                try {
-                    await ctx.telegram.editMessageMedia(
-                        ctx.chat.id,
-                        messageId,
-                        null,
-                        {
-                            type: 'photo',
-                            media: image,
-                            caption: telegramMessage
-                        },
-                        Markup.inlineKeyboard(keyboard)
-                    )
-                } catch (error) {
-                    if (error.response.error_code === 400 && error.response.description.includes('message is not modified')) {
-                        console.log("Caught the 'message is not modified' error");
-                    } else {
-                        console.log("An unexpected error occurred: ", error);
-                    }
-                }
+if(image){
+    try {
+        await ctx.telegram.editMessageMedia(
+            ctx.chat.id,
+            messageId,
+            null,
+            {
+                type: 'photo',
+                media: image,
+                caption: telegramMessage
+            },
+            Markup.inlineKeyboard(keyboard)
+        )
+    } catch (error) {
+        if (error.response.error_code === 400 && error.response.description.includes('message is not modified')) {
+            console.log("Caught the 'message is not modified' error");
+        } else {
+            console.log("An unexpected error occurred: ", error);
+        }
+    }
+}else if (product.video) {
+    try {
+        await ctx.telegram.editMessageMedia(
+            ctx.chat.id,
+            messageId,
+            null,
+            {
+                type: 'video',
+                media: product.video.videoUrl,
+                caption: telegramMessage
+            },
+            Markup.inlineKeyboard(keyboard)
+        )
+    } catch (error) {
+        if (error.response.error_code === 400 && error.response.description.includes('message is not modified')) {
+            console.log("Caught the 'message is not modified' error");
+        } else {
+            console.log("An unexpected error occurred: ", error);
+        }
+    }
+}
+             
             }
         }
 
         else {
             
-            const resizeimage = image
-            console.log("imagebuferx............", resizeimage)
-            const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
-            const imageBuffer = await sharp(response.data)
-                .resize(200, 200)
-                .toBuffer();
-            console.log("buffer............", imageBuffer)
-try {
-    const message = await ctx.replyWithPhoto({ source: imageBuffer }, {
-        caption: telegramMessage,
-        ...Markup.inlineKeyboard([
-            !product.quantity/*   === 0 */ ? [
-                ...(product.images.length !== 1 ? [Markup.button.callback('⬅️', `previous_${productId}`)] : []),
-            
-                ctx.session.viewMore[productId] ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
-                ...(product.images.length !== 1 ? [Markup.button.callback('➡️', `next_${productId}`)] : []),
-                // Markup.button.callback('➡️', `next_${productId}`),
-                // ...(ctx.session.viewMore[productId] ? [Markup.button.callback('Buy', `buy_${productId}`)] : [])
-            ] :[],
-            ...(product.quantity > 0 ? [
-                [
-                    Markup.button.callback('-', `removeQuantity_${productId}`),
-                    Markup.button.callback(`${product.quantity}`, `quantity_${productId}`),
-                    Markup.button.callback('+', `addQuantity_${productId}`)
-                ],
-                [
-                    
-                    Markup.button.callback('Remove', `remove_${productId}`),
-                 
-                ],
-                [
-                    Markup.button.callback('Buy', `buy_${productId}`)
-                ]
-            ] : (ctx.session.viewMore[productId] ? [
-                [
-                    Markup.button.callback('Buy', `buy_${productId}`)
-                ]
-            ] : []))
-        ])
-    }
 
-    );
-    return {
-        id: message.message_id,
-        type: 'product',
-        productId: productId
-    }; 
+try {
+    if(image){
+        const resizeimage =image
+        console.log("imagebuferx............", resizeimage)
+        const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
+        const imageBuffer = await sharp(response.data)
+            .resize(200, 200)
+            .toBuffer();
+        console.log("buffer............", imageBuffer)
+        const message = await ctx.replyWithPhoto({ source: imageBuffer }, {
+            caption: telegramMessage,
+            ...Markup.inlineKeyboard([
+                !product.quantity/*   === 0 */ ? [
+                    ...(product.images.length !== 1 ? [Markup.button.callback('⬅️', `previous_${productId}`)] : []),
+                
+                    ctx.session.viewMore[productId] ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
+                    ...(product.images.length !== 1 ? [Markup.button.callback('➡️', `next_${productId}`)] : []),
+                    // Markup.button.callback('➡️', `next_${productId}`),
+                    // ...(ctx.session.viewMore[productId] ? [Markup.button.callback('Buy', `buy_${productId}`)] : [])
+                ] :[],
+                ...(product.quantity > 0 ? [
+                    [
+                        Markup.button.callback('-', `removeQuantity_${productId}`),
+                        Markup.button.callback(`${product.quantity}`, `quantity_${productId}`),
+                        Markup.button.callback('+', `addQuantity_${productId}`)
+                    ],
+                    [
+                        
+                        Markup.button.callback('Remove', `remove_${productId}`),
+                     
+                    ],
+                    [
+                        Markup.button.callback('Buy', `buy_${productId}`)
+                    ]
+                ] : (ctx.session.viewMore[productId] ? [
+                    [
+                        Markup.button.callback('Buy', `buy_${productId}`)
+                    ]
+                ] : []))
+            ])
+        }
+    
+        );
+        return {
+            id: message.message_id,
+            type: 'product',
+            productId: productId
+        }; 
+    }else if(product.video){
+        console.log("vedio...............", product.video.videoUrl);
+        const message = await ctx.replyWithVideo(Input.fromURLStream( product?.video?.videoUrl || ''),/* { source: product?.video?.videoUrl }, */ {
+            caption: telegramMessage,
+            supports_streaming: true,
+            ...Markup.inlineKeyboard([
+                !product.quantity/*   === 0 */ ? [
+                    ...(product.images.length !== 1 ? [Markup.button.callback('⬅️', `previous_${productId}`)] : []),
+                
+                    ctx.session.viewMore[productId] ? Markup.button.callback('View Less', `viewLess_${productId}`) : Markup.button.callback('View More', `viewMore_${productId}`),
+                    ...(product.images.length !== 1 ? [Markup.button.callback('➡️', `next_${productId}`)] : []),
+                    // Markup.button.callback('➡️', `next_${productId}`),
+                    // ...(ctx.session.viewMore[productId] ? [Markup.button.callback('Buy', `buy_${productId}`)] : [])
+                ] :[],
+                ...(product.quantity > 0 ? [
+                    [
+                        Markup.button.callback('-', `removeQuantity_${productId}`),
+                        Markup.button.callback(`${product.quantity}`, `quantity_${productId}`),
+                        Markup.button.callback('+', `addQuantity_${productId}`)
+                    ],
+                    [
+                        
+                        Markup.button.callback('Remove', `remove_${productId}`),
+                     
+                    ],
+                    [
+                        Markup.button.callback('Buy', `buy_${productId}`)
+                    ]
+                ] : (ctx.session.viewMore[productId] ? [
+                    [
+                        Markup.button.callback('Buy', `buy_${productId}`)
+                    ]
+                ] : []))
+            ])
+        }
+    
+        );
+        return {
+            id: message.message_id,
+            type: 'product',
+            productId: productId
+        }; 
+    }else{
+        ctx.reply("This product has no photo or video.");
+        return;
+    }
+  
 } catch (error) {
     console.log(error);
     throw  error;
