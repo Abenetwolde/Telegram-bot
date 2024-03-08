@@ -97,7 +97,8 @@ async function updateCartItemQuantity(userId, productId, quantity) {
       return JSON.stringify({
         cartId:  cart._id,
           product: updatedCartItem.product,
-          quantity: updatedCartItem.quantity
+          quantity: updatedCartItem.quantity,
+          cartItem:updatedCartItem
       });
   } catch (error) {
       console.error('Error updating cart item quantity:', error);

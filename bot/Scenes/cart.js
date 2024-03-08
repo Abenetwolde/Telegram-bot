@@ -26,7 +26,7 @@ cart.enter(async (ctx) => {
       console.log("cart message info......", cartMessageInfo)
       ctx.session.cleanUpState.push(cartMessageInfo)
     }
-    const summaryinfo = await sendProdcutSummary(ctx)
+    const summaryinfo = await sendProdcutSummary(ctx,cart)
     ctx.session.cleanUpState.push(summaryinfo)
     console.log("summary info.........", summaryinfo)
   }
@@ -41,21 +41,24 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
     const productId = ctx.match[2];
     const userId = ctx.from.id;
 
- await updateCartItemQuantity(userId, productId, -1);
+    const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
 
-    const cart = await getCart(userId);
+    // Parse the returned JSON string to access the data
+    const { product, quantity,cartId,cartItem } = JSON.parse(updatedCartItem);
 
-    const cartItemIndex = cart.items.findIndex(item => item.product._id.toString() === productId);
-    const cartItem = cart.items[cartItemIndex];
+     const cart = await getCart(userId);
+
+    // const cartItemIndex = cart.items.findIndex(item => item.product._id.toString() === productId);
+    // const cartItem = cart.items[cartItemIndex];
 
     if (cartItem.quantity >= 1) {
       // If quantity is still greater than or equal to 1, update the cart and send the updated cart product
       await sendCartProduct(ctx, productId, cartItem);
-      await sendProdcutSummary(ctx);
+      await sendProdcutSummary(ctx,cart);
     }
 
-    if (cartItem.quantity === 0) {
-      await removeItemFromCart(userId, productId)
+    if (quantity=== 0) {
+       await removeItemFromCart(cartId)
 
       await ctx.answerCbQuery(`You have deleted ${cartItem.product.name} from your cart page.`);
 
@@ -70,7 +73,7 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
       }
 
       // Send the updated product summary
-      await sendProdcutSummary(ctx);
+      await sendProdcutSummary(ctx,cart);
     }
 
 
@@ -93,7 +96,7 @@ cart.action(/(addQuantity)_(.+)/, async (ctx) => {
     const cartItem = cart.items[cartItemIndex];
 
     await sendCartProduct(ctx, productId, cartItem);
-    await sendProdcutSummary(ctx)
+    await sendProdcutSummary(ctx,cart)
 });
 
 

@@ -68,7 +68,7 @@ module.exports = {
                         console.log("An unexpected error occurred: ", error);
                     }
                 }}
-                else if (cart.product.video) {
+                else if (cart?.product?.video) {
                     try {
                         await ctx.telegram.editMessageMedia(
                             ctx.chat.id,
@@ -112,17 +112,17 @@ module.exports = {
                     .toBuffer();
             const message=    await ctx.replyWithPhoto({ source: imageBuffer }, {
                     caption: caption,
-                    // ...Markup.inlineKeyboard([
+                    ...Markup.inlineKeyboard([
         
-                    //     ...(cart.quantity > 0 && [
-                    //         [
-                    //             Markup.button.callback('-', `removeQuantity_${productId}`),
-                    //             Markup.button.callback(`${cart.quantity}`, `quantity_${productId}`),      
-                    //             Markup.button.callback('+', `addQuantity_${productId}`)
+                        ...(cart.quantity > 0 && [
+                            [
+                                Markup.button.callback('-', `removeQuantity_${productId}`),
+                                Markup.button.callback(`${cart.quantity}`, `quantity_${productId}`),      
+                                Markup.button.callback('+', `addQuantity_${productId}`)
     
-                    //         ]
-                    //     ] )
-                    // ])
+                            ]
+                        ] )
+                    ])
                 }
         
                 )
@@ -138,14 +138,14 @@ module.exports = {
                     supports_streaming: true,
                     ...Markup.inlineKeyboard([
         
-                        ...(cart.quantity > 0 && [
+                        ...(cart.quantity > 0 ? [
                             [
                                 Markup.button.callback('-', `removeQuantity_${productId}`),
                                 Markup.button.callback(`${cart.quantity}`, `quantity_${productId}`),      
                                 Markup.button.callback('+', `addQuantity_${productId}`)
     
                             ]
-                        ] )
+                        ]:[] )
                     ])
                   
                 }

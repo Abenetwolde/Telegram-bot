@@ -5,7 +5,7 @@ const { getCart } = require('../Database/cartController');
 const apiUrl = 'http://localhost:5000'; 
 module.exports = {
 
-    sendProdcutSummary: async function (ctx, deliveryDate, note) {
+    sendProdcutSummary: async function (ctx,cartItem) {
   
         console.log("reach sendSummary")
         // Generate a summary message that displays the product name, quantity, price, and total price for each product with a quantity greater than 1
@@ -19,9 +19,9 @@ module.exports = {
         // const cartProducts = ctx.session.cart;
         const userId=ctx.from.id
 
-        const cartProducts = await getCart(userId);
-        console.log("cartProducts", cartProducts)
-        cartProducts.items.forEach((product, productId) => {
+        // const cartProducts = await getCart(userId);
+        // console.log("cartProducts", cartProducts)
+        cartItem?.items?.forEach((product, productId) => {
             if (product.quantity > 0) {
                 // console.log(ctx.session.quantity[product._id], product._id)//filter the product quantity is greater than o
                 summary += `🛒 ${product.product.name}: ${product.quantity} x ${product.product.price} = ${product.quantity * product.product.price} ETB\n`;
@@ -37,11 +37,11 @@ module.exports = {
             }
         });
    
-        if (deliveryDate) {
-            summary += `Delivery date: <b>${deliveryDate}</b>\n`
-            datePick=deliveryDate
-            // orderItems.push({"deliveryDate": deliveryDate})
-        }
+        // if (deliveryDate) {
+        //     summary += `Delivery date: <b>${deliveryDate}</b>\n`
+        //     datePick=deliveryDate
+        //     // orderItems.push({"deliveryDate": deliveryDate})
+        // }
 
         if (usernote) {
             summary += `📔 Note for seller: ${usernote}\n`
