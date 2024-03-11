@@ -11,7 +11,7 @@ async function createCart(userId, productId, quantity) {
       }
     };
     const options = {
-      upsert: true, // Create new cart if it doesn't exist
+       upsert: true, // Create new cart if it doesn't exist
       new: true, // Return the updated cart
       populate: {
         path: 'items.product',

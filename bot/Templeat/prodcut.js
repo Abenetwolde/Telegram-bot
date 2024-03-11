@@ -34,15 +34,16 @@ module.exports = {
     },
 
     sendProduct: async function (ctx, productId, product, iscart) {
-        // console.log("reach", productId)
+        // console.log("reach", productId) 
+         
         // console.log("reach prodcut", product)
         const formatTelegramMessage = (product) => {
             const { name, description, price, available, warranty, category, highlights, images, createdAt } = product;
 
-            const formattedHighlights = highlights?.map((highlight) => `${highlight}`).join(',');
+             const formattedHighlights = highlights?.map((highlight) => `${highlight}`).join(',');
           const formattedprice= product.quantity!==0&& ctx.session.viewMore[productId]?
           `  
-          ---
+           ---
           💳 ${product.quantity}x${product.price}= ${product.quantity*product.price} ETB`:''
             
             return `

@@ -27,12 +27,12 @@ module.exports = {
             `;
         };
         let caption = '';
-        caption+=`${cart?.product?.category?.icon} ${cart.product.name} ${cart?.product?.category?.icon} \n`
-        caption+=`💴 ${cart.product.price} ETB\n`
+        caption+=`${cart?.product?.category?.icon} ${cart?.product?.name} ${cart?.product?.category?.icon} \n`
+        caption+=`💴 ${cart?.product?.price} ETB\n`
         caption+=`.\n`
         caption+=`.\n`
-        caption+= `${cart.quantity} x ${cart.product.price} = ${cart.quantity * cart.product.price} ETB`
-        if (ctx.session?.viewMore&&!ctx.session?.viewMore[productId] && caption.length > 100) {
+        caption+= `${cart?.quantity} x ${cart?.product?.price} = ${cart?.quantity * cart?.product?.price} ETB`
+        if (ctx.session?.viewMore&&!ctx.session?.viewMore[productId] && caption?.length > 100) {
             caption = caption.substring(0, 100) + '...';
         }
         const image = await cart?.product?.images[0]?.imageUrl;
@@ -135,7 +135,8 @@ module.exports = {
                 console.log("vedio ex,,,,,,,,,,,,,,,,,,,,,,,,,,,",cart?.product?.video)
                 const message = await ctx.replyWithVideo(Input.fromURLStream( cart?.product?.video?.videoUrl || ''),/* { source: product?.video?.videoUrl }, */ {
                     caption: caption,
-                    supports_streaming: true,
+                    // thumb:"https://th.bing.com/th/id/OIP.O8X2cM_d8XTou4d3_YlbgAHaLH?rs=1&pid=ImgDetMain",
+                    // supports_streaming: true,
                     ...Markup.inlineKeyboard([
         
                         ...(cart.quantity > 0 ? [
