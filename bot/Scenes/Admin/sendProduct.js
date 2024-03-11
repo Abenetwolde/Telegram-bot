@@ -10,7 +10,7 @@ module.exports = {
             const { name, description,images, price, available, warranty, category, highlights } = product;
 
             const formattedHighlights = highlights?.map((highlight) => `${highlight}`).join(', ');
-        //    const formattedButton=images.length === 1?"":`\n\n[Buy](https://t.me/testecommerce12bot?start=chat_${productId}) `
+          const formattedButton=images.length === 1?"":`\n\n[Buy](https://t.me/testecommerce12bot?start=chat_${productId}) `
            
         
 
@@ -18,7 +18,8 @@ module.exports = {
 ${category.icon} ${name} ${category.icon}
 ✨ ${description}
 💴 ${price} ETB
-🚀 ${formattedHighlights}
+🚀 ${formattedHighlights} 
+${formattedButton}
 .
 .
 #${category.name} ${category.icon}
@@ -49,11 +50,13 @@ ${category.icon} ${name} ${category.icon}
                   media: i,
                   type: 'photo',
                   caption: caption,
+                  parse_mode: 'Markdown'
             //    parse_mode: 'MarkdownV2'
              },
             ):mediaGroup.push(            {
                 media: i,
                 type: 'photo',
+                parse_mode: 'Markdown'
                 
             //  parse_mode: 'MarkdownV2'
            },
@@ -71,7 +74,7 @@ ${category.icon} ${name} ${category.icon}
         //     },
          
         //   ];
-        // if (images.length === 1) {
+        if (images.length === 1) {
             // If there's only one image, send it with the order link in the caption
             const image = images[0];
             const response = await axios.get(image, { responseType: 'arraybuffer' });
@@ -96,23 +99,22 @@ ${category.icon} ${name} ${category.icon}
                 type: 'channelpost',
                 productId: productId,
             });
-        // } 
-        // else {
-        //     const sentMessage = await ctx.telegram.sendMediaGroup(channelId, mediaGroup, {
-        //         // message_thread_id: productId, // Use product ID as the message thread ID
-        //         caption: "caption", // Set the caption for the entire media group
-        //         reply_markup: paginationKeyboard
-        //     });
+        } 
+        else {
+            const sentMessage = await ctx.telegram.sendMediaGroup(channelId, mediaGroup, {
+             
+                reply_markup: paginationKeyboard
+            });
             
             
-        //     // Store the sent message IDs in the session
-        //     sentMessage.forEach(message => {
-        //         ctx.session.cleanUpState.push({
-        //             id: message.message_id,
-        //             type: 'channelpost',
-        //             productId: productId,
-        //         });
-        //     });
-        // }
+            // Store the sent message IDs in the session
+            sentMessage.forEach(message => {
+                ctx.session.cleanUpState.push({
+                    id: message.message_id,
+                    type: 'channelpost',
+                    productId: productId,
+                });
+            });
+        }
     }
 }

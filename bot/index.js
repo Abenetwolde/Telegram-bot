@@ -2,6 +2,7 @@
 const { Telegraf, Markup, InputFile, Scene, session, WizardScene, Scenes } = require('telegraf');
 const { i18next } = require('telegraf-i18next');
 
+const sharp = require('sharp');
 const { reply } = require('telegraf-i18next')
 const { Redis } = require("@telegraf/session/redis");
 const http = require('http');
@@ -409,7 +410,14 @@ mongoClient.connect()
     bot.command('admin', async (ctx) => {
       await ctx.scene.enter("adminBaseScene")
     })
-
+    bot.command('text', async (ctx) => {
+      // Your logic here...
+  
+      // Example: Sending a message without link preview
+      await ctx.reply('Check out this link: https://example.com', {
+          disable_web_page_preview: true,
+      });
+  });
     bot.action(/set_lang:(.+)/, async (ctx) => {
       if (!ctx.session) {
         ctx.session = {}; // Initialize session if not exists
@@ -716,11 +724,17 @@ bot.on('location', async (ctx) => {
 
 // await ctx.scene.enter("homeScene")
 // })
-const linkText = '(\n\n[Buy](https://t.me/testecommerce12bot?start=chat_${productId})';
 
 // Attach the link text to a message
-bot.command('link', (ctx) => {
-    ctx.replyWithMarkdown(linkText);
+bot.command('link',async (ctx) => {
+  const linkText = '(\n\n[Buy](https://t.me/testecommerce12bot?start=chat_${productId})';
+const resizeimage ='https://images.pexels.com/photos/5084674/pexels-photo-5084674.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
+const imageBuffer = await sharp(response.data)
+.resize(200, 200)
+.toBuffer();
+ await ctx.replyWithPhoto({ source:imageBuffer}, { caption: `[Buy](https://t.me/testecommerce12bot?start=chat_${123}`, parse_mode: 'Markdown' });
+    // ctx.replyWithMarkdown(`[Buy](https://t.me/testecommerce12bot?start=chat_${123}`);
 });
 bot.catch(async (err, ctx) => {
   console.log(`Error while handling update ${ctx.update.update_id}:`, err)

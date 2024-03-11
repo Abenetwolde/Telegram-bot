@@ -114,7 +114,7 @@ module.exports = {
                     caption: caption,
                     ...Markup.inlineKeyboard([
         
-                        ...(cart.quantity > 0 && [
+                        ...(cart?.quantity > 0 && [
                             [
                                 Markup.button.callback('-', `removeQuantity_${productId}`),
                                 Markup.button.callback(`${cart.quantity}`, `quantity_${productId}`),      
