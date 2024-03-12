@@ -42,15 +42,15 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
     const userId = ctx.from.id;
 
     const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
-
+console.log("updated product.........",JSON.parse(updatedCartItem))
     // Parse the returned JSON string to access the data
     const { product, quantity,cartId,cartItem } = JSON.parse(updatedCartItem);
-
+ 
      const cart = await getCart(userId);
 
     // const cartItemIndex = cart.items.findIndex(item => item.product._id.toString() === productId);
     // const cartItem = cart.items[cartItemIndex];
-
+  
     if (cartItem.quantity >= 1) {
       // If quantity is still greater than or equal to 1, update the cart and send the updated cart product
       await sendCartProduct(ctx, productId, cartItem);
@@ -58,7 +58,7 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
     }
 
     if (quantity=== 0) {
-       await removeItemFromCart(cartId)
+       await removeItemFromCart(cartId,productId)
 
       await ctx.answerCbQuery(`You have deleted ${cartItem.product.name} from your cart page.`);
 

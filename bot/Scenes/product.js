@@ -327,7 +327,7 @@ productSceneTest.action(/removeQuantity_(.+)/, async (ctx) => {
         const productArg = { ...product, quantity };
         if (productArg.quantity === 0) {
             await ctx.answerCbQuery(`You have removed ${productArg.name} of product from your cart.`);
-            await removeItemFromCart(cartId)
+            await removeItemFromCart(cartId,productId)
         }
         // console.log("removed item...",productArg)
         sendProduct(ctx, productId, productArg);

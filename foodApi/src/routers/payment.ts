@@ -10,7 +10,7 @@ import {
   getUserPaymentsByStatus,
   getPaymentsWithinDateRange,
 } from '../controller/payment'; // Import payment controllers
-
+   
 const router = express.Router();
 
 // GET /api/payments

@@ -108,11 +108,14 @@ async function updateCartItemQuantity(userId, productId, quantity) {
 
 
   
-async function removeItemFromCart(cartId) {
+async function removeItemFromCart(cartId,productId) {
   console.log("cartId",cartId)
     try {
-      const cart = await Cart.findByIdAndDelete(cartId);
-  
+      const cart = await Cart.findByIdAndUpdate(
+        cartId,
+        { $pull: { items: { product: productId } } },
+        { new: true } // To return the updated document
+      );
       if (!cart) {
         throw new Error('Cart not found.');
       }

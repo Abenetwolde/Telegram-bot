@@ -218,51 +218,7 @@ mongoClient.connect()
   // bot.start(checkLanguageMiddleware);
   //   // Apply the startMiddleware to all scenes
 
-    const fakeDatabase = {
-      users: {},
-    };
 
-    // bot.use((ctx, next) => {
-    //   const now = new Date().getTime();
-    //   const userId = ctx.from.id;
-
-    //   if (!fakeDatabase.users[userId]) {
-    //     fakeDatabase.users[userId] = {
-    //       startTime: now,
-    //       lastInteractionTime: now,
-    //     };
-    //   }
-
-    //   const interactionDuration = now - fakeDatabase.users[userId].lastInteractionTime;
-
-    //   if (interactionDuration > 6000) {
-    //     // Update the database with total time spent and send a message to the user
-    //     updateDatabase(userId, interactionDuration, ctx);
-    //     fakeDatabase.users[userId].startTime = now;
-    //   }
-
-    //   fakeDatabase.users[userId].lastInteractionTime = now;
-
-    //   next();
-    // });
-
-    function updateDatabase(userId, interactionDuration, ctx) {
-      // Replace this with your actual database update logic
-      const totalTimeSpent = fakeDatabase.users[userId].startTime + interactionDuration;
-
-      // Send a message to the user with the total time spent
-      ctx.reply(`Total time spent: ${formatTime(totalTimeSpent)}`);
-
-      console.log(`Updating database for user ${userId}. Total time spent: ${totalTimeSpent}`);
-    }
-
-    function formatTime(milliseconds) {
-      const seconds = Math.floor(milliseconds / 1000) % 60;
-      const minutes = Math.floor(milliseconds / (1000 * 60)) % 60;
-      const hours = Math.floor(milliseconds / (1000 * 60 * 60));
-
-      return `${hours} hours, ${minutes} minutes, ${seconds} seconds`;
-    }
 
     bot.start(async (ctx) => {
       console.log("ctx.from.............", ctx.from)
@@ -299,20 +255,20 @@ mongoClient.connect()
         }
 
       } else {
-        try {
-          if (ctx.session.cleanUpState) {
-            ctx.session.cleanUpState.forEach(async (message) => {
+        // try {
+        //   if (ctx.session.cleanUpState) {
+        //     ctx.session.cleanUpState.forEach(async (message) => {
 
-              if (message?.type === 'product' || message?.type === 'pageNavigation' || message?.type === 'productKeyboard') {
-                console.log("reach start.........")
-                await ctx.telegram.deleteMessage(ctx.chat.id, message?.id).catch((e) => ctx.reply(e.message));
+        //       if (message?.type === 'product' || message?.type === 'pageNavigation' || message?.type === 'productKeyboard') {
+        //         console.log("reach start.........")
+        //         await ctx.telegram.deleteMessage(ctx.chat.id, message?.id).catch((e) => ctx.reply(e.message));
 
-              }
-            });
-          }
-        } catch (error) {
-          console.error("error while deleting message when the bot start", error)
-        }
+        //       }
+        //     });
+        //   }
+        // } catch (error) {
+        //   console.error("error while deleting message when the bot start", error)
+        // }
 
         if (!ctx.session.locale) {
           const message = await ctx.reply('Please choose your language', Markup.inlineKeyboard([
@@ -332,7 +288,7 @@ mongoClient.connect()
                 username: ctx.from.username || null,
                 is_bot: ctx.from.is_bot || false,
                 language: ctx.session.locale
-              });
+              }); 
 
               console.log("response.data", response)
 

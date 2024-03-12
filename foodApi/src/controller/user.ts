@@ -415,37 +415,46 @@ exports.adminLogin = async (req: Request, res: Response) => {
 exports.adminCreate = async (req: Request, res: Response) => {
     console.log("hit the admin create api")
     let userData = req.body;
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    const phoneORemailExist = await User.findOne({
-        email: email
-    });
-
-    if (phoneORemailExist) {
-        return res
-            .status(400)
-            .send({ message: "PHONE_EMAIL_ALREADY_EXISTS_ERR" });
-    }
-
-    const encryptedPassword = await bcrypt.hash(password, 10);
-    userData.password = encryptedPassword;
-
-    const newUser = await User.create(userData);
-    console.log(newUser)
-    const token = jwt.sign(
-        { user_id: newUser._id, email },
-        process.env.JWT_TOKEN_SECRET_KEY || "abnet",
-        {
-            expiresIn: "999d",
-        }
-    );
-    newUser.token = token;
-    res
-        .status(201)
-        .send({
-            user: newUser,
-            message: "Account Created Saved Succesfully !",
+        const phoneORemailExist = await User.findOne({
+            email: email
         });
+    
+        if (phoneORemailExist) {
+            return res
+                .status(400)
+                .send({ message: "PHONE_EMAIL_ALREADY_EXISTS_ERR" });
+        }
+    
+        const encryptedPassword = await bcrypt.hash(password, 10);
+        userData.password = encryptedPassword;
+    
+        const newUser = await User.create(userData);
+        console.log(newUser)
+        const token = jwt.sign(
+            { user_id: newUser._id, email },
+            process.env.JWT_TOKEN_SECRET_KEY || "abnet",
+            {
+                expiresIn: "999d",
+            }
+        );
+        newUser.token = token;
+        res
+            .status(201)
+            .send({
+                user: newUser,
+                message: "Account Created Saved Succesfully !",
+            });
+    } catch (error) {
+        res
+      
+        .send({
+            message: "Internal Error !",
+        }); 
+    }
+  
 
 }
 

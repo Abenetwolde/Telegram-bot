@@ -38,7 +38,7 @@ export interface IUser extends Document {
   language: string;
   role: {
     type: String,
-    default: 'USER',
+    default: 'ADMIN',
     enum: ['ADMIN', 'SUPER ADMIN','USER'],
     required: [true, 'Role is required'],
   },
@@ -78,7 +78,7 @@ const userSchema = new Schema<IUser>({
   },
   role: {
     type: String,
-    default: 'USER',
+    default: 'ADMIN',
     enum: ['ADMIN', 'SUPER ADMIN','USER'],
     required: [true, 'Role is required'],
   },
