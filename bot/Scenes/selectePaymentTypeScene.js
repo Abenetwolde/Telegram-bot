@@ -19,7 +19,7 @@ const UserKPI=require("../Model/KpiUser");
 selectePaymentType.enter(async (ctx) => {
     const enterTime = new Date();
     ctx.scene.state.enterTime = enterTime;
-    await sendProdcutSummary(ctx)
+    // await sendProdcutSummary(ctx)
     const selec1message = await ctx.reply("Just two more steps before we're able to generate your invoice! 🙂",    Markup.keyboard([
         ["🏠 Back to Home"]
     ]).resize())

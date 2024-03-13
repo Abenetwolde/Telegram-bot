@@ -50,7 +50,7 @@ const productSchema = new mongoose.Schema({
         required: true,
         min: 0,
         max: 255
-    },
+    }, 
     video: {
         videoUrl: { type: String },
         vedioId: { type: String },
@@ -60,7 +60,11 @@ const productSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    channelMessageId:{
+        type :Number
     }
+
 });
 productSchema.index({ name: 'text', /* description: 'text' */ });
 module.exports = mongoose.model('Product', productSchema);

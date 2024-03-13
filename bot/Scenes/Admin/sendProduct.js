@@ -2,6 +2,7 @@ const { Markup } = require('telegraf');
 const { sendProdcutSummary } = require('../../Templeat/summary');
 const axios = require('axios');
 const sharp = require('sharp');
+const  Product =require( '../../Model/product');
 module.exports = {
     // ... (other functions)
 
@@ -29,7 +30,7 @@ ${formattedButton}
         };
         const productId = productd.toString()
         const caption = `${formatTelegramMessage(product)}`;
-
+        console.log("Caption:", caption);
         const paginationKeyboard = Markup.inlineKeyboard([
             Markup.button.url('Order 📔', `https://t.me/testecommerce12bot?start=chat_${productId}`),
         ]);
@@ -99,6 +100,7 @@ ${formattedButton}
                 type: 'channelpost',
                 productId: productId,
             });
+            await Product.findByIdAndUpdate(product._id, {channelMessageId:  sentMessage.message_id });
         } 
         else {
             const sentMessage = await ctx.telegram.sendMediaGroup(channelId, mediaGroup, {
@@ -108,13 +110,15 @@ ${formattedButton}
             
             
             // Store the sent message IDs in the session
-            sentMessage.forEach(message => {
+            sentMessage.forEach(async message => {
                 ctx.session.cleanUpState.push({
                     id: message.message_id,
-                    type: 'channelpost',
+                    type: 'channelpostGroup',
                     productId: productId,
                 });
+                await Product.findByIdAndUpdate(product._id, {channelMessageId:  message.message_id });
             });
+           
         }
     }
 }

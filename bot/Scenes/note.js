@@ -234,10 +234,7 @@ noteScene.action('confirm', async (ctx) => {
             [Markup.button.callback("Cancel Order", `cancel_cart:${cart._id}`)]
         ]),
     })
-    ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' })
-
-    
-    
+    ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' }) 
 });
 noteScene.action("make_order", async (ctx) => {
     const userId = ctx.from.id;
