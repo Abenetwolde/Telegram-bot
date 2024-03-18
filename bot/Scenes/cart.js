@@ -74,6 +74,7 @@ console.log("updated product.........",JSON.parse(updatedCartItem))
 
       // Send the updated product summary
       await sendProdcutSummary(ctx,cart);
+      return;
     }
 
 

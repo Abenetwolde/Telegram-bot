@@ -59,6 +59,7 @@ async function getCart  (userId)  {
 }
 async function updateCartItemQuantity(userId, productId, quantity) {
   try {
+  
       const cart = await Cart.findOneAndUpdate(
           { user: userId, 'items.product': productId },
           { $inc: { 'items.$.quantity': quantity } },

@@ -32,7 +32,7 @@ myOrderScene.enter(async (ctx) => {
         ctx.session.UserOrder = userOrders
         for (const order of userOrders) {
 
-            if (order.orderItems.length > 1) {
+            if (order?.orderItems?.length > 1) {
                 await OrderMessageWithProducts(ctx, order._id, order.orderItems);
 
                 //   return OrderMessageWithProducts(ctx, order);    
@@ -68,19 +68,23 @@ myOrderScene.enter(async (ctx) => {
                           // Proceed with sending the order information if the user has order items and the first item has images
                         //   const imageBuffer = await ImageBuffer(orderItems[0].product.images[0].imageUrl); // Function to get image buffer
                         const resizeimage = await order?.orderItems[0]?.product?.images[0]?.imageUrl
+                        console.log("resizeimage............", resizeimage)
                         console.log("resizeimage", resizeimage)
                         const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
                         const imageBuffer = await sharp(response.data)
                             .resize(200, 200)
                             .toBuffer();
-                          const orderMessage = await ctx.replyWithPhoto(
-                            { source: imageBuffer },
-                            {
-                              caption: formatTelegramMessage(orderItems[0].product, orderItems[0].quantity),
-                              ...Markup.inlineKeyboard([Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]),
+                            if(resizeimage){
+                                const orderMessage = await ctx.replyWithPhoto(
+                                    { source: imageBuffer },
+                                    {
+                                      caption: formatTelegramMessage(orderItems[0].product, orderItems[0].quantity),
+                                      ...Markup.inlineKeyboard([Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]),
+                                    }
+                                  );
+                                  ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
                             }
-                          );
-                          ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
+
                         }
                         
                    
@@ -151,7 +155,7 @@ myOrderScene.action(/confirm_cancel:(.+)/, async (ctx) => {
     const cancellationResult = await cancelOrder(orderId, ctx.from.id);
     if (cancellationResult.success) {
         await ctx.answerCbQuery("Order canceled successfully.");
-            await ctx.scene.reenter()
+            // await ctx.scene.reenter()
     } else {
         await ctx.answerCbQuery("Failed to cancel the order.");
     }
@@ -321,8 +325,8 @@ myOrderScene.leave(async (ctx) => {
 })
 
 async function OrderMessageWithProducts(ctx, orderid, orderItems) {
-    const productId = orderItems[0].product._id;
-    const images = orderItems.map(item => item.product.images[0].imageUrl);
+    const productId = orderItems[0]?.product._id;
+    const images = orderItems.map(item => item?.product?.images[0]?.imageUrl);
     const name = orderItems.map(item => item.product.name);
     const quantitytimesprice = orderItems.map(item => `${item.quantity}X${item.product.price}=${item.quantity * item.product.price} ETB`).join("\n");
     const messageIds = [];
@@ -330,6 +334,7 @@ async function OrderMessageWithProducts(ctx, orderid, orderItems) {
     const caption = generateCaption(orderItems, images.length, 1);
     // for (const image of images) {
     const imageBuffer = await resizeImage(images[0]);
+    console.log(imageBuffer)
     const orderMessage = await ctx.replyWithPhoto(
         { source: imageBuffer },
         {

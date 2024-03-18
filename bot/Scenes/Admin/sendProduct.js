@@ -1,4 +1,5 @@
 const { Markup } = require('telegraf');
+const { Input } = require('telegraf');
 const { sendProdcutSummary } = require('../../Templeat/summary');
 const axios = require('axios');
 const sharp = require('sharp');
@@ -75,6 +76,7 @@ ${formattedButton}
         //     },
          
         //   ];
+      
         if (images.length === 1) {
             // If there's only one image, send it with the order link in the caption
             const image = images[0];
@@ -101,23 +103,45 @@ ${formattedButton}
                 productId: productId,
             });
             await Product.findByIdAndUpdate(product._id, {channelMessageId:  sentMessage.message_id });
-        } 
-        else {
+        } else if(images.length > 1){
+         
             const sentMessage = await ctx.telegram.sendMediaGroup(channelId, mediaGroup, {
              
                 reply_markup: paginationKeyboard
             });
             
-            
+            let messagesaved;
             // Store the sent message IDs in the session
-            sentMessage.forEach(async message => {
+            sentMessage.forEach(async (message, index) => {
                 ctx.session.cleanUpState.push({
                     id: message.message_id,
                     type: 'channelpostGroup',
                     productId: productId,
                 });
-                await Product.findByIdAndUpdate(product._id, {channelMessageId:  message.message_id });
+                
+                if (index === 0) {
+                    messagesaved = message.message_id;
+                    await Product.findByIdAndUpdate(product._id, { channelMessageId: messagesaved });
+                }
             });
+         
+            console.log("message Saved...........",messagesaved)
+           
+        }
+        else if(product?.video?.videoUrl){
+         
+            const message = await ctx.telegram.sendVideo(channelId, product.video.videoUrl, {
+                supports_streaming: true,
+                caption: caption,
+                ...paginationKeyboard,
+            });
+            ctx.session.cleanUpState.push({
+                id: message.message_id,
+                type: 'channelpost',
+                productId: productId,
+            });
+            await Product.findByIdAndUpdate(product._id, {channelMessageId:  message.message_id });
+
            
         }
     }
