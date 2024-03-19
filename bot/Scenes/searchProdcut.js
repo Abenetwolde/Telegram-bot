@@ -75,7 +75,7 @@ if (products.products.length === 0) {
   return;
 }
  const results = products?.products.map((product) => {
-      const thumbnail = product?.images[0].imageUrl;
+      const thumbnail = product?.images[0]?.imageUrl?product?.images[0]?.imageUrl:'https://th.bing.com/th/id/R.e999a2a1c67874cc430e05b2d667d897?rik=EVD9FK1848e9DA&pid=ImgRaw&r=0';
       console.log("prodcus titile",product?.name)
       return {
         

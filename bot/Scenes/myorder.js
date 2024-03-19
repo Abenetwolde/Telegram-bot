@@ -3,7 +3,7 @@ const axios = require('axios');
 const sharp = require('sharp');
 const { getUserOrders, cancelOrder } = require("../Database/orderController");
 const { ReturnDocument } = require("mongodb");
-const UserKPI=require("../Model/KpiUser");
+const UserKPI = require("../Model/KpiUser");
 const myOrderScene = new Scenes.BaseScene("myOrderScene");
 
 myOrderScene.enter(async (ctx) => {
@@ -38,8 +38,7 @@ myOrderScene.enter(async (ctx) => {
                 //   return OrderMessageWithProducts(ctx, order);    
             }
             else {
-                // const product = order.orderItems[0].product;
-                // await sendProduct(ctx, order._id, product, order.orderItems[0].quantity);
+
                 const formatTelegramMessage = (product, quantity) => {
                     const { name, description, price, available, warranty, category, highlights, images, createdAt } = product;
 
@@ -60,12 +59,12 @@ myOrderScene.enter(async (ctx) => {
                 };
                 try {
 
-                  
-                      
-                        const orderItems = order?.orderItems || []; // Ensure orderItems is an array and not undefined
 
-                        if (orderItems.length > 0 && orderItems[0]?.product?.images?.length > 0) {
-                          // Proceed with sending the order information if the user has order items and the first item has images
+
+                    const orderItems = order?.orderItems || []; // Ensure orderItems is an array and not undefined
+
+                    if (orderItems.length > 0 && orderItems[0]?.product?.images?.length > 0) {
+                        // Proceed with sending the order information if the user has order items and the first item has images
                         //   const imageBuffer = await ImageBuffer(orderItems[0].product.images[0].imageUrl); // Function to get image buffer
                         const resizeimage = await order?.orderItems[0]?.product?.images[0]?.imageUrl
                         console.log("resizeimage............", resizeimage)
@@ -74,22 +73,32 @@ myOrderScene.enter(async (ctx) => {
                         const imageBuffer = await sharp(response.data)
                             .resize(200, 200)
                             .toBuffer();
-                            if(resizeimage){
-                                const orderMessage = await ctx.replyWithPhoto(
-                                    { source: imageBuffer },
-                                    {
-                                      caption: formatTelegramMessage(orderItems[0].product, orderItems[0].quantity),
-                                      ...Markup.inlineKeyboard([Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]),
-                                    }
-                                  );
-                                  ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
-                            }
-
+                        if (resizeimage) {
+                            const orderMessage = await ctx.replyWithPhoto(
+                                { source: imageBuffer },
+                                {
+                                    caption: formatTelegramMessage(orderItems[0].product, orderItems[0].quantity),
+                                    ...Markup.inlineKeyboard([Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]),
+                                }
+                            );
+                            ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
                         }
-                        
-                   
+
+                    }else if(orderItems[0]?.product?.video){
+                        console.log("there is a prodcut...............",orderItems[0]?.product?.video)
+                        const orderMessage = await ctx.replyWithVideo(orderItems[0]?.product?.video?.videoUrl, {
+                            caption: formatTelegramMessage(orderItems[0].product, orderItems[0].quantity),
+                            ...Markup.inlineKeyboard([
+                            
+                                [Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]
+                            ]),
+                        });
+                        ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
+                    }
+
+
                 } catch (error) {
-                   await ctx.reply("erro",error)
+                    await ctx.reply("erro", error)
                     // await ctx.scene.leave()
                 }
 
@@ -155,7 +164,7 @@ myOrderScene.action(/confirm_cancel:(.+)/, async (ctx) => {
     const cancellationResult = await cancelOrder(orderId, ctx.from.id);
     if (cancellationResult.success) {
         await ctx.answerCbQuery("Order canceled successfully.");
-            // await ctx.scene.reenter()
+        // await ctx.scene.reenter()
     } else {
         await ctx.answerCbQuery("Failed to cancel the order.");
     }
@@ -281,7 +290,7 @@ myOrderScene.leave(async (ctx) => {
         const durationMs = new Date(leaveTime - enterTime);
         // Convert milliseconds to minutes
         const durationMinutes = Math.floor(durationMs / 60000);
-    
+
         // Check if the duration exceeds 5 minutes
         if (durationMinutes <= 5) {
             // If the duration is less than or equal to 5 minutes, save the information to the database
@@ -290,7 +299,7 @@ myOrderScene.leave(async (ctx) => {
             const minutes = Math.floor((durationMs % 3600000) / 60000);
             const seconds = Math.floor((durationMs % 60000) / 1000);
             const durationFormatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    
+
             // Check if the user already exists in the database
             let existingUserKPI = await UserKPI.findOne({ telegramId: ctx.from.id });
             if (existingUserKPI) {
@@ -325,37 +334,56 @@ myOrderScene.leave(async (ctx) => {
 })
 
 async function OrderMessageWithProducts(ctx, orderid, orderItems) {
-    const productId = orderItems[0]?.product._id;
-    const images = orderItems.map(item => item?.product?.images[0]?.imageUrl);
-    const name = orderItems.map(item => item.product.name);
-    const quantitytimesprice = orderItems.map(item => `${item.quantity}X${item.product.price}=${item.quantity * item.product.price} ETB`).join("\n");
-    const messageIds = [];
-    let index = 0;
-    const caption = generateCaption(orderItems, images.length, 1);
-    // for (const image of images) {
-    const imageBuffer = await resizeImage(images[0]);
-    console.log(imageBuffer)
-    const orderMessage = await ctx.replyWithPhoto(
-        { source: imageBuffer },
-        {
-            caption: caption,
-            ...Markup.inlineKeyboard([[
-                Markup.button.callback('⬅️ Previous', `prev_${productId}_${orderid}_${index}`),
-                Markup.button.callback('Next ➡️', `next_${productId}_${orderid}_${index}`),
-            ],
-            [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
-            ]),
+    for (const orderItem of orderItems) {
+        console.log("orderItems.......",orderItem)
+        const productId = orderItem.product._id;
+        const productName = orderItem.product.name;
+        const imageUrls = orderItem.product.images.map(image => image.imageUrl);
+        const videoUrl = orderItem.product.video ? orderItem.product.video.videoUrl : null;
+    console.log("Images.......",imageUrls)
+     console.log("video.......",orderItem?.product?.video)
+
+        const messageIds = [];
+        let index = 0;
+        const caption = generateCaption(orderItems, orderItems.length, 1);
+        if (imageUrls.length > 0) {
+            const imageBuffer = await resizeImage(imageUrls[0]);
+            console.log(imageBuffer)
+            const orderMessage = await ctx.replyWithPhoto(
+                { source: imageBuffer },
+                {
+                    caption: caption,
+                    ...Markup.inlineKeyboard([[
+                        Markup.button.callback('⬅️ Previous', `prev_${productId}_${orderid}_${index}`),
+                        Markup.button.callback('Next ➡️', `next_${productId}_${orderid}_${index}`),
+                    ],
+                    [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
+                    ]),
+                }
+            );
+
+            messageIds.push(orderMessage.message_id);
+            ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
+            index++;
+            return
+            // }
         }
-    );
-
-    messageIds.push(orderMessage.message_id);
-    ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
-    index++;
-    // }
-
-    // Save the message IDs for cleanup
-
+        else if (orderItem?.product?.video?.videoUrl) {
+            console.log("If there is a video, reply with the video")
+            const orderMessage = await ctx.replyWithVideo(videoUrl, {
+                caption: caption,
+                ...Markup.inlineKeyboard([
+                
+                    [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
+                ]),
+            });
+            ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
+        }
+    }
 }
+// Save the message IDs for cleanup
+
+
 
 // Handle next and previous actions
 myOrderScene.action(/next_(\w+)_(\w+)_(\d+)/, (ctx) => {
@@ -372,7 +400,7 @@ myOrderScene.action(/prev_(\w+)_(\w+)_(\d+)/, (ctx) => {
     const prevIndex = (parseInt(index) + orderItems.length - 1) % orderItems.length;
     editProductMessage(ctx, orderid, orderItems, productId, index, prevIndex);
 });
-
+ 
 async function editProductMessage(ctx, orderid, orderItems, productId, currentIndex, newIndex) {
     const image = orderItems[parseInt(newIndex)].product.images[0].imageUrl;
     const imageBuffer = await resizeImage(image);
@@ -401,6 +429,10 @@ async function editProductMessage(ctx, orderid, orderItems, productId, currentIn
     }
 }
 function generateCaption(orderItems, totalCount, currentIndex) {
+    if (!Array.isArray(orderItems)) {
+        // If orderItems is not an array, return an empty string
+        return '';
+    }
     const productName = orderItems.map(item => item.product.name);
     const quantityTimesPrice = orderItems.map(item => `${item.quantity}X${item.product.price}=${item.quantity * item.product.price} ETB`).join("\n");
 
