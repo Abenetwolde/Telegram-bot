@@ -133,6 +133,7 @@ ${formattedButton}
             const message = await ctx.telegram.sendVideo(channelId, product.video.videoUrl, {
                 supports_streaming: true,
                 caption: caption,
+                parse_mode: 'Markdown',
                 ...paginationKeyboard,
             });
             ctx.session.cleanUpState.push({

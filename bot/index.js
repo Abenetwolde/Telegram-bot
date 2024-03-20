@@ -774,7 +774,28 @@ bot.command('spendtimeperday', async (ctx) => {
   }
 });
 
+bot.command('testDevice', async (ctx) => {
+  console.log('User is using a web platform',ctx.update.message);
+  if (ctx.from && ctx.from.id) {
+    const userAgent = ctx.update.message && ctx.update.message.headers && ctx.update.message.headers['user-agent'];
+    if (userAgent) {
+        if (userAgent.includes('Mobile') || userAgent.includes('Android') || userAgent.includes('iOS')) {
+            console.log('User is using a mobile device');
+        } else if (userAgent.includes('Windows') || userAgent.includes('Macintosh') || userAgent.includes('Linux')) {
+            console.log('User is using a desktop device');
+        } else {
+            console.log('User is using a web platform');
+        }
+    } else {
+        console.log('User agent information not available');
+    }
+} else {
+    console.log('User information not available');
+}
 
+// Your bot's start command logic here
+ctx.reply('Welcome to the bot!');
+});
 process.once("SIGINT", () => bot.stop("SIGINT"))
 process.once("SIGTERM", () => bot.stop("SIGTERM"))
 

@@ -334,23 +334,28 @@ myOrderScene.leave(async (ctx) => {
 })
 
 async function OrderMessageWithProducts(ctx, orderid, orderItems) {
-    for (const orderItem of orderItems) {
-        console.log("orderItems.......",orderItem)
-        const productId = orderItem.product._id;
-        const productName = orderItem.product.name;
-        const imageUrls = orderItem.product.images.map(image => image.imageUrl);
-        const videoUrl = orderItem.product.video ? orderItem.product.video.videoUrl : null;
-    console.log("Images.......",imageUrls)
-     console.log("video.......",orderItem?.product?.video)
-
+    console.log("Order Items:", JSON.stringify(orderItems, null, 2));
+    // for (const orderItem of orderItems) {
+     
+    //     console.log("orderItems.......",orderItem)
+    // const productId = orderItem.product._id;
+    const productId = 1;
+    //     const productName = orderItem.product.name;
+    const imageUrls = orderItems.flatMap((item) => item.product.images.map(image => image.imageUrl));
+    const videoUrl = orderItems.map((item) => item.product?.video?.videoUrl)
+    //     const videoUrl = orderItem.product.video ? orderItem.product.video.videoUrl : null;
+    // console.log("Images.......",imageUrls)
+    //  console.log("video.......",orderItem?.product?.video)
+console.log("imageUrl............",imageUrls.flat())
+console.log("imageUrlRisrt............",imageUrls[0])
         const messageIds = [];
         let index = 0;
         const caption = generateCaption(orderItems, orderItems.length, 1);
         if (imageUrls.length > 0) {
             const imageBuffer = await resizeImage(imageUrls[0]);
-            console.log(imageBuffer)
+            // console.log(imageBuffer)
             const orderMessage = await ctx.replyWithPhoto(
-                { source: imageBuffer },
+                { source: imageBuffer},
                 {
                     caption: caption,
                     ...Markup.inlineKeyboard([[
@@ -365,22 +370,22 @@ async function OrderMessageWithProducts(ctx, orderid, orderItems) {
             messageIds.push(orderMessage.message_id);
             ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
             index++;
-            return
+            // return
             // }
         }
-        else if (orderItem?.product?.video?.videoUrl) {
+        else if (videoUrl) {
             console.log("If there is a video, reply with the video")
-            const orderMessage = await ctx.replyWithVideo(videoUrl, {
-                caption: caption,
-                ...Markup.inlineKeyboard([
+            const orderMessage = await ctx.reply(
+                 caption,
+                Markup.inlineKeyboard([
                 
                     [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
                 ]),
-            });
+            );
             ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
         }
     }
-}
+// }
 // Save the message IDs for cleanup
 
 
@@ -402,10 +407,11 @@ myOrderScene.action(/prev_(\w+)_(\w+)_(\d+)/, (ctx) => {
 });
  
 async function editProductMessage(ctx, orderid, orderItems, productId, currentIndex, newIndex) {
-    const image = orderItems[parseInt(newIndex)].product.images[0].imageUrl;
-    const imageBuffer = await resizeImage(image);
+    const image = orderItems[parseInt(newIndex)].product?.images[0]?.imageUrl;
+ 
     const caption = generateCaption(orderItems, orderItems.length, newIndex + 1);
     try {
+        const imageBuffer = await resizeImage(image);
         await ctx.telegram.editMessageMedia(
             ctx.chat.id,
             ctx.callbackQuery.message.message_id,
