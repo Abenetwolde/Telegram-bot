@@ -47,6 +47,7 @@ postStatus: { type: Boolean, default: true },
   video: {
     videoUrl: { type: String },
     vedioId: { type: String },
+    thumbnail:{type: String}
   },
 });
 

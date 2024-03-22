@@ -54,6 +54,7 @@ const productSchema = new mongoose.Schema({
     video: {
         videoUrl: { type: String },
         vedioId: { type: String },
+        thumbnail:{type: String}
       },
     postStatus: { type: Boolean, default: true },
     orderQuantity: Number,

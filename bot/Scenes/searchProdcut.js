@@ -7,8 +7,47 @@ const { getProducts } = require("../Services/prodcut");
 const searchProduct = new Scenes.BaseScene('searchProduct');
 const itemsPerPage = 10;
 const apiUrl = " http://localhost:5000"
+const cloudinary = require('cloudinary').v2;
+// Importing spawn from child_process
+
+const fs = require('fs');
+const path = require('path');
 // Dummy data for products
 const UserKPI=require("../Model/KpiUser");
+cloudinary.config({
+  cloud_name: "abmanwolde",
+  api_key: "827239376525146",
+  api_secret: "qcT03npP3xh4VrLYBBMHuXr2IbQ",
+});
+const ffmpeg = require('ffmpeg-static');
+const { spawn } = require('child_process');
+
+async function generateThumbnail(videoUrl) {
+  return new Promise((resolve, reject) => {
+    const thumbnailPath = `thumbnail_${Date.now()}.jpg`;
+    const ffmpegProcess = spawn(ffmpeg, ['-i', videoUrl, '-ss', '00:00:05', '-vframes', '1', thumbnailPath]);
+console.log("thumbnailPath",thumbnailPath)
+    ffmpegProcess.on('close', async(code) => {
+      if (code === 0) {
+        try {
+          // Upload thumbnail to Cloudinary
+          const uploadResult = await cloudinary.uploader.upload(thumbnailPath);
+          // Delete the local thumbnail file after uploading
+          fs.unlinkSync(thumbnailPath);
+          // Resolve with the Cloudinary URL of the uploaded thumbnail
+          resolve(uploadResult.secure_url);
+        } catch (error) {
+          console.error('Error uploading thumbnail to Cloudinary:', error);
+          reject(error);
+        }
+      } else {
+        const errorMessage = `FFMPEG process exited with code ${code}`;
+        console.error(errorMessage);
+        reject(new Error(errorMessage));
+      }
+    });
+  });
+}
 
 searchProduct.enter(async (ctx) => {
   const enterTime = new Date();
@@ -74,34 +113,39 @@ if (products.products.length === 0) {
   });
   return;
 }
- const results = products?.products.map((product) => {
-      const thumbnail = product?.images[0]?.imageUrl?product?.images[0]?.imageUrl:'https://th.bing.com/th/id/R.e999a2a1c67874cc430e05b2d667d897?rik=EVD9FK1848e9DA&pid=ImgRaw&r=0';
-      console.log("prodcus titile",product?.name)
-      return {
-        
-        type: 'article',
-        title: product?.name||"Product",
-        photo_url: String(thumbnail),
-        thumb_url: String(thumbnail),
-        description: `${product?.description}\n${product.price} ETB\n`,
-        id: String(product?._id),
-        input_message_content: {
-          message_text: `${product?.name && product?.name}\n ${product?.description}\n${product.price} ETB\n <a href="${thumbnail}">&#8205;</a>`,
-          parse_mode: "HTML",
-        },
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: 'View More',
-                url: `https://t.me/testecommerce12bot?start=chat_${product._id}`,
-              },
-            
-            ],
-          ],
-        },
-      };
-    });
+const results = await Promise.all(products?.products.map(async (product) => {
+  let thumbnail = '';
+  if (product?.images[0]) {
+    thumbnail = product?.images[0]?.imageUrl ? product?.images[0]?.imageUrl : 'https://th.bing.com/th/id/R.e999a2a1c67874cc430e05b2d667d897?rik=EVD9FK1848e9DA&pid=ImgRaw&r=0';
+  } else if (product?.video?.videoUrl) {
+    thumbnail = product?.video?.thumbnail? product?.video?.thumbnail:"https://th.bing.com/th/id/R.e999a2a1c67874cc430e05b2d667d897?rik=XNTR0QBgIX65fA&riu=http%3a%2f%2fwww.pngmart.com%2ffiles%2f1%2fVideo-Icon-PNG-File.png&ehk=SV9RycWEvhpiPwx03de0K2l4nQZ5pOI7vhYYhLDNJ4I%3d&risl=&pid=ImgRaw&r=0"
+    // thumbnail = await generateThumbnail(product?.video?.videoUrl); // Wait for the thumbnail generation
+  }
+
+
+  return {
+    type: 'article',
+    title: product?.name || "Product",
+    photo_url: String(thumbnail),
+    thumb_url: String(thumbnail),
+    description: `${product?.description}\n${product?.price} ETB\n`,
+    id: String(product?._id),
+    input_message_content: {
+      message_text: `${product?.name && product?.name}\n ${product?.description}\n${product.price} ETB\n <a href="${thumbnail}">&#8205;</a>`,
+      parse_mode: "HTML",
+    },
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: 'View More',
+            url: `https://t.me/testecommerce12bot?start=chat_${product._id}`,
+          },
+        ],
+      ],
+    },
+  };
+}));
     // let nextOffset = null;
     // if (page < totalPages) {
     //   nextOffset = page * pageSize;

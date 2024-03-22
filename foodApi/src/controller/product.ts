@@ -6,11 +6,50 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 const cloudinary = require('cloudinary');
 import mv from 'mv';
+const fs = require('fs');
+const ffmpeg = require('ffmpeg-static');
+const { spawn } = require('child_process');
+
+async function generateThumbnail(videoUrl:String) {
+  return new Promise((resolve, reject) => {
+    const thumbnailPath = `thumbnail_${Date.now()}.jpg`;
+    const ffmpegProcess = spawn(ffmpeg, ['-i', videoUrl, '-ss', '00:00:05', '-vframes', '1', thumbnailPath]);
+
+    ffmpegProcess.on('close', async(code:any) => {
+      if (code === 0) {
+        try {
+          // Upload thumbnail to Cloudinary
+          const uploadResult = await cloudinary.uploader.upload(thumbnailPath);
+          // Delete the local thumbnail file after uploading
+          fs.unlinkSync(thumbnailPath);
+          // Resolve with the Cloudinary URL of the uploaded thumbnail
+        
+          resolve(uploadResult.secure_url);
+        } catch (error) {
+          console.error('Error uploading thumbnail to Cloudinary:', error);
+          reject(error);
+        }
+      } else {
+        const errorMessage = `FFMPEG process exited with code ${code}`;
+        console.error(errorMessage);
+        reject(new Error(errorMessage));
+      }
+    });
+  });
+}
 export const createProduct = async (req: Request, res: Response) => {
    console.log("create Prodcut")
     try {
-      const { name, description, images, price, category, highlights, available, cookTime } = req.body;
- console.log("images,...", req.body)
+      let { name, description, images,video, price, category, highlights, available, cookTime } = req.body;
+//  console.log("images,...", video)
+let formatedVideo
+ if(video){
+  const videoUrl = await generateThumbnail(video.videoUrl);
+  console.log("Generated video URL:", videoUrl);
+
+   formatedVideo = {videoUrl:video.videoUrl,vedioId:video?.vedioId,thumbnail: videoUrl}; // Fix the typo in 'formatedVideo'
+  console.log("Formatted video:", formatedVideo)
+ }
 const formattedImages = images.map((image: any) => ({
   imageId: image.imageId, // Assuming you have an imageId in the frontend
   imageUrl: image.imageUrl,
@@ -19,7 +58,7 @@ console.log("images,...", formattedImages)
 
 req.body.images = images;
 
-
+req.body.video = formatedVideo;
 
       // Check if the product already exists
       const existingProduct = await Product.findOne({ name });
