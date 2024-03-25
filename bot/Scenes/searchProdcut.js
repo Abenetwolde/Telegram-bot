@@ -55,7 +55,7 @@ searchProduct.enter(async (ctx) => {
   ctx.session.viewMoreSearch=null
   console.log("reach serach scene")
   let message = `
-Click here to Search a prodcut
+  🔍 Click the search button below to find a food item.
 `;
   //ctx.reply(text, [extra params])
   ctx.reply(message, {
@@ -138,7 +138,7 @@ const results = await Promise.all(products?.products.map(async (product) => {
       inline_keyboard: [
         [
           {
-            text: 'View More',
+            text: '↗️ View More',
             url: `https://t.me/testecommerce12bot?start=chat_${product._id}`,
           },
         ],

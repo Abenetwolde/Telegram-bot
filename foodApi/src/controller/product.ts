@@ -17,7 +17,7 @@ async function generateThumbnail(videoUrl:String) {
 
     ffmpegProcess.on('close', async(code:any) => {
       if (code === 0) {
-        try {
+        try { 
           // Upload thumbnail to Cloudinary
           const uploadResult = await cloudinary.uploader.upload(thumbnailPath);
           // Delete the local thumbnail file after uploading

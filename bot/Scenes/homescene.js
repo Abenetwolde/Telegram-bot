@@ -63,7 +63,7 @@ homeScene.enter(async (ctx) => {
 keyboard[1].push('Admin 📊');
             }
             const welcomeMessage = await ctx.reply(
-                `Hello ${ctx.session.token ? 'again ' : ''}${ctx.from.first_name}!`,
+                `👋 Hello ${ctx.session.token ? 'again, ' : ''}${ctx.from.first_name}!`,
                 Markup.keyboard(keyboard).resize()
             );
             console.log("key........",keyboard)
@@ -77,7 +77,7 @@ keyboard[1].push('Admin 📊');
         try {
             const secondaryMessage = await ctx.reply(
                 ctx.i18next.t('wellcomemessage'),
-                Markup.inlineKeyboard(   pairs.map(pair => pair.map(category => Markup.button.callback(`${category.icon} ${category.name}`, `category_${category._id}_${category.name}`))))
+                Markup.inlineKeyboard(   pairs.map(pair => pair.map(category => Markup.button.callback(`${category.icon} ${category.name}`, `category_${category._id}_${category.name}_${category.icon}`))))
             )
             ctx.session.cleanUpState.push({ id: secondaryMessage.message_id, type: 'home' });
         } catch (error) {
@@ -92,13 +92,13 @@ keyboard[1].push('Admin 📊');
 
 homeScene.action(/category_(.+)/, async(ctx) => {
     const callbackData = ctx.match[1];
-    const [categoryId, categoryName] = callbackData.split('_');
+    const [categoryId, categoryName,categoryIcon] = callbackData.split('_');
   
     // Now, you have both the category ID and name separately
     console.log('Category ID:', categoryId);
     console.log('Category Name:', categoryName);
     // ctx.scene.enter('product',  { category: categoryId });
-   await ctx.scene.enter('product', { category: { id: categoryId, name: categoryName } });
+   await ctx.scene.enter('product', { category: { id: categoryId, name: categoryName , icon:categoryIcon} });
     
   });
 homeScene.hears(match('Search'), async (ctx) => {
@@ -124,10 +124,10 @@ homeScene.action('popular', async (ctx) => {
     // await ctx.scene.leave();
 });
 homeScene.hears(match('Language'), async (ctx) => {
-    const message = await ctx.reply('Please choose your language', Markup.inlineKeyboard([
-        Markup.button.callback('English', 'set_lang:en'),
-        Markup.button.callback('አማርኛ', 'set_lang:am')
-    ]))
+    const message = await ctx.reply('🌐 Please choose your language', Markup.inlineKeyboard([
+        Markup.button.callback('🇬🇧 English ', 'set_lang:en'),
+        Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
+      ]))
     ctx.session.languageMessageId = message.message_id;
 })
 homeScene.leave(async (ctx) => {

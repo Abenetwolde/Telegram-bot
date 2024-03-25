@@ -7,7 +7,7 @@ const { displyProdcut, sendProduct } = require("../Templeat/prodcut");
 const { createCart, updateCartItemQuantity, removeItemFromCart } = require("../Database/cartController");
 const Product = require("../Model/product");
 const prodcut = require("../Services/prodcut");
-const pageSize = 3;
+const pageSize = 6;
 const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
 // const apiUrl = 'https://backend-vg1d.onrender.com';
@@ -36,7 +36,7 @@ productSceneTest.enter(async (ctx) => {
 //     type: 'first'  
 // })
     if (category && category.name) {
-        replyText = `You are now viewing our ${category.name} products.`;
+        replyText = `You are now viewing our selection of ${category?.name}${category?.icon} Items.`;
     } else if (sortBy) {
         replyText = `You are now viewing our products sorted by ${sortBy}.`;
     }
@@ -348,7 +348,7 @@ productSceneTest.action(/remove_(.+)/, async (ctx) => {
         const userId = ctx.from.id;
         const updatedCart = await updateCartItemQuantity(userId, productId, -1);
         const productData = await Product.findById(productId).populate("category");
-        const productArg = { ...productData.toObject(), quantity: updatedCart.items.find(item => item.product.equals(productId)).quantity };
+        const productArg = { ...productData.toObject(), quantity: updatedCart?.items?.find(item => item.product.equals(productId)).quantity };
         if (productArg.quantity === 0) {
             await ctx.answerCbQuery(`You have removed ${productArg.name} of product from your cart.`);
             await removeItemFromCart(userId, productId)
@@ -377,16 +377,18 @@ async function sendPage(ctx) {
     const product = ctx.scene.state.product;
     const sortBy = ctx.scene.state.sortBy;
     if (category && category.name) {
-        replyText = `You are now viewing our ${category.name} products.`;
+        replyText = `You are now viewing our selection of <b>${category.name}</b> ${category.icon} Items.`;
     } else if (sortBy) {
         replyText = `You are now viewing our products sorted by ${sortBy}.`;
     }
     const prodcutKeuboard = await ctx.reply(
         replyText,
-        Markup.keyboard([
+        { parse_mode: 'HTML',
+      ... Markup.keyboard([
             ['Home', 'Checkout'],
-
-        ]).resize(),
+        ]).resize()
+    } // Specify parse_mode for the message text
+     
     );
     await ctx.session.cleanUpState.push({ id: prodcutKeuboard.message_id, type: 'productKeyboard' })
    
@@ -517,7 +519,7 @@ async function sendPageNavigation(ctx) {
     // const response = await axios.get(`${apiUrl}/api/getproducts?page=${ctx.session.currentPage}&pageSize=${pageSize}`);
     // console.log("ctx.session.currentPage", ctx.session.currentPage + 1)
     // console.log("response.data.totalPages", Math.floor(response / pageSize))
-    const perPage = 3
+    const perPage = 6
     const previousButton = Markup.button.callback('Previous', 'Previous');
     const nextButton = Markup.button.callback('Next', 'Next');
     let pageSize = Markup.button.callback(`${pageSizeNumber}/${totalPages}`, 'as');

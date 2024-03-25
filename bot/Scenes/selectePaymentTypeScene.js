@@ -20,17 +20,20 @@ selectePaymentType.enter(async (ctx) => {
     const enterTime = new Date();
     ctx.scene.state.enterTime = enterTime;
     // await sendProdcutSummary(ctx)
-    const selec1message = await ctx.reply("Just two more steps before we're able to generate your invoice! 🙂",    Markup.keyboard([
-        ["🏠 Back to Home"]
-    ]).resize())
+    // const selec1message = await ctx.reply("Just two more steps before we're able to generate your invoice! 🙂",    Markup.keyboard([
+    //     ["🏠 Back to Home"]
+    // ]).resize())
 
     const selec2message = await ctx.reply("Selecte Payment type", Markup.inlineKeyboard([
-        Markup.button.callback("Pay Online", 'online'),
-        Markup.button.callback("Pay On Cash", 'cash'),
+        [Markup.button.callback("Pay Online 💳", 'online'),
+        Markup.button.callback("Pay On Cash 💵", 'cash'),],
+        [
+            Markup.button.callback('Back to Home 🏠 ', 'Home')
+        ]
 
     ]))
 
-    ctx.session.cleanUpState.push({ id: selec1message.message_id, type: "selectPayment" })
+    // ctx.session.cleanUpState.push({ id: selec1message.message_id, type: "selectPayment" })
     ctx.session.cleanUpState.push({ id: selec2message.message_id, type: "selectPayment" }) // Update as calendar type to prevent message from deletion in midst of selecting a date
 })
 selectePaymentType.action("online", async (ctx) => {
@@ -53,6 +56,11 @@ selectePaymentType.action("cash", async (ctx) => {
     // await ctx.scene.leave()
     // await ctx.scene.enter("PAYMENT_SCENE");
     // await ctx.scene.enter("PAYMENT_SCENE");
+});
+selectePaymentType.action("Home", async (ctx) => {
+
+    await ctx.scene.enter("homeScene");
+  
 });
 selectePaymentType.leave(async (ctx) => {
     try {

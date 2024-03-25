@@ -88,7 +88,7 @@ async function getSingleProduct(productId) {
     } catch (error) {
       throw new Error('Error fetching product from the database.');
     }
-  }
+  } 
   
 module.exports = {
   getAllProducts,

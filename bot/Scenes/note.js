@@ -2,7 +2,7 @@ const { Scenes, Markup } = require("telegraf")
 const { sendProdcutSummary } = require("../Templeat/summary")
 const axios = require('axios');
 const { createOrder, getOrderById } = require("../Database/orderController");
-const { getCart, removeItemFromCart } = require("../Database/cartController");
+const { getCart, removeItemFromCart, removeFromCart } = require("../Database/cartController");
 
 const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
@@ -22,8 +22,8 @@ noteScene.enter(async (ctx) => {
     ]).resize())
 
 
-    const note1message2 = await ctx.reply("Would you like to leave a note along with the order?", Markup.inlineKeyboard([
-        Markup.button.callback("Yes", 'yes'),
+    const note1message2 = await ctx.reply("📝 Would you like to leave a note along with the order?", Markup.inlineKeyboard([
+        Markup.button.callback("✅ Yes", 'yes'),
         Markup.button.callback("⏩ Skip", 'Skip'),
 
     ]))
@@ -364,21 +364,22 @@ noteScene.action(/yes_cart:(.+)/, async (ctx) => {
 
     // Perform cancellation logic here...
 
-    const cancellationResult = await removeItemFromCart(cartId);
+    const cancellationResult = await removeFromCart(cartId);
+    
     console.log("cancellationResult",cancellationResult)
     if (cancellationResult) {
 
         await ctx.reply("Cart canceled successfully.", Markup.inlineKeyboard([
-            Markup.button.callback("Go Back", `back`)
+            Markup.button.callback("Back to Home 🏠", `Home`)
         ]));
       
     } else {
         await ctx.answerCbQuery("Failed to cancel the cart.");
     }
     ctx.session.orderInformation=await []
-    await ctx.scene.leave()
+    // await ctx.scene.leave()
 });
-noteScene.action("back",async=async(ctx)=>{
+noteScene.action("Home",async=async(ctx)=>{
     await ctx.scene.enter("homeScene")
 })
 // Handle user's rejection

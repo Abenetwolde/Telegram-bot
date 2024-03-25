@@ -5,7 +5,7 @@ const connectDatabase = require('../config/database');
 
 async function createUser(data) {
   console.log("reach register user................", data.telegramid)
-  console.log("reach register user................", data.name)
+
 
   try {
 

@@ -69,7 +69,7 @@ module.exports = {
                     {
                         ...Markup.inlineKeyboard([
                             [
-                                Markup.button.callback('Procced to CheckOut', 'proceedToCheckout')
+                                Markup.button.callback('💳 Proceed to Checkout', 'proceedToCheckout')
                             ]
                         ]),
                         parse_mode: 'HTML' 
@@ -86,11 +86,11 @@ module.exports = {
               
                 /* .catch((e) => {ctx.reply(e.message) }); */
 
-               const nocartmessage= await ctx.reply("sorry you have no product on the cart.please go to home and buy", {
+               const nocartmessage= await ctx.reply("You have no product on the cart.please go to home and buy", {
                     ...Markup.inlineKeyboard([
                         [
 
-                            Markup.button.callback('Home', 'Home')
+                            Markup.button.callback('🏠 Home', 'Home')
                         ]
                     ])
                 }
@@ -108,7 +108,7 @@ module.exports = {
         const message =   await ctx.replyWithHTML(summary, {
                 ...Markup.inlineKeyboard([
                     [
-                        Markup.button.callback(`${cancelorder?'Cancel the Order':"Procced to CheckOut"}`, 'proceedToCheckout')
+                        Markup.button.callback(`${cancelorder?'Cancel the Order':"💳 Proceed to Checkout"}`, 'proceedToCheckout')
                     ]
                 ])
             })
@@ -123,11 +123,11 @@ module.exports = {
         } else {
              /* .catch((e) => {ctx.reply(e.message) }); */
 
-               const nocartmessage= await ctx.reply("sorry you have no product on the cart.please go to home and buy", {
+               const nocartmessage= await ctx.reply("Your cart is empty. Please return home to browse and buy.", {
                     ...Markup.inlineKeyboard([
                         [
 
-                            Markup.button.callback('Home', 'Home')
+                            Markup.button.callback('🏠 Home', 'Home')
                          ]
                     ])
                 }

@@ -3,11 +3,7 @@
     "builds": [
       {
         "src": "index.js", 
-        "use": "@vercel/node",
-        "install": {
-            "include": ["package.json"],
-            "additionalSteps": ["npm i --legacy-peer-deps"]
-          } 
+        "use": "@vercel/node"
       }
     ],
     "routes": [

@@ -14,10 +14,10 @@ channelHandeler.enter(async(ctx) => {
     const product = ctx.scene.state.pid;
     ctx.session.productID = product;
     console.log("pid...........",product)
-    const message = await ctx.reply('Please choose your language', Markup.inlineKeyboard([
-        Markup.button.callback('English', 'set_lang:en'),
-        Markup.button.callback('አማርኛ', 'set_lang:am')
-    ]));
+    const message = await ctx.reply('🌐 Please choose your language', Markup.inlineKeyboard([
+      Markup.button.callback('🇬🇧 English ', 'set_lang:en'),
+      Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
+    ]))
     ctx.session.languageMessageId = message.message_id;
     let existingUser = await User.findOne({ telegramid: ctx.from.id });
     if (!existingUser) {

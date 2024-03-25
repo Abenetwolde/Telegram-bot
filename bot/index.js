@@ -271,9 +271,9 @@ mongoClient.connect()
         // }
 
         if (!ctx.session.locale) {
-          const message = await ctx.reply('Please choose your language', Markup.inlineKeyboard([
-            Markup.button.callback('English', 'set_lang:en'),
-            Markup.button.callback('አማርኛ', 'set_lang:am')
+          const message = await ctx.reply('🌐 Please choose your language', Markup.inlineKeyboard([
+            Markup.button.callback('🇬🇧 English ', 'set_lang:en'),
+            Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
           ]))
           ctx.session.languageMessageId = message.message_id;
           const userToken = await checkUserToken(`${ctx.from.id}`, ctx)
@@ -341,9 +341,9 @@ mongoClient.connect()
     });
     bot.command('changelanguage', async (ctx) => {
       try {
-        const message = await ctx.reply('Please choose your language', Markup.inlineKeyboard([
-          Markup.button.callback('English', 'set_lang:en'),
-          Markup.button.callback('አማርኛ', 'set_lang:am')
+        const message = await ctx.reply('🌐 Please choose your language', Markup.inlineKeyboard([
+          Markup.button.callback('🇬🇧 English ', 'set_lang:en'),
+          Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
         ]))
         ctx.session.languageMessageId = message.message_id;
 

@@ -134,5 +134,20 @@ async function removeItemFromCart(cartId,productId) {
       throw new Error('Failed to remove item from cart.');
     }
   }
-  
-  module.exports = { createCart, getCart,updateCartItemQuantity, removeItemFromCart };
+  async function removeFromCart(cartId,productId) {
+    console.log("cartId",cartId)
+      try {
+        const cart = await Cart.findByIdAndDelete(
+          cartId,
+        );
+        if (!cart) {
+          throw new Error('Cart not found.');
+        }
+
+        return cart;
+      } catch (error) {
+        console.error('Error removing item from cart:', error);
+        throw new Error('Failed to remove item from cart.');
+      }
+    }
+  module.exports = { createCart, getCart,updateCartItemQuantity, removeItemFromCart,removeFromCart };

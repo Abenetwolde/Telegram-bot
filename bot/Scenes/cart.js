@@ -9,9 +9,9 @@ cart.enter(async (ctx) => {
   const enterTime = new Date();
   ctx.scene.state.enterTime = enterTime;
   const nocartmessage = await ctx.reply(
-    `You are now viewing our your carts.`,
+    `🛒 You are now viewing your carts.`,
     Markup.keyboard([
-      ['Home'],
+      ['🏠 Home'],
 
     ]).resize(),
   )
@@ -105,7 +105,7 @@ cart.action("Home", async (ctx) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   await ctx.scene.enter("homeScene")
 });
-cart.hears('Home', async (ctx) => {
+cart.hears('🏠 Home', async (ctx) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
  
   await ctx.scene.enter('homeScene');
