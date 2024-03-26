@@ -23,33 +23,29 @@ myOrderScene.enter(async (ctx) => {
     await ctx.reply("To go back to home, press 🏠 Home", Markup.keyboard([["🏠 Home", "My Order History"]]).resize().oneTime());
     const userId = ctx.from.id;
     const userOrders = await getUserOrders(userId, "pending");
-    console.log("user.lof", userOrders)
     if (userOrders.length === 0) {
         const emptyOrderMessage = await ctx.reply("You don't have any orders yet.", Markup.keyboard([["🏠 Home", "My Order History"]]).resize().oneTime());
-        // Save the message ID for cleanup
         ctx.session.cleanUpState.push({ id: emptyOrderMessage.message_id, type: "myorder" });
     } else {
         ctx.session.UserOrder = userOrders
         for (const order of userOrders) {
 
             if (order?.orderItems?.length > 1) {
-                await OrderMessageWithProducts(ctx, order._id, order.orderItems);
-
-                //   return OrderMessageWithProducts(ctx, order);    
+                await OrderMessageWithProducts(ctx, order._id, order.orderItems);    
             }
             else {
 
                 const formatTelegramMessage = (product, quantity) => {
                     const { name, description, price, available, warranty, category, highlights, images, createdAt } = product;
 
-                    const formattedprice = product.quantity !== 0 ?
+                    const formattedprice = product?.quantity !== 0 ?
                         `  
                   . 
                   . 
-                   ${quantity}x${product.price}= ${quantity * product.price} ETB` : ''
+                   ${quantity}x${product?.price}= ${quantity * product?.price} ETB` : ''
 
                     return `
-                 ${category.icon} ${name} ${category.icon}
+                 ${category.icon} ${name} ${category?.icon}
                  💴 ${price} ETB
                  #${category.name} ${category.icon}
                  ${formattedprice}
@@ -59,16 +55,12 @@ myOrderScene.enter(async (ctx) => {
                 };
                 try {
 
-
-
-                    const orderItems = order?.orderItems || []; // Ensure orderItems is an array and not undefined
+                  const orderItems = order?.orderItems || []; // Ensure orderItems is an array and not undefined
 
                     if (orderItems.length > 0 && orderItems[0]?.product?.images?.length > 0) {
-                        // Proceed with sending the order information if the user has order items and the first item has images
-                        //   const imageBuffer = await ImageBuffer(orderItems[0].product.images[0].imageUrl); // Function to get image buffer
+
                         const resizeimage = await order?.orderItems[0]?.product?.images[0]?.imageUrl
-                        console.log("resizeimage............", resizeimage)
-                        console.log("resizeimage", resizeimage)
+      
                         const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
                         const imageBuffer = await sharp(response.data)
                             .resize(200, 200)
@@ -98,7 +90,7 @@ myOrderScene.enter(async (ctx) => {
 
 
                 } catch (error) {
-                    await ctx.reply("erro", error)
+                    await ctx.reply("error happing", error)
                     // await ctx.scene.leave()
                 }
 
@@ -117,7 +109,6 @@ myOrderScene.action(/cancel_order:(.+)/, async (ctx) => {
     const userId = ctx.from.id;
     const orderId = ctx.match[1];
 
-    // const cancellationResult = await cancelOrder(orderId, userId);
 
     if (orderId) {
         const message = ctx.callbackQuery.message;
@@ -172,10 +163,7 @@ myOrderScene.action(/confirm_cancel:(.+)/, async (ctx) => {
 
 // Handle user's rejection
 myOrderScene.action('reject_cancel', async (ctx) => {
-    // Delete the message with the cancellation confirmation prompt
-    // await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
-
-    // Optionally, inform the user that the cancellation was rejected
+  
     await ctx.answerCbQuery("Cancellation request rejected.");
     await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
 
@@ -227,7 +215,7 @@ myOrderScene.hears("My Order History", async (ctx) => {
             
                 `;
             };
-            console.log(order?.orderItems[0]?.product?._id)
+
             const resizeimage = order.orderItems[0].product?.images[0].imageUrl
             const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
             const imageBuffer = await sharp(response.data)
@@ -334,20 +322,10 @@ myOrderScene.leave(async (ctx) => {
 })
 
 async function OrderMessageWithProducts(ctx, orderid, orderItems) {
-    console.log("Order Items:", JSON.stringify(orderItems, null, 2));
-    // for (const orderItem of orderItems) {
-     
-    //     console.log("orderItems.......",orderItem)
-    // const productId = orderItem.product._id;
     const productId = 1;
-    //     const productName = orderItem.product.name;
+
     const imageUrls = orderItems.flatMap((item) => item.product.images.map(image => image.imageUrl));
     const videoUrl = orderItems.map((item) => item.product?.video?.videoUrl)
-    //     const videoUrl = orderItem.product.video ? orderItem.product.video.videoUrl : null;
-    // console.log("Images.......",imageUrls)
-    //  console.log("video.......",orderItem?.product?.video)
-console.log("imageUrl............",imageUrls.flat())
-console.log("imageUrlRisrt............",imageUrls[0])
         const messageIds = [];
         let index = 0;
         const caption = generateCaption(orderItems, orderItems.length, 1);

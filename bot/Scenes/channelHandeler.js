@@ -1,6 +1,4 @@
 const { Scenes, Markup } = require('telegraf');
-// const { getAllProducts } = require('../../Database/productcontroller');
-// const { sendProductToChannel } = require('./sendProduct');
 const { updateUserLanguage } = require('../Database/UserController');
 const { getSingleProduct } = require('../Database/productcontroller');
 const User = require('../Model/user');
@@ -13,7 +11,6 @@ channelHandeler.enter(async(ctx) => {
   ctx.scene.state.enterTime = enterTime;
     const product = ctx.scene.state.pid;
     ctx.session.productID = product;
-    console.log("pid...........",product)
     const message = await ctx.reply('🌐 Please choose your language', Markup.inlineKeyboard([
       Markup.button.callback('🇬🇧 English ', 'set_lang:en'),
       Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
@@ -21,7 +18,7 @@ channelHandeler.enter(async(ctx) => {
     ctx.session.languageMessageId = message.message_id;
     let existingUser = await User.findOne({ telegramid: ctx.from.id });
     if (!existingUser) {
-      console.log("register event channel")
+         
         // If the user doesn't exist, create a new user document
         newuser = await User.create({
           telegramid: ctx.from.id,
@@ -52,14 +49,9 @@ channelHandeler.action(/set_lang:(.+)/, async (ctx) => {
     if (ctx.session.languageMessageId) {
       await ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.languageMessageId);
     }
-    const updateResult = await updateUserLanguage(ctx.from.id, ctx.session.locale);
+   await updateUserLanguage(ctx.from.id, ctx.session.locale);
 
-    if (updateResult.success) {
-      console.log(updateResult.message);
-      
-    } else {
-      console.error(updateResult.message);
-    }
+ 
     const productId = await ctx.session.productID;
     const response = await getSingleProduct(productId);
     const product = JSON.stringify(response)
@@ -74,7 +66,7 @@ channelHandeler.action(/set_lang:(.+)/, async (ctx) => {
         // Handle the case when the product is not found
       }
       try {
-        // Calculate the duration when leaving the scene
+  
         const leaveTime = new Date();
         const enterTime = ctx.scene.state.enterTime;
         const durationMs = new Date(leaveTime - enterTime);

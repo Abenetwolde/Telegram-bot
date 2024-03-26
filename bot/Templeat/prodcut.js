@@ -126,6 +126,9 @@ module.exports = {
                 } else if (viewMore) {
                     keyboard.push([Markup.button.callback('🛒 Buy', `buy_${productId}`)]);
                 }
+                else if (!viewMore&&product?.video?.videoUrl) {
+                    keyboard.push([Markup.button.callback('🛒 Buy', `buy_${productId}`)]);
+                }
                 if (image) {
                     try {
                         await ctx.telegram.editMessageMedia(
@@ -146,7 +149,7 @@ module.exports = {
                             console.log("An unexpected error occurred: ", error);
                         }
                     }
-                } else if (product.video) {
+                } else if (product?.video) {
                     try {
                         await ctx.telegram.editMessageMedia(
                             ctx.chat.id,

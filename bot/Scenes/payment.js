@@ -2,23 +2,16 @@ const { Scenes, Markup } = require("telegraf")
 const numeral = require("numeral")
 const moment = require("moment")
 const axios = require('axios');
-// const { checkUserToken } = require('./Pagination/Utils/checkUserToken');
 const apiUrl = 'http://localhost:5000';
 const _ = require("lodash");
-const { checkUserToken } = require("../Utils/checkUserToken");
+
 const { createPayment } = require("../Database/payment");
 const { updateOrder, updateOrderStatus } = require("../Database/orderController");
 const product = require("../Model/product");
 let priceLabels = []
 const paymentScene = new Scenes.BaseScene("paymentScene")
 const UserKPI=require("../Model/KpiUser");
-/**
- * Upon entering, scene contains:
- * 1. Voucher applied (i.e. ctx.scene.state.voucher)
- * 2. Delivery date, if any (i.e. ctx.scene.state.deliveryDate)
- * 3. Note, if any (i.e. ctx.scene.state.note)
- */
-let paymentResponse = null
+
 paymentScene.enter(async (ctx) => {
     const enterTime = new Date();
     ctx.scene.state.enterTime = enterTime;
@@ -27,7 +20,7 @@ paymentScene.enter(async (ctx) => {
     ctx.session.isWaiting = {
         status: false
     }
-    console.log("orderid from payment", ctx.scene.state.orderId)
+
     await ctx.reply("Welcome to the payment page, you're able to make payment for your order now.",    Markup.keyboard([
         ["🏠 Back to Home"]
     ]).resize())
@@ -85,9 +78,9 @@ async function initiatePayment(ctx, gateway) {
         })
 
     }
-    console.log("Getway.......",gateway)
+
 const totalCost =  ctx.scene.state.totalPrice
-    // Based on the gateway choice, configure payment parameters accordingly
+
     let providerToken, payload;
     if (gateway === "chapa") {
         console.log("Getway",gateway)
@@ -127,7 +120,7 @@ const totalCost =  ctx.scene.state.totalPrice
 //   });
   //some  change
 paymentScene.on("successful_payment", async (ctx) => {
-    console.log("Success payment", ctx.message.successful_payment)
+
     ctx.session.cleanUpState = _.map(ctx.session.cleanUpState, function (message) {         // Convert old cart message ID into text to prune
         if (message.type === "invoice") {
             message.type = "receipt"

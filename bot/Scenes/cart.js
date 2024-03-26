@@ -23,12 +23,12 @@ cart.enter(async (ctx) => {
   if (cart) {
     for (const item of cart?.items) {
       const cartMessageInfo = await sendCartProduct(ctx, item.product._id.toString(), item)
-      console.log("cart message info......", cartMessageInfo)
+   
       ctx.session.cleanUpState.push(cartMessageInfo)
     }
     const summaryinfo = await sendProdcutSummary(ctx,cart)
     ctx.session.cleanUpState.push(summaryinfo)
-    console.log("summary info.........", summaryinfo)
+
   }
 
 
@@ -42,14 +42,11 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
     const userId = ctx.from.id;
 
     const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
-console.log("updated product.........",JSON.parse(updatedCartItem))
     // Parse the returned JSON string to access the data
     const { product, quantity,cartId,cartItem } = JSON.parse(updatedCartItem);
  
      const cart = await getCart(userId);
 
-    // const cartItemIndex = cart.items.findIndex(item => item.product._id.toString() === productId);
-    // const cartItem = cart.items[cartItemIndex];
   
     if (cartItem.quantity >= 1) {
       // If quantity is still greater than or equal to 1, update the cart and send the updated cart product
@@ -60,7 +57,7 @@ console.log("updated product.........",JSON.parse(updatedCartItem))
     if (quantity=== 0) {
        await removeItemFromCart(cartId,productId)
 
-      await ctx.answerCbQuery(`You have deleted ${cartItem.product.name} from your cart page.`);
+      await ctx.answerCbQuery(`You have deleted ${cartItem?.product?.name} from your cart page.`);
 
       try {
         // Delete the corresponding message from the cleanup state
@@ -93,8 +90,8 @@ cart.action(/(addQuantity)_(.+)/, async (ctx) => {
 
     const cart = await getCart(userId);
 
-    const cartItemIndex = cart.items.findIndex(item => item.product._id.toString() === productId);
-    const cartItem = cart.items[cartItemIndex];
+    const cartItemIndex = cart?.items?.findIndex(item => item.product._id.toString() === productId);
+    const cartItem = cart?.items[cartItemIndex];
 
     await sendCartProduct(ctx, productId, cartItem);
     await sendProdcutSummary(ctx,cart)
@@ -102,22 +99,17 @@ cart.action(/(addQuantity)_(.+)/, async (ctx) => {
 
 
 cart.action("Home", async (ctx) => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  // await new Promise(resolve => setTimeout(resolve, 1000));
   await ctx.scene.enter("homeScene")
 });
 cart.hears('🏠 Home', async (ctx) => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  // await new Promise(resolve => setTimeout(resolve, 1000));
  
   await ctx.scene.enter('homeScene');
 
 });
 cart.action("proceedToCheckout", async (ctx) => {
-  // await sendProdcutSummary(ctx)
   await ctx.scene.enter("selectePaymentType")
-//   await ctx.reply("Would you like to leave a note along with the order?", Markup.inlineKeyboard([
-//     Markup.button.callback( "⏩ Skip", 'Skip')
-// ]))
-// await ctx.scene.leave();
 });
 
 

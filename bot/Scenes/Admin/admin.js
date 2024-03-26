@@ -19,9 +19,7 @@ adminBaseScene.enter((ctx) => {
 
 // Handle the selected option
 adminBaseScene.hears('Post Product', async (ctx) => {
-  // You can implement logic here to gather information about the product
   const productsData = {
-// Replace with the category you want to fetch
     page: 1,
     pageSize: 10,
   };

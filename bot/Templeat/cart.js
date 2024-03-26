@@ -104,7 +104,7 @@ module.exports = {
          
         } else {
             if(image!==undefined){
-                console.log("image ex,,,,,,,,,,,,,,,,,,,,,,,,,,,",image)
+          
                 const resizeimage = image
                 const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
                 const imageBuffer = await sharp(response.data)

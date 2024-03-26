@@ -85,7 +85,7 @@ noteScene.action("Skip", async (ctx) => {
          summary+= `📲 Phone Number For Contact:${phoneNumber}\n`
         }
     summary += `\nTotal Quantity: ${totalQuantity}\nTotal Price: <u>${totalPrice} ETB</u>`;
-    console.log("summary",summary)
+
     const message =   await ctx.replyWithHTML(summary, {
         ...Markup.inlineKeyboard([
             [Markup.button.callback("Order", 'make_order')],
@@ -106,10 +106,7 @@ noteScene.on("message", async (ctx) => {
         return ctx.scene.enter("cart")
     } else {
         const note4message = await ctx.replyWithHTML(`This is the note that you wish to leave for the seller: <i>${ctx.message.text}</i>`,
-            // [
-            //     { text: "✅ Confirm", callback_data: "confirm" },
-            //     { text: "❌ Edit", callback_data: "edit" },
-            // ],
+ 
             Markup.inlineKeyboard([
                 Markup.button.callback("✅ Confirm", 'confirm'),
                 Markup.button.callback("❌ Edit", "edit"),
@@ -130,17 +127,14 @@ noteScene.on("message", async (ctx) => {
 });
 noteScene.action("edit", async (ctx) => {
     console.log("edit")
-    // Check if waiting for edit and message is from the user
 
-
-    // Send confirmation message
     const confirmationMessage = await ctx.replyWithHTML(`Your note has been updated to: <i>${ctx.session.orderInformation?.note}</i>`, {
         reply_markup: {
             force_reply: true,
         },
     }, Markup.inlineKeyboard([
         [
-            // { text: "✅ Edit", callback_data: "edit" },
+
             { text: "❌ Cancel", callback_data: "cancel" },
         ],
     ]));
@@ -162,10 +156,7 @@ noteScene.on("message", async (ctx) => {
         return ctx.scene.enter("cart")
     } else {
         const note4message = await ctx.replyWithHTML(`This is the note that you wish to leave for the seller: <i>${ctx.message.text}</i>`,
-            // [
-            //     { text: "✅ Confirm", callback_data: "confirm" },
-            //     { text: "❌ Edit", callback_data: "edit" },
-            // ],
+     
             Markup.inlineKeyboard([
                 Markup.button.callback("✅ Confirm", "confirm"),
                 Markup.button.callback("❌ Edit", "edit"),
@@ -173,11 +164,7 @@ noteScene.on("message", async (ctx) => {
             ])
         );
         ctx.session.isWaiting.note = text
-        // ctx.session.orderInformation = {
-        //     ...ctx.session.orderInformation,
-        //     note: text,
-        //   };
-        // ctx.session.isWaiting.status = false;
+
         ctx.session.cleanUpState.push({ id: note4message.message_id, type: 'note' });
     }
 
@@ -254,46 +241,14 @@ noteScene.action("make_order", async (ctx) => {
         });
         //  await ctx.scene.leave()
     } else {
-        ctx.reply("you paid in cash")
+ 
         const order = await createOrder(userId, orderInformation, cartItems);
         const orderJson = JSON.stringify(order);
         const orderJsonParse = JSON.parse(orderJson);
       const message=  await ctx.reply(`Payment received for Order ID: ${orderJsonParse.orderNumber}. Total Amount: ${order.totalPrice}`);
-        console.log("  orderJsonParse.orderItems........", orderJsonParse)
+
         await ctx.scene.leave()
-        // let summary = '';
-        // let totalQuantity = 0;
-        // let totalPrice = 0;
-        // let usernote = ctx.session?.orderInfromation?.note || null
-        // let paymentType = ctx.session?.orderInfromation?.paymentType || null
-        // if (usernote) {
-        //     summary += `📔 Note for seller: ${usernote}\n`
 
-        //     // orderItems.push({ "note": note }, )
-        // }
-        // if (paymentType) {
-        //     summary += `💳 Payment Type: ${paymentType}\n`
-        // }
-        // orderJsonParse?.orderItems.forEach((product, productId) => {
-        //     if (product.quantity > 0) {
-        //         // console.log(ctx.session.quantity[product._id], product._id)//filter the product quantity is greater than o
-        //         summary += `🛒 ${product.product.name}: ${product.quantity} x ${product.product.price} = ${product.quantity * product.product.price} ETB\n`;
-        //         totalQuantity += product.quantity;
-        //         totalPrice += product.quantity * product.product.price;
-
-        //     }
-        // });
-        // summary += `\nTotal Quantity: ${totalQuantity}\nTotal Price: <u>${totalPrice} ETB</u>`;
-        // const message = await ctx.replyWithHTML(summary,
-        //     {
-        //         parse_mode: 'HTML', // Specify parse mode for HTML
-        //         ...Markup.inlineKeyboard([
-        //             [Markup.button.callback("Cancel Order", `cancel_order:${orderJsonParse._id}`)]
-        //         ]),
-        //         caption: summary // Set the caption
-        //     }
-
-        // );
         ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' })
         //   await ctx.reply(`Order created successfully! Order ID: ${order._id}\n ${ctx.session.isWaiting.note}`);
  
@@ -309,8 +264,6 @@ noteScene.action("make_order", async (ctx) => {
 noteScene.action(/cancel_cart:(.+)/, async (ctx) => {
     const userId = ctx.from.id;
     const cartid = ctx.match[1];
-console.log("cartId.......",cartid);
-    // const cancellationResult = await cancelOrder(orderId, userId);
 
     if (cartid) {
         const message = ctx.callbackQuery.message;

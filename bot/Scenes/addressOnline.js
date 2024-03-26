@@ -14,8 +14,6 @@ addressOnline.enter(async (ctx) => {
     ctx.session.isWaiting = {
         status: false
     }
-    // const summaymessage = await sendProdcutSummary(ctx)
-    // console.log("summary message from note",summaymessage)
     const note1message = await ctx.reply("Last step before we're able to generate your invoice! 🙂", Markup.keyboard([
         ["❌ Cancel"]
     ]).resize())
@@ -25,8 +23,7 @@ addressOnline.enter(async (ctx) => {
         "Great! Now, please provide your location or send a Google Maps link?",
         {
           reply_markup: {
-            // keyboard: [["❌ Cancel"]],
-            resize_keyboard: true, // Optional, to make the keyboard smaller
+            resize_keyboard: true, 
             force_reply: true,
           },
         }

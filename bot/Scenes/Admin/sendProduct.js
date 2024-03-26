@@ -5,8 +5,6 @@ const axios = require('axios');
 const sharp = require('sharp');
 const  Product =require( '../../Model/product');
 module.exports = {
-    // ... (other functions)
-
     sendProductToChannel: async function (ctx, productd, product, isCart) {
         const formatTelegramMessage = (product) => {
             const { name, description,images, price, available, warranty, category, highlights } = product;
@@ -17,36 +15,27 @@ module.exports = {
         
 
             return `
-${category.icon} ${name} ${category.icon}
+${category?.icon} ${name} ${category?.icon}
 ✨ ${description}
 💴 ${price} ETB
 🚀 ${formattedHighlights} 
 ${formattedButton}
 .
 .
-#${category.name} ${category.icon}
+#${category?.name} ${category?.icon}
 
 
       `;
         };
         const productId = productd.toString()
         const caption = `${formatTelegramMessage(product)}`;
-        console.log("Caption:", caption);
         const paginationKeyboard = Markup.inlineKeyboard([
             Markup.button.url('Order 📔', `https://t.me/testecommerce12bot?start=chat_${productId}`),
         ]);
 
         const channelId = -1002011345443;
-        const images = product.images.map(image => image.imageUrl);
-        // const mediaGroup = images.map(image => ({
-        //     type: 'photo',
-        //     media: image,
-        // }));
-
-        // // Add the caption to each item in the media group
-        // mediaGroup.forEach(item => {
-        //     item.caption = caption;
-        // });
+        const images = product?.images.map(image => image.imageUrl);
+     
         let mediaGroup=[]
         images.map((i,index)=>index==0?mediaGroup.push(            {
                   media: i,
@@ -59,25 +48,10 @@ ${formattedButton}
                 media: i,
                 type: 'photo',
                 parse_mode: 'Markdown'
-                
-            //  parse_mode: 'MarkdownV2'
            },
           ))
-        // let mediaGroup = [
-        //     {
-        //       media: 'https://th.bing.com/th/id/OIP.5sU8YRNczaPYF0IyIZRDSgHaPf?rs=1&pid=ImgDetMain',
-        //       type: 'photo',
-        //       caption: '**My caption**',
-        //       parse_mode: 'MarkdownV2'
-        //     },
-        //     {
-        //       media: 'https://th.bing.com/th/id/OIP.4Y0vnHhGVZKcFJSQf9XcGwHaDt?rs=1&pid=ImgDetMain',
-        //       type: 'photo'
-        //     },
-         
-        //   ];
       
-        if (images.length === 1) {
+        if (images?.length === 1) {
             // If there's only one image, send it with the order link in the caption
             const image = images[0];
             const response = await axios.get(image, { responseType: 'arraybuffer' });
@@ -125,7 +99,6 @@ ${formattedButton}
                 }
             });
          
-            console.log("message Saved...........",messagesaved)
            
         }
         else if(product?.video?.videoUrl){
