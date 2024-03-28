@@ -246,7 +246,11 @@ noteScene.action("make_order", async (ctx) => {
         const orderJson = JSON.stringify(order);
         const orderJsonParse = JSON.parse(orderJson);
       const message=  await ctx.reply(`Payment received for Order ID: ${orderJsonParse.orderNumber}. Total Amount: ${order.totalPrice}`);
-
+      await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
+      await ctx.reply(`Thank you for your order! The product will be delivered to you soon.`,Markup.inlineKeyboard([
+        Markup.button.callback(
+          `View Your Order`,"showOrder")
+      ]));
         await ctx.scene.leave()
 
         ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' })
@@ -258,7 +262,9 @@ noteScene.action("make_order", async (ctx) => {
 });
 
 
-
+noteScene.action("showOrder",async(ctx)=>{
+    await ctx.scene.enter("myOrderScene")
+})
 //cart
 
 noteScene.action(/cancel_cart:(.+)/, async (ctx) => {

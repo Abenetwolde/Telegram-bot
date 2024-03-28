@@ -10,7 +10,8 @@ const { addressOnline } = require('./addressOnline');
 const myOrderScene = require('./myorder');
 const adminBaseScene = require('./Admin/admin');
 const channelHandeler = require('./channelHandeler');
-
+const {feedback}= require('./feedback')
+const {aboutUs}= require('./aboutus')
 module.exports = {
     homeScene,
     productSceneTest,
@@ -23,6 +24,9 @@ module.exports = {
     addressOnline,
     myOrderScene,
     adminBaseScene,
-    channelHandeler
+    channelHandeler,
+    aboutUs,
+    feedback
+    
     
 }

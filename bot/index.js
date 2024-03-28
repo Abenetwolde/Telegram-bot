@@ -11,7 +11,7 @@ const axios = require('axios');
 const fs = require('fs').promises;
 require('dotenv').config();
 const { t, match } = require('telegraf-i18next');
-const { homeScene, productSceneTest, cart, informationCash, searchProduct, myOrderScene, addressOnline, selectePaymentType, noteScene, paymentScene, adminBaseScene ,channelHandeler} = require('./Scenes/index.js');
+const { homeScene, productSceneTest, cart, informationCash, searchProduct, myOrderScene, addressOnline, selectePaymentType, noteScene, paymentScene, adminBaseScene ,channelHandeler, feedback, aboutUs} = require('./Scenes/index.js');
 const { checkUserToken } = require('./Utils/checkUserToken');
 const { Mongo } = require("@telegraf/session/mongodb");
 const { MongoClient } = require('mongodb');
@@ -41,7 +41,7 @@ bot.use(i18next({
   }
 }));
 const { Stage } = Scenes;
-const stage = new Stage([homeScene, channelHandeler,searchProduct, productSceneTest, cart, myOrderScene, selectePaymentType, addressOnline, informationCash, noteScene, paymentScene, adminBaseScene/* ,productScene,latestScene,popularScene */])
+const stage = new Stage([homeScene, channelHandeler,searchProduct, productSceneTest, cart, myOrderScene, selectePaymentType, addressOnline, informationCash, noteScene, paymentScene, adminBaseScene, feedback, aboutUs])
 
 
 // bot.use(session({ store }));

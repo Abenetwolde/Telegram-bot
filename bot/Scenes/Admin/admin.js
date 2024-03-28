@@ -19,19 +19,52 @@ adminBaseScene.enter((ctx) => {
 
 // Handle the selected option
 adminBaseScene.hears('Post Product', async (ctx) => {
+  let lastProcessedIndex = ctx.session.lastProcessedIndex || 0;
   const productsData = {
     page: 1,
     pageSize: 10,
   };
   const productsResult = await getAllProducts();
-  for (const product of productsResult.products) {
-    ctx.session.currentImageIndex[product._id] = 0;
-    ctx.session.viewMore[product._id] = false;
-    await sendProductToChannel(ctx, product._id, product);
+  const { products } = productsResult;
+  // Check if there are no more products left to process
+  if (lastProcessedIndex >= products.length) {
+    // lastProcessedIndex=0
+    return ctx.reply('All products have been posted to the channel.');
   }
 
+  // Define exponential backoff parameters
+  let delay = 1000; // Initial delay (1 second)
+  let success = false;
 
-  ctx.scene.enter('adminBaseScene');
+  while (!success) {
+    try {
+      // Attempt to send products to channel from the last processed index
+      for (let i = lastProcessedIndex; i < products.length; i++) {
+        const product = products[i];
+        ctx.session.currentImageIndex[product._id] = 0;
+        ctx.session.viewMore[product._id] = false;
+        await sendProductToChannel(ctx, product._id, product);
+        lastProcessedIndex = i; // Update the last processed index
+      }
+
+      // Mark success if products are sent without errors
+      success = true;
+    } catch (error) {
+      if (error.code === 429) {
+        // If rate limit exceeded, wait for the specified delay and then retry
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2; // Double the delay for exponential backoff
+      } else {
+        // Handle other errors
+        throw error;
+      }
+    }
+  }
+
+  // Store the last processed index in the session
+  ctx.session.lastProcessedIndex = lastProcessedIndex;
+
+  // ctx.scene.enter('adminBaseScene');
 });
 
 // Handle other actions

@@ -8,6 +8,14 @@ const homeScene = new Scenes.BaseScene('homeScene');
 const UserKPI = require("../Model/KpiUser");
 homeScene.enter(async (ctx) => {
     try {
+        if (ctx.session.cleanUpState) {
+            ctx.session.cleanUpState.forEach(async (message) => {
+                if (message?.type === 'aboutme' /* || message?.type === 'pageNavigation' || message?.type === 'productKeyboard'|| message?.type === 'home'||message?.type === 'first' */) {
+                    await ctx.telegram.deleteMessage(ctx.chat.id, message.id).catch((e) => ctx.reply(e.message));
+    
+                }
+            });
+        }
         await ctx.sendChatAction('typing');
         const enterTime = new Date();
 
@@ -45,7 +53,8 @@ homeScene.enter(async (ctx) => {
 
             let keyboard = [
                 [ctx.i18next.t('Search'), ctx.i18next.t('cart')],
-                [ctx.i18next.t('order'), ctx.i18next.t('Language')]
+                [ctx.i18next.t('order'), ctx.i18next.t('Language')],
+                [ctx.i18next.t('aboutus'), ctx.i18next.t('contactus'),ctx.i18next.t('feedback')]
             ];
             if (showkey) {
 
@@ -99,6 +108,15 @@ homeScene.hears(match('cart'), async (ctx) => {
 })
 homeScene.hears(match('order'), async (ctx) => {
     await ctx.scene.enter("myOrderScene")
+})
+homeScene.hears(match('contactus'), async (ctx) => {
+    await ctx.reply('📥 Contact me \n ✍️ Support: @abman', )
+})
+homeScene.hears(match('feedback'), async (ctx) => {
+    await ctx.scene.enter("feedback")
+})
+homeScene.hears(match('aboutus'), async (ctx) => {
+    await ctx.scene.enter("aboutus")
 })
 homeScene.hears('Admin 📊', async (ctx) => {
     await ctx.scene.enter("adminBaseScene")
