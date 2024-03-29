@@ -17,9 +17,6 @@ const FeedBackSchema = mongoose.Schema({
         required: true,
     },
 
-    icon: {
-        type: String,
-    },
    
 })
 module.exports = mongoose.model('FeedBack', FeedBackSchema);
