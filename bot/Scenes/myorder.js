@@ -31,7 +31,7 @@ myOrderScene.enter(async (ctx) => {
         for (const order of userOrders) {
 
             if (order?.orderItems?.length > 1) {
-                await OrderMessageWithProducts(ctx, order._id, order.orderItems);    
+                await OrderMessageWithProducts(ctx, order._id, order.orderItems,order?.orderNumber);    
             }
             else {
 
@@ -45,9 +45,10 @@ myOrderScene.enter(async (ctx) => {
                    ${quantity}x${product?.price}= ${quantity * product?.price} ETB` : ''
 
                     return `
+                    Order Number :<u>${order?.orderNumber}</u>
                  ${category.icon} ${name} ${category?.icon}
                  💴 ${price} ETB
-                 #${category.name} ${category.icon}
+
                  ${formattedprice}
                 
                 
@@ -69,6 +70,7 @@ myOrderScene.enter(async (ctx) => {
                             const orderMessage = await ctx.replyWithPhoto(
                                 { source: imageBuffer },
                                 {
+                                    parse_mode: 'HTML' ,
                                     caption: formatTelegramMessage(orderItems[0].product, orderItems[0].quantity),
                                     ...Markup.inlineKeyboard([Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]),
                                 }
@@ -80,10 +82,14 @@ myOrderScene.enter(async (ctx) => {
                         console.log("there is a prodcut...............",orderItems[0]?.product?.video)
                         const orderMessage = await ctx.replyWithVideo(orderItems[0]?.product?.video?.videoUrl, {
                             caption: formatTelegramMessage(orderItems[0].product, orderItems[0].quantity),
-                            ...Markup.inlineKeyboard([
                             
-                                [Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]
-                            ]),
+                                parse_mode: 'HTML' ,
+                                ...Markup.inlineKeyboard([
+                           
+                                    [Markup.button.callback("Cancel Order", `cancel_order:${order._id}`)]
+                                ]),
+                            
+                       
                         });
                         ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
                     }
@@ -321,24 +327,27 @@ myOrderScene.leave(async (ctx) => {
     // await Utils.clearScene(ctx, true)
 })
 
-async function OrderMessageWithProducts(ctx, orderid, orderItems) {
+async function OrderMessageWithProducts(ctx, orderid, orderItems,orderNumber) {
     const productId = 1;
 
     const imageUrls = orderItems.flatMap((item) => item.product.images.map(image => image.imageUrl));
     const videoUrl = orderItems.map((item) => item.product?.video?.videoUrl)
         const messageIds = [];
         let index = 0;
-        const caption = generateCaption(orderItems, orderItems.length, 1);
+        const caption = generateCaption(orderNumber, orderItems, orderItems.length, 1);
         if (imageUrls.length > 0) {
             const imageBuffer = await resizeImage(imageUrls[0]);
             // console.log(imageBuffer)
             const orderMessage = await ctx.replyWithPhoto(
                 { source: imageBuffer},
+           
+                     
                 {
+                    parse_mode: 'HTML' ,
                     caption: caption,
                     ...Markup.inlineKeyboard([[
-                        Markup.button.callback('⬅️ Previous', `prev_${productId}_${orderid}_${index}`),
-                        Markup.button.callback('Next ➡️', `next_${productId}_${orderid}_${index}`),
+                        Markup.button.callback('⬅️', `prev_${productId}_${orderid}_${index}_${orderNumber}`),
+                        Markup.button.callback('➡️', `next_${productId}_${orderid}_${index}_${orderNumber}`),
                     ],
                     [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
                     ]),
@@ -369,25 +378,26 @@ async function OrderMessageWithProducts(ctx, orderid, orderItems) {
 
 
 // Handle next and previous actions
-myOrderScene.action(/next_(\w+)_(\w+)_(\d+)/, (ctx) => {
-    const [, productId, orderid, index] = ctx.match;
+myOrderScene.action(/next_(\w+)_(\w+)_(\w+)_(\d+)/, (ctx) => {
+    const [, productId, orderid, index,orderNumber] = ctx.match;
+    console.log("ctx.match", orderNumber);
     const orderItems = ctx.session.UserOrder.find(order => order._id === orderid).orderItems;
     const nextIndex = (parseInt(index) + 1) % orderItems.length;
-    editProductMessage(ctx, orderid, orderItems, productId, index, nextIndex);
+    editProductMessage(ctx,orderNumber, orderid, orderItems, productId, index, nextIndex);
 });
 
 // Handle previous action
-myOrderScene.action(/prev_(\w+)_(\w+)_(\d+)/, (ctx) => {
-    const [, productId, orderid, index] = ctx.match;
+myOrderScene.action(/prev_(\w+)_(\w+)_(\w+)_(\d+)/, (ctx) => {
+    const [, productId, orderid, index,orderNumber] = ctx.match;
     const orderItems = ctx.session.UserOrder.find(order => order._id === orderid).orderItems;
     const prevIndex = (parseInt(index) + orderItems.length - 1) % orderItems.length;
-    editProductMessage(ctx, orderid, orderItems, productId, index, prevIndex);
+    editProductMessage(ctx, orderNumber, orderid, orderItems, productId, index, prevIndex);
 });
  
-async function editProductMessage(ctx, orderid, orderItems, productId, currentIndex, newIndex) {
+async function editProductMessage(ctx, orderNumber, orderid, orderItems, productId, currentIndex, newIndex) {
     const image = orderItems[parseInt(newIndex)].product?.images[0]?.imageUrl;
  
-    const caption = generateCaption(orderItems, orderItems.length, newIndex + 1);
+    const caption = generateCaption(orderNumber,orderItems, orderItems.length, newIndex + 1);
     try {
         const imageBuffer = await resizeImage(image);
         await ctx.telegram.editMessageMedia(
@@ -398,33 +408,49 @@ async function editProductMessage(ctx, orderid, orderItems, productId, currentIn
                 type: 'photo',
                 media: { source: imageBuffer },
                 caption: caption,
+                parse_mode: 'HTML' ,
             },
 
-            Markup.inlineKeyboard([[
-                Markup.button.callback('⬅️ Previous', `prev_${productId}_${orderid}_${newIndex}`),
-                Markup.button.callback('Next ➡️', `next_${productId}_${orderid}_${newIndex}`),
-            ],
-            [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)],
-            ]
-            )
+            {
+             
+                ... Markup.inlineKeyboard([[
+                    Markup.button.callback('⬅️ Previous', `prev_${productId}_${orderid}_${newIndex}_${orderNumber}`),
+                    Markup.button.callback('Next ➡️', `next_${productId}_${orderid}_${newIndex}_${orderNumber}`),
+                ],
+                [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)],
+                ]
+                )
+            }
+           
         );
     } catch (error) {
         console.error("Error editing message:", error);
     }
 }
-function generateCaption(orderItems, totalCount, currentIndex) {
+function generateCaption(orderid, orderItems, totalCount, currentIndex) {
     if (!Array.isArray(orderItems)) {
         // If orderItems is not an array, return an empty string
         return '';
+    }
+    let summary=''
+    let totalQuantity = 0;
+    let totalPrice = 0;
+     summary +=`Order Number: <u>${orderid}</u>\n`
+    for (let index = 0; index < orderItems.length; index++) {
+         summary+= `${orderItems[index].product.name}:${orderItems[index].quantity}X${orderItems[index].product.price}=${orderItems[index].quantity*orderItems[index].product.price} ETB\n`;
+         totalQuantity += orderItems[index].quantity;
+         totalPrice += orderItems[index].quantity * orderItems[index].product.price;
+        
     }
     const productName = orderItems.map(item => item.product.name);
     const quantityTimesPrice = orderItems.map(item => `${item.quantity}X${item.product.price}=${item.quantity * item.product.price} ETB`).join("\n");
 
     let caption = `Product Name : ${productName}\n`;
-    caption += `ProductImage ${currentIndex}/${totalCount}\n`;
+    summary += `🖼️  ${currentIndex}/${totalCount}\n`;
+    summary += `\nTotal Quantity: ${totalQuantity}\nTotal Price: <u>${totalPrice} ETB</u>`;
     caption += quantityTimesPrice;
 
-    return caption;
+    return summary;
 }
 async function resizeImage(imageUrl) {
     const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });

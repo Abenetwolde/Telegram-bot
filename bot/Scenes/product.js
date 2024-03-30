@@ -4,7 +4,7 @@ const axios = require('axios');
 const sharp = require('sharp');
 const { getProdcuts, getProducts } = require("../Services/prodcut");
 const { displyProdcut, sendProduct } = require("../Templeat/prodcut");
-const { createCart, updateCartItemQuantity, removeItemFromCart } = require("../Database/cartController");
+const { createCart, updateCartItemQuantity, removeItemFromCart, DecreaseCartQuantity } = require("../Database/cartController");
 const Product = require("../Model/product");
 const prodcut = require("../Services/prodcut");
 const pageSize = 6;
@@ -319,10 +319,7 @@ productSceneTest.action(/removeQuantity_(.+)/, async (ctx) => {
     const productId = ctx.match[1];
 
     try {
-        const userId = ctx.from.id;
-        const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
-
-        // Parse the returned JSON string to access the data
+        const updatedCartItem = await DecreaseCartQuantity(ctx.from.id, productId);
         const { product, quantity,cartId } = JSON.parse(updatedCartItem);
         const productArg = { ...product, quantity };
         if (productArg.quantity === 0) {
@@ -336,6 +333,23 @@ productSceneTest.action(/removeQuantity_(.+)/, async (ctx) => {
         // console.log("removed item...",productArg)
         sendProduct(ctx, productId, productArg);
         await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
+        // const userId = ctx.from.id;
+        // const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
+
+        // // Parse the returned JSON string to access the data
+        // const { product, quantity,cartId } = JSON.parse(updatedCartItem);
+        // const productArg = { ...product, quantity };
+        // if (productArg.quantity === 0) {
+        //     await ctx.answerCbQuery(`You have removed ${productArg.name} of product from your cart.`);
+        //     await removeItemFromCart(cartId,productId)
+        //     sendProduct(ctx, productId, productArg);
+        //     await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
+        //     return;
+        // }
+        
+        // // console.log("removed item...",productArg)
+        // sendProduct(ctx, productId, productArg);
+        // await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
     } catch (error) {
         console.error('Error handling removeQuantity action:', error);
         await ctx.answerCbQuery('Failed to update the quantity.');

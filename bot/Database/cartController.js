@@ -106,7 +106,60 @@ async function updateCartItemQuantity(userId, productId, quantity) {
       throw new Error('Failed to update cart item quantity.');
   }
 }
+async function DecreaseCartQuantity(userId, productId) {
+  console.log(productId)
+  try {
+    // Find the cart for the user
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: 'items.product',
+      populate: {
+        path: 'category',
+        model: 'Category', // replace with your actual Category model name
+      },
+    });
 
+    // If cart not found, return error
+    if (!cart) {
+      throw new Error('Cart not found');
+    }
+console.log("cart", cart.items[0].product)
+    // Find the index of the product in the cart
+    const productIndex = cart.items.findIndex(item => item.product._id.toString() == productId);
+
+    // If product not found in cart, return error
+    if (productIndex === -1) {
+      throw new Error('Product not found in cart');
+    }
+
+    // If quantity is already 0, return error
+    if (cart.items[productIndex].quantity === 0) {
+      throw new Error('Quantity already at minimum');
+    }
+
+    // Decrease quantity by 1
+await cart.items[productIndex].quantity--;
+   const updatecart= cart.items[productIndex]
+   const smt= JSON.stringify({
+    cartId:  cart._id,
+      product: updatecart.product,
+      quantity: updatecart.quantity,
+      cartItem:updatecart
+  });
+   console.log("Update cart.......",smt)
+
+    // Save the updated cart
+    await cart.save();
+
+    return JSON.stringify({
+      cartId:  cart._id,
+      product: updatecart.product,
+      quantity: updatecart.quantity,
+      cartItem:updatecart
+    });;
+  } catch (error) {
+    throw new Error(`Failed to decrease quantity: ${error.message}`);
+  }
+}
 
   
 async function removeItemFromCart(cartId,productId) {
@@ -150,4 +203,4 @@ async function removeItemFromCart(cartId,productId) {
         throw new Error('Failed to remove item from cart.');
       }
     }
-  module.exports = { createCart, getCart,updateCartItemQuantity, removeItemFromCart,removeFromCart };
+  module.exports = { createCart, DecreaseCartQuantity,getCart,updateCartItemQuantity, removeItemFromCart,removeFromCart };

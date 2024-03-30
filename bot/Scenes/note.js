@@ -251,7 +251,7 @@ noteScene.action("make_order", async (ctx) => {
         Markup.button.callback(
           `View Your Order`,"showOrder")
       ]));
-        await ctx.scene.leave()
+  
 
         ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' })
         //   await ctx.reply(`Order created successfully! Order ID: ${order._id}\n ${ctx.session.isWaiting.note}`);

@@ -2,7 +2,7 @@ const { Scenes, Markup, session } = require("telegraf")
 const axios = require('axios');
 const { sendCartProduct } = require("../Templeat/cart");
 const { sendProdcutSummary } = require("../Templeat/summary");
-const { getCart, updateCartItemQuantity, removeItemFromCart } = require("../Database/cartController");
+const { getCart, updateCartItemQuantity, removeItemFromCart, DecreaseCartQuantity } = require("../Database/cartController");
 const cart = new Scenes.BaseScene('cart');
 const UserKPI=require("../Model/KpiUser");
 cart.enter(async (ctx) => {
@@ -40,14 +40,9 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
   try {
     const productId = ctx.match[2];
     const userId = ctx.from.id;
-
-    const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
-    // Parse the returned JSON string to access the data
+    const updatedCartItem = await DecreaseCartQuantity(userId, productId);
     const { product, quantity,cartId,cartItem } = JSON.parse(updatedCartItem);
- 
-     const cart = await getCart(userId);
-
-  
+    const cart = await getCart(userId);
     if (cartItem.quantity >= 1) {
       // If quantity is still greater than or equal to 1, update the cart and send the updated cart product
       await sendCartProduct(ctx, productId, cartItem);
@@ -73,6 +68,38 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
       await sendProdcutSummary(ctx,cart);
       return;
     }
+    // const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
+    // // Parse the returned JSON string to access the data
+    // const { product, quantity,cartId,cartItem } = JSON.parse(updatedCartItem);
+ 
+    //  const cart = await getCart(userId);
+
+  
+    // if (cartItem.quantity >= 1) {
+    //   // If quantity is still greater than or equal to 1, update the cart and send the updated cart product
+    //   await sendCartProduct(ctx, productId, cartItem);
+    //   await sendProdcutSummary(ctx,cart);
+    // }
+
+    // if (quantity=== 0) {
+    //    await removeItemFromCart(cartId,productId)
+
+    //   await ctx.answerCbQuery(`You have deleted ${cartItem?.product?.name} from your cart page.`);
+
+    //   try {
+    //     // Delete the corresponding message from the cleanup state
+    //     if (ctx.session.cleanUpState && ctx.session.cleanUpState.find(message => message.type === 'cart' && message.productId === productId)) {
+    //       const messageId = ctx.session.cleanUpState.find(message => message.type === 'cart' && message.productId === productId).id;
+    //       await ctx.deleteMessage(messageId);
+    //     }
+    //   } catch (error) {
+    //     ctx.reply(error.message);
+    //   }
+
+    //   // Send the updated product summary
+    //   await sendProdcutSummary(ctx,cart);
+    //   return;
+    // }
 
 
   } catch (error) {

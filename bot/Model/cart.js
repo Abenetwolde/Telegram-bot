@@ -9,7 +9,15 @@ const cartItemSchema = new mongoose.Schema({
   quantity: {
     type: Number,
     required: true,
-    default: 1,
+    // default: 1,
+    validate: {
+      validator: function(value) {
+        // Ensure that quantity is less than 1
+        return value >= 0;
+      },
+      message: 'Quantity must be less than 1',
+    },
+  
   },
 });
 
