@@ -117,7 +117,7 @@ async function DecreaseCartQuantity(userId, productId) {
         model: 'Category', // replace with your actual Category model name
       },
     });
-
+ 
     // If cart not found, return error
     if (!cart) {
       throw new Error('Cart not found');
