@@ -27,10 +27,10 @@ adminBaseScene.hears('Post Product', async (ctx) => {
   const productsResult = await getAllProducts();
   const { products } = productsResult;
   // Check if there are no more products left to process
-  if (lastProcessedIndex >= products.length) {
-    // lastProcessedIndex=0
-    return ctx.reply('All products have been posted to the channel.');
-  }
+  // if (lastProcessedIndex >= products.length) {
+  //   // lastProcessedIndex=0
+  //   return ctx.reply('All products have been posted to the channel.');
+  // }
 
   // Define exponential backoff parameters
   let delay = 1000; // Initial delay (1 second)
@@ -44,7 +44,11 @@ adminBaseScene.hears('Post Product', async (ctx) => {
         ctx.session.currentImageIndex[product._id] = 0;
         ctx.session.viewMore[product._id] = false;
         await sendProductToChannel(ctx, product._id, product);
-        lastProcessedIndex = i; // Update the last processed index
+        lastProcessedIndex = i;
+        if (lastProcessedIndex >= products.length) {
+          // lastProcessedIndex=0
+          return ctx.reply('All products have been posted to the channel.');
+        } // Update the last processed index
       }
 
       // Mark success if products are sent without errors

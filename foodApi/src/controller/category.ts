@@ -6,7 +6,7 @@ export const createCategory = async (req: Request, res: Response) => {
   console.log("reach create caregory")
   try {
     const { name, icon } = req.body;
-
+ 
     // Check if the category already exists
     const existingCategory = await Category.findOne({ name });
     if (existingCategory) {
