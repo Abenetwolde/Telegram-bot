@@ -271,7 +271,7 @@ mongoClient.connect()
         // }
 
         if (!ctx.session.locale) {
-          const message = await ctx.reply('🌐 Please choose your language', Markup.inlineKeyboard([
+          const message = await ctx.reply( ctx.i18next.t('selectL'), Markup.inlineKeyboard([
             Markup.button.callback('🇬🇧 English ', 'set_lang:en'),
             Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
           ]))

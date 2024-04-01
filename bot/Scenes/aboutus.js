@@ -6,7 +6,7 @@ aboutUs.enter(async (ctx) => {
     const enterTime = new Date();
     ctx.scene.state.enterTime = enterTime;
 
-    const aboutme = await ctx.reply('contact me @abman', Markup.inlineKeyboard([
+    const aboutme = await ctx.reply('contact me @abnet_abi', Markup.inlineKeyboard([
        Markup.button.callback("❌ Back","Back")
     ]).resize())
 

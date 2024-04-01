@@ -60,8 +60,12 @@ homeScene.enter(async (ctx) => {
 
                 keyboard[1].push('Admin 📊');
             }
-            const welcomeMessage = await ctx.reply(
-                `👋 Hello ${ctx.session.token ? 'again, ' : ''}${ctx.from.first_name}!`,
+            // const welcomeMessage = await ctx.reply(
+            //     `👋 Hello ${ctx.session.token ? 'again, ' : ''}${ctx.from.first_name}!`,
+            //     Markup.keyboard(keyboard).resize()
+            // );
+            const welcomeMessage = await ctx.reply(` 👋 ${ctx.i18next.t('gretting')} ${ctx.from.first_name} ${ctx.session.token ? ctx.i18next.t('hello')  : ''}!`,
+              
                 Markup.keyboard(keyboard).resize()
             );
         

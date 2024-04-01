@@ -11,6 +11,7 @@ const product = require("../Model/product");
 let priceLabels = []
 const paymentScene = new Scenes.BaseScene("paymentScene")
 const UserKPI=require("../Model/KpiUser");
+const { match } = require("telegraf-i18next");
 
 paymentScene.enter(async (ctx) => {
     const enterTime = new Date();
@@ -21,14 +22,14 @@ paymentScene.enter(async (ctx) => {
         status: false
     }
 
-    await ctx.reply("Welcome to the payment page, you're able to make payment for your order now.",    Markup.keyboard([
-        ["🏠 Back to Home"]
+    await ctx.replyWithHTML(`${ctx.i18next.t("MakeaPaymentforyourOrderID")}<u>${ctx.scene.state?.orderNumber}</u>\n Total Price: <u>${ctx.scene.state.totalPrice} ETB</u>`,    Markup.keyboard([
+        [ctx.i18next.t("Home")]
     ]).resize())
 
     // await Utils.sendSystemMessage(ctx, Template.paymentWelcomeMessage(), Template.paymentMenuButtons())
 
-    await ctx.reply("Welcome to the payment page. Please select a payment gateway:", Markup.inlineKeyboard([
-        Markup.button.callback("Chapa", "chapa"),
+    await ctx.reply(ctx.i18next.t("Paymenttype "), Markup.inlineKeyboard([
+        Markup.button.callback("Chapa 🇪🇹", "chapa"),
         Markup.button.callback("Strapi", "strapi")
     ]));
     // const totalCost =  ctx.scene.state.totalPrice
@@ -174,13 +175,15 @@ const updatedOrder=await updateOrder(orderupdate)
 //     });
 //   }
 //   summary += `\nTotal Price: <u>${totalPrice} ETB</u>`;
-  const message=  await ctx.reply(`Payment received for Order ID: ${updatedOrder.orderNumber}. Total Amount: ${updatedOrder.totalPrice}`);
+
   // Send a separate message about the product
-  await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
-  await ctx.reply(`Thank you for your order! The product will be delivered to you soon.`,Markup.inlineKeyboard([
+
+  const message= await ctx.replyWithHTML(`Thank you for your order! 🎉\nPayment received for Order ID: <u>${updatedOrder.orderNumber}</u>. Total Amount: <u>${updatedOrder.totalPrice}</u>\n
+  The product will be delivered to you soon.`,Markup.inlineKeyboard([
     Markup.button.callback(
       `View Your Order`,"showOrder")
   ]));
+  await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
 //   await ctx.replyWithHTML(summary),
   ctx.session.orderInformation={}   
     } catch (error) {
@@ -190,7 +193,11 @@ const updatedOrder=await updateOrder(orderupdate)
 
 // await ctx.scene.enter("homeScene")
 })
+paymentScene.hears(match("Home"), async (ctx) => {
 
+      await  ctx.scene.enter("homeScene")
+ 
+})
 paymentScene.on("message", async (ctx) => {
     if (ctx.message.text === "🏠 Back to Home") {
         ctx.scene.enter("homeScene")

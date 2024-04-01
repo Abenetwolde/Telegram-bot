@@ -6,6 +6,7 @@ const { sendProdcutSummary } = require("../Templeat/summary")
 
 const selectePaymentType = new Scenes.BaseScene("selectePaymentType")
 const UserKPI=require("../Model/KpiUser");
+const { i18next, t } = require("telegraf-i18next")
 /**
  * Upon entering, scene contains:
  * 1. Voucher applied from cart scene (i.e. ctx.scene.state.voucher)
@@ -24,7 +25,7 @@ selectePaymentType.enter(async (ctx) => {
     //     ["🏠 Back to Home"]
     // ]).resize())
 
-    const selec2message = await ctx.reply("Selecte Payment type", Markup.inlineKeyboard([
+    const selec2message = await ctx.reply(ctx.i18next.t("Paymenttype"), Markup.inlineKeyboard([
         [Markup.button.callback("Pay Online 💳", 'online'),
         Markup.button.callback("Pay On Cash 💵", 'cash'),],
         [

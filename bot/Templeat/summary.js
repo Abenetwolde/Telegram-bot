@@ -24,7 +24,7 @@ module.exports = {
         cartItem?.items?.forEach((product, productId) => {
             if (product.quantity > 0) {
                 // console.log(ctx.session.quantity[product._id], product._id)//filter the product quantity is greater than o
-                summary += `🛒 ${product.product.name}: ${product.quantity} x ${product.product.price} = ${product.quantity * product.product.price} ETB\n`;
+                summary += `🛒 ${product.product.name}: ${product.quantity} x ${product.product.price} ETB = ${product.quantity * product.product.price} ETB\n`;
                 totalQuantity += product.quantity;
                 totalPrice += product.quantity * product.product.price;
                 orderItems.push({

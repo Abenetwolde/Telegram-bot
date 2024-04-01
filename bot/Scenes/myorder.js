@@ -20,10 +20,26 @@ myOrderScene.enter(async (ctx) => {
             }
 
         });
-    await ctx.reply("To go back to home, press 🏠 Home", Markup.keyboard([["🏠 Home", "My Order History"]]).resize().oneTime());
+    const ordermessage=await ctx.reply("Here is your Order Foods👇", Markup.keyboard([["🏠 Home", "My Order History"]]).resize().oneTime());
+    ctx.session.cleanUpState.push({ id: ordermessage.message_id, type: "myorder" });
     const userId = ctx.from.id;
     const userOrders = await getUserOrders(userId, "pending");
     if (userOrders.length === 0) {
+        if (ctx.session.cleanUpState) {
+            ctx.session.cleanUpState.forEach(async (message) => {
+                console.log("%c called deleteing when its leave", "color: red;")
+                if (message?.type === 'myorder' || message?.type === 'orderhistory') {
+                    try {
+                        await ctx.telegram.deleteMessage(ctx.chat.id, message?.id);
+                    } catch (error) {
+                        console.log("error while deleting.......", error)
+                    }
+    
+                }
+    
+    
+            });
+        }
         const emptyOrderMessage = await ctx.reply("You don't have any orders yet.", Markup.keyboard([["🏠 Home", "My Order History"]]).resize().oneTime());
         ctx.session.cleanUpState.push({ id: emptyOrderMessage.message_id, type: "myorder" });
     } else {
@@ -36,19 +52,23 @@ myOrderScene.enter(async (ctx) => {
             else {
 
                 const formatTelegramMessage = (product, quantity) => {
-                    const { name, description, price, available, warranty, category, highlights, images, createdAt } = product;
-
-                    const formattedprice = product?.quantity !== 0 ?
-                        `  
+                    const { name, description, price, available, warranty, category, highlights, images } = product;
+                    const createdAt = new Date(order.createdAt);
+                    const formattedDate = `${createdAt.getDate()}/${createdAt.getMonth() + 1}/${createdAt.getFullYear()}`;
+                    const formattedprice = product?.quantity !== 0 ?     `  
                   . 
                   . 
                    ${quantity}x${product?.price}= ${quantity * product?.price} ETB` : ''
 
                     return `
-                    Order Number :<u>${order?.orderNumber}</u>
+                 Order Number :<u>${order?.orderNumber}</u>\n
                  ${category.icon} ${name} ${category?.icon}
                  💴 ${price} ETB
-
+                 Order Status : <b>${order.orderStatus ?? 'Pending'}</b>
+                 Payment Status : <b>${order.orderStatus ?? 'Pending'}</b>
+                 Payment Type : <b>${order?.paymentType}</b>
+                 Ordered Date :${formattedDate}
+                 ${order?.shippingInfo?.location?`Location:${order?.shippingInfo?.location}`:""}
                  ${formattedprice}
                 
                 
@@ -159,6 +179,7 @@ myOrderScene.action(/confirm_cancel:(.+)/, async (ctx) => {
 
     // Perform cancellation logic here...
     const cancellationResult = await cancelOrder(orderId, ctx.from.id);
+    await ctx.answerCbQuery("Order canceled successfully");
     if (cancellationResult.success) {
         await ctx.answerCbQuery("Order canceled successfully.");
         // await ctx.scene.reenter()

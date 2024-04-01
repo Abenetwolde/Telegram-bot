@@ -3,7 +3,7 @@ const { sendProdcutSummary } = require("../Templeat/summary")
 const axios = require('axios');
 const { createOrder, getOrderById } = require("../Database/orderController");
 const { getCart, removeItemFromCart, removeFromCart } = require("../Database/cartController");
-
+const { t, match } = require('telegraf-i18next');
 const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
 const noteScene = new Scenes.BaseScene("NOTE_SCENE")
@@ -17,12 +17,12 @@ noteScene.enter(async (ctx) => {
     }
     // const summaymessage = await sendProdcutSummary(ctx)
     // console.log("summary message from note",summaymessage)
-    const note1message = await ctx.reply("Last step before we're able to generate your invoice! 🙂", Markup.keyboard([
+    const note1message = await ctx.reply( ctx.i18next.t('laststep'), Markup.keyboard([
         ["❌ Cancel"]
     ]).resize())
 
 
-    const note1message2 = await ctx.reply("📝 Would you like to leave a note along with the order?", Markup.inlineKeyboard([
+    const note1message2 = await ctx.reply( ctx.i18next.t('note'), Markup.inlineKeyboard([
         Markup.button.callback("✅ Yes", 'yes'),
         Markup.button.callback("⏩ Skip", 'Skip'),
 
@@ -88,9 +88,9 @@ noteScene.action("Skip", async (ctx) => {
 
     const message =   await ctx.replyWithHTML(summary, {
         ...Markup.inlineKeyboard([
-            [Markup.button.callback("Order", 'make_order')],
-            [Markup.button.callback("Update Order Infromation", 'updateorder')],
-            [Markup.button.callback("Cancel Order", `cancel_cart:${cart._id}`)]
+            [Markup.button.callback("📝 Place Order", 'make_order')],
+            [Markup.button.callback("✏️ Update Order Infromation", 'updateorder')],
+            [Markup.button.callback("❌ Cancel Order", `cancel_cart:${cart._id}`)]
         ]),
     })
     ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' })
@@ -105,11 +105,11 @@ noteScene.on("message", async (ctx) => {
     if (text === "❌ Cancel" || text === "/start") {
         return ctx.scene.enter("cart")
     } else {
-        const note4message = await ctx.replyWithHTML(`This is the note that you wish to leave for the seller: <i>${ctx.message.text}</i>`,
+        const note4message = await ctx.replyWithHTML(`${ctx.i18next.t("NoteConfirm")} <i>${ctx.message.text}</i>`,
  
             Markup.inlineKeyboard([
                 Markup.button.callback("✅ Confirm", 'confirm'),
-                Markup.button.callback("❌ Edit", "edit"),
+                Markup.button.callback("✏️ Edit", "edit"),
 
             ])
         );
@@ -159,7 +159,7 @@ noteScene.on("message", async (ctx) => {
      
             Markup.inlineKeyboard([
                 Markup.button.callback("✅ Confirm", "confirm"),
-                Markup.button.callback("❌ Edit", "edit"),
+                Markup.button.callback("✏️ Edit", "edit"),
 
             ])
         );
@@ -216,9 +216,9 @@ noteScene.action('confirm', async (ctx) => {
     console.log("summary",summary)
     const message =   await ctx.replyWithHTML(summary, {
         ...Markup.inlineKeyboard([
-            [Markup.button.callback("Order", 'make_order')],
-            [Markup.button.callback("Update Order Infromation", 'updateorder')],
-            [Markup.button.callback("Cancel Order", `cancel_cart:${cart._id}`)]
+            [Markup.button.callback("📝 Place Order", 'make_order')],
+            [Markup.button.callback("✏️ Update Order Infromation", 'updateorder')],
+            [Markup.button.callback("❌ Cancel Order", `cancel_cart:${cart._id}`)]
         ]),
     })
     ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' }) 
@@ -233,8 +233,9 @@ noteScene.action("make_order", async (ctx) => {
         const order = await createOrder(userId, orderInformation, cartItems);
         const orderJson = JSON.stringify(order);
         const orderJsonParse = JSON.parse(orderJson);
-        await ctx.reply(`Payment received for Order ID: ${orderJsonParse._id.toString()}. Total Amount: ${order.totalPrice}`);
+        
         await ctx.scene.enter('paymentScene', {
+            orderNumber:orderJsonParse.orderNumber,
             totalPrice: orderJsonParse.totalPrice,
             orderItems: orderJsonParse.orderItems,
             orderId: orderJsonParse._id.toString(),
@@ -245,13 +246,15 @@ noteScene.action("make_order", async (ctx) => {
         const order = await createOrder(userId, orderInformation, cartItems);
         const orderJson = JSON.stringify(order);
         const orderJsonParse = JSON.parse(orderJson);
-      const message=  await ctx.reply(`Payment received for Order ID: ${orderJsonParse.orderNumber}. Total Amount: ${order.totalPrice}`);
-      await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
-      await ctx.reply(`Thank you for your order! The product will be delivered to you soon.`,Markup.inlineKeyboard([
+
+
+      const message=  await ctx.reply(`Thank you for your order!\n
+      Payment received for Order ID: ${orderJsonParse.orderNumber}. Total Amount: ${order.totalPrice}\n
+       The product will be delivered to you soon.`,Markup.inlineKeyboard([
         Markup.button.callback(
           `View Your Order`,"showOrder")
       ]));
-  
+      await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
 
         ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' })
         //   await ctx.reply(`Order created successfully! Order ID: ${order._id}\n ${ctx.session.isWaiting.note}`);

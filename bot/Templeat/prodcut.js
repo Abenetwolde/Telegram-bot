@@ -41,11 +41,12 @@ module.exports = {
         const formatTelegramMessage = (product) => {
             const { name, description, price, available, warranty, category, highlights, images, createdAt } = product;
             const fromatImage = product?.video?.videoUrl ? " " : ` 🖼️ Images: ${ctx.session.currentImageIndex[productId] + 1}/${images.length}`
-            const formattedHighlights = highlights?.map((highlight) => `${highlight}`).join(',');
+            const formattedHighlights = highlights?.map((highlight) => ` ${highlight}`).join(',');
+            const foooormatedhighrlight= formattedHighlights&&`🚀 ${formattedHighlights}`
             const formattedprice = product.quantity !== 0 && ctx.session.viewMore[productId] ?
 
                 ` 
-           ---
+          
           💳 ${product.quantity}x${product.price}= ${product.quantity * product.price} ETB` : ''
 
            
@@ -54,7 +55,7 @@ module.exports = {
          ✨ ${description}
          💴 ${price} ETB
          #${category?.name} ${category?.icon}
-         🚀 ${formattedHighlights}
+         ${foooormatedhighrlight}
          ${formattedprice}
            ---
          ${fromatImage}\n
@@ -121,7 +122,7 @@ module.exports = {
                         Markup.button.callback(`${quantity}`, `quantity_${productId}`),
                         Markup.button.callback('+', `addQuantity_${productId}`)
                     ], [
-                        Markup.button.callback('Check Out', `Checkout`)
+                        Markup.button.callback('Go To Checkout', `Checkout`)
                     ]);
                 } else if (viewMore) {
                     keyboard.push([Markup.button.callback('🛒 Buy', `buy_${productId}`)]);
@@ -205,7 +206,7 @@ module.exports = {
                                 ],
                             
                                 [
-                                    Markup.button.callback('Checkout', 'Checkout')
+                                    Markup.button.callback('Go To Checkout', 'Checkout')
                                 ]
                             ] : (ctx.session.viewMore[productId] ? [
                                 [

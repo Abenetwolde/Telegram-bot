@@ -3,6 +3,7 @@ const { updateUserLanguage } = require('../Database/UserController');
 const { getSingleProduct } = require('../Database/productcontroller');
 const User = require('../Model/user');
 const UserKPI=require("../Model/KpiUser");
+const { t, match } = require('telegraf-i18next');
 const channelHandeler = new Scenes.BaseScene('channelHandeler');
 
 // Add a keyboard to the admin scene
@@ -11,7 +12,7 @@ channelHandeler.enter(async(ctx) => {
   ctx.scene.state.enterTime = enterTime;
     const product = ctx.scene.state.pid;
     ctx.session.productID = product;
-    const message = await ctx.reply('🌐 Please choose your language', Markup.inlineKeyboard([
+    const message = await ctx.reply( ctx.i18next.t('selectL'), Markup.inlineKeyboard([
       Markup.button.callback('🇬🇧 English ', 'set_lang:en'),
       Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
     ]))

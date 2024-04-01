@@ -1,18 +1,32 @@
 {
     "wellcomemessage":"🍽️ Welcome to our Food Delivery service! Explore our diverse selection of delicious meals categorized for your convenience, or effortlessly search for your favorite dishes. 🌟",
-    "greeting": "Hello",
+    "gretting":"ሰላም",
+    "hello":"Again",
     "farewell": "Goodbye",
     "changeLanguage":"changeLanguageE",
     "Latest":"Latest",
     "Popular":"Popular",
-    "Home":"Home",
+    "Home":"🏠 Home",
     "Category":"Category",
     "Search":"🔍 Search",
     "cart":"🛒 My Cart",
+    "Checkout":"Go to Checkout",
     "order":"📦 My Orders",
-    "Language":"🌐 Language",
+    "Language":"🌐 Language/ቋንቋ",
     "contactus":"📥 Contact us",
     "feedback":"💭 Feedback",
-    "aboutus":"ℹ️ About Me"
+    "aboutus":"ℹ️ About Me",
+    "cartinto":"You are now viewing your carts.",
+    "selectL":"🌐 Please select a language/እባክዎ ቋንቋ ይምረጡ",
+    "Paymenttype":"Please Select Payment type",
+    "great!":"Great!",
+    "locationpromt":"Now, please provide your location or send a Google Maps link?",
+    "laststep":"Last step before we're able to generate your invoice! 🙂",
+    "note":"📝 Would you like to leave a note along with the order?",
+    "NoteConfirm":"This is the note that you wish to leave :",
+    "MakeaPaymentforyourOrderID":"Make a Payment for your Order ID: ",
+    "phoneask":"To proceed with the order, we need some information. 📱 Please share your phone number."
+
+    
 
   }

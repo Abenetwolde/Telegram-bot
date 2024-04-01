@@ -7,7 +7,7 @@ const informationCash = new Scenes.WizardScene(
     const enterTime = new Date();
     ctx.scene.state.enterTime = enterTime;
     ctx.reply(
-      "To proceed with the order, we need some information. 📱 Please share your phone number.",
+      ctx.i18next.t("phoneask"),
       Markup.keyboard([
         Markup.button.contactRequest("📲 Share Contact"),
         "❌ Cancel"
@@ -39,7 +39,7 @@ const informationCash = new Scenes.WizardScene(
 
     }
     ctx.reply(
-      "Great! Now, please provide your📍location or send a Google Maps link.", Markup.keyboard([
+     ctx.i18next.t("locationpromt"), Markup.keyboard([
         ["❌ Cancel"]
 
       ]).resize()

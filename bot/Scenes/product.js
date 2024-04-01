@@ -10,6 +10,7 @@ const prodcut = require("../Services/prodcut");
 const pageSize = 6;
 const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
+const { match } = require("telegraf-i18next");
 // const apiUrl = 'https://backend-vg1d.onrender.com';
 const productSceneTest = new Scenes.BaseScene('product');
 productSceneTest.enter(async (ctx) => {
@@ -72,10 +73,9 @@ productSceneTest.action('Next', async (ctx) => {
     }
 });
 
-productSceneTest.hears('Checkout', async (ctx) => {
+productSceneTest.hears(match('cart'), async (ctx) => {
 
-    ctx.session.shouldContinueSending = false
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     await ctx.scene.enter('cart');
 });
 productSceneTest.action('Home', async (ctx) => {
@@ -107,7 +107,8 @@ productSceneTest.action('Home', async (ctx) => {
     ctx.session.shouldContinueSending = false
 
 });
-productSceneTest.hears('Home', async (ctx) => {
+
+productSceneTest.hears(match('Home'), async (ctx) => {
     try {
         try {
             if (ctx.session.cleanUpState) {
@@ -399,7 +400,7 @@ async function sendPage(ctx) {
         replyText,
         { parse_mode: 'HTML',
       ... Markup.keyboard([
-            ['Home', 'Checkout'],
+            [ctx.i18next.t("Home"), ctx.i18next.t("cart")],
         ]).resize()
     } // Specify parse_mode for the message text
      

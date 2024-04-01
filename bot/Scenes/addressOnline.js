@@ -5,6 +5,7 @@ const { createOrder, getOrderById } = require("../Database/orderController");
 const { getCart } = require("../Database/cartController");
 const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
+const { t, match } = require('telegraf-i18next');
 const addressOnline = new Scenes.BaseScene("addressOnline")
 addressOnline.enter(async (ctx) => {
     const enterTime = new Date();
@@ -14,13 +15,14 @@ addressOnline.enter(async (ctx) => {
     ctx.session.isWaiting = {
         status: false
     }
-    const note1message = await ctx.reply("Last step before we're able to generate your invoice! 🙂", Markup.keyboard([
+    const note1message = await ctx.reply(ctx.i18next.t('great!'), Markup.keyboard([
         ["❌ Cancel"]
     ]).resize())
-
+    
 
     const note1message2 = await ctx.reply(
-        "Great! Now, please provide your location or send a Google Maps link?",
+       
+        ctx.i18next.t('locationpromt'),
         {
           reply_markup: {
             resize_keyboard: true, 
