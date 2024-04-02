@@ -6,9 +6,21 @@ aboutUs.enter(async (ctx) => {
     const enterTime = new Date();
     ctx.scene.state.enterTime = enterTime;
 
-    const aboutme = await ctx.reply('contact me @abnet_abi', Markup.inlineKeyboard([
-       Markup.button.callback("❌ Back","Back")
-    ]).resize())
+    const aboutme = await ctx.reply( '👋ሰላም, I’m Abnet Wolde,\n a Software developer based in Ethiopia, specializing in the latest JavaScript frameworks.\n\n'
+    + 'Email: abnetwoldedev@gmail.com\n'
+    + '[LinkedIn](https://www.linkedin.com/in/abnet-wolde-8b3923220/)\n'
+    + '[GitHub](https://github.com/Abenetwolde)\n'
+    + '[Telegram](https://t.me/abnet_abi)',
+    
+    {
+        parse_mode: "Markdown",
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: "❌ Back", callback_data: "Back" }]
+            ]
+        }
+    }
+    )
 
    
 

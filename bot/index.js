@@ -11,12 +11,12 @@ const axios = require('axios');
 const fs = require('fs').promises;
 require('dotenv').config();
 const { t, match } = require('telegraf-i18next');
-const { homeScene, productSceneTest, cart, informationCash, searchProduct, myOrderScene, addressOnline, selectePaymentType, noteScene, paymentScene, adminBaseScene ,channelHandeler, feedback, aboutUs} = require('./Scenes/index.js');
+const { homeScene, productSceneTest, cart, informationCash, searchProduct, myOrderScene, addressOnline, selectePaymentType, noteScene, paymentScene, adminBaseScene, channelHandeler, feedback, aboutUs } = require('./Scenes/index.js');
 const { checkUserToken } = require('./Utils/checkUserToken');
 const { Mongo } = require("@telegraf/session/mongodb");
 const { MongoClient } = require('mongodb');
 const { createUser, updateUserLanguage } = require('./Database/UserController.js');
-const UserKPI=require("./Model/KpiUser");
+const UserKPI = require("./Model/KpiUser");
 const bot = new Telegraf("6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM", {
   timeout: Infinity
 });
@@ -41,7 +41,7 @@ bot.use(i18next({
   }
 }));
 const { Stage } = Scenes;
-const stage = new Stage([homeScene, channelHandeler,searchProduct, productSceneTest, cart, myOrderScene, selectePaymentType, addressOnline, informationCash, noteScene, paymentScene, adminBaseScene, feedback, aboutUs])
+const stage = new Stage([homeScene, channelHandeler, searchProduct, productSceneTest, cart, myOrderScene, selectePaymentType, addressOnline, informationCash, noteScene, paymentScene, adminBaseScene, feedback, aboutUs])
 
 
 // bot.use(session({ store }));
@@ -117,106 +117,106 @@ mongoClient.connect()
     });
     const calculateDuration = (startTime, endTime) => {
       return new Date(endTime) - new Date(startTime);
-  };
-  
-  // Function to format duration in HH:MM:SS format
-  const formatDuration = (durationMs) => {
+    };
+
+    // Function to format duration in HH:MM:SS format
+    const formatDuration = (durationMs) => {
       const hours = Math.floor(durationMs / 3600000);
       const minutes = Math.floor((durationMs % 3600000) / 60000);
       const seconds = Math.floor((durationMs % 60000) / 1000);
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-  
-  // Function to calculate and format User KPI data
-  const calculateAndFormatUserKPIData = (userKPI) => {
+    };
+
+    // Function to calculate and format User KPI data
+    const calculateAndFormatUserKPIData = (userKPI) => {
       // Initialize variables to track scene durations and total duration
       let totalDuration = 0;
       const sceneDurations = {};
-  
+
       // Iterate over each scene entry in the user's KPI data
       userKPI.scene.forEach((scene) => {
-          const sceneName = scene.name;
-          const durationMs = calculateDuration(scene.enterTime, scene.leaveTime);
-          totalDuration += durationMs;
-  
-          // Add scene duration to the sceneDurations object
-          if (!sceneDurations[sceneName]) {
-              sceneDurations[sceneName] = 0;
-          }
-          sceneDurations[sceneName] += durationMs;
+        const sceneName = scene.name;
+        const durationMs = calculateDuration(scene.enterTime, scene.leaveTime);
+        totalDuration += durationMs;
+
+        // Add scene duration to the sceneDurations object
+        if (!sceneDurations[sceneName]) {
+          sceneDurations[sceneName] = 0;
+        }
+        sceneDurations[sceneName] += durationMs;
       });
-  
+
       // Format total duration
       const totalDurationFormatted = formatDuration(totalDuration);
-  
+
       // Format scene durations
       const sceneDurationsFormatted = {};
       for (const sceneName in sceneDurations) {
-          const durationMs = sceneDurations[sceneName];
-          sceneDurationsFormatted[sceneName] = formatDuration(durationMs);
+        const durationMs = sceneDurations[sceneName];
+        sceneDurationsFormatted[sceneName] = formatDuration(durationMs);
       }
-  
-      return { sceneDurations: sceneDurationsFormatted, totalDuration: totalDurationFormatted };
-  };
-  
-  // Command handler to fetch and display user KPI data
-  const kpiCommandHandler = async (ctx) => {
-      try {
-          // Fetch User KPI data for the current user
-          const userKPI = await UserKPI.findOne({ telegramId: ctx.from.id });
-  
-          // If userKPI is found, calculate and format KPI data
-          if (userKPI) {
-              const { sceneDurations, totalDuration } = calculateAndFormatUserKPIData(userKPI);
-  
-              // Prepare response message with formatted KPI data
-              let responseMessage = 'User KPI Data:\n\n';
-              for (const sceneName in sceneDurations) {
-                  responseMessage += `${sceneName}: ${sceneDurations[sceneName]}\n`;
-              }
-              responseMessage += `\nTotal time spent on the bot today: ${totalDuration}`;
-  
-              // Send the response message
-              await ctx.reply(responseMessage);
-          } else {
-              await ctx.reply('User KPI data not found.');
-          }
-      } catch (error) {
-          console.error('Error in kpiCommandHandler:', error);
-          await ctx.reply('An error occurred while fetching user KPI data.');
-      }
-  };
-  
-  
-  
-  
-  bot.command('kpi', kpiCommandHandler);
 
-  //   const checkLanguageMiddleware = async (ctx, next) => {
-  //     // Check if the user came from a channel post
-  //     const startCommand = ctx.message.text.split(' ');
-  //     if (startCommand.length === 2 && startCommand[1].startsWith('chat_')) {
-  //         const questionId = startCommand[1].replace('chat_', '');
-  //         console.log("id from search scene MIDDLEWARE:", questionId);
-  
-  //         // Check if language is selected
-  //         if (!ctx.session.locale) {
-  //             // Prompt the user to choose a language
-  //             const message = await ctx.reply('Please choose your language', Markup.inlineKeyboard([
-  //                 Markup.button.callback('English', 'set_lang_channel:en'),
-  //                 Markup.button.callback('አማርኛ', 'set_lang_channel:am')
-  //             ]));
-  //             ctx.session.languageMessageId = message.message_id;
-  //             return; // Stop further execution until the user selects a language
-  //         }
-  //     }
-  //     // Language is selected or not applicable, proceed to the next middleware or handler
-  //     await next();
-  // };
-  
-  // // Apply the middleware to the bot command
-  // bot.start(checkLanguageMiddleware);
-  //   // Apply the startMiddleware to all scenes
+      return { sceneDurations: sceneDurationsFormatted, totalDuration: totalDurationFormatted };
+    };
+
+    // Command handler to fetch and display user KPI data
+    const kpiCommandHandler = async (ctx) => {
+      try {
+        // Fetch User KPI data for the current user
+        const userKPI = await UserKPI.findOne({ telegramId: ctx.from.id });
+
+        // If userKPI is found, calculate and format KPI data
+        if (userKPI) {
+          const { sceneDurations, totalDuration } = calculateAndFormatUserKPIData(userKPI);
+
+          // Prepare response message with formatted KPI data
+          let responseMessage = 'User KPI Data:\n\n';
+          for (const sceneName in sceneDurations) {
+            responseMessage += `${sceneName}: ${sceneDurations[sceneName]}\n`;
+          }
+          responseMessage += `\nTotal time spent on the bot today: ${totalDuration}`;
+
+          // Send the response message
+          await ctx.reply(responseMessage);
+        } else {
+          await ctx.reply('User KPI data not found.');
+        }
+      } catch (error) {
+        console.error('Error in kpiCommandHandler:', error);
+        await ctx.reply('An error occurred while fetching user KPI data.');
+      }
+    };
+
+
+
+
+    bot.command('kpi', kpiCommandHandler);
+
+    //   const checkLanguageMiddleware = async (ctx, next) => {
+    //     // Check if the user came from a channel post
+    //     const startCommand = ctx.message.text.split(' ');
+    //     if (startCommand.length === 2 && startCommand[1].startsWith('chat_')) {
+    //         const questionId = startCommand[1].replace('chat_', '');
+    //         console.log("id from search scene MIDDLEWARE:", questionId);
+
+    //         // Check if language is selected
+    //         if (!ctx.session.locale) {
+    //             // Prompt the user to choose a language
+    //             const message = await ctx.reply('Please choose your language', Markup.inlineKeyboard([
+    //                 Markup.button.callback('English', 'set_lang_channel:en'),
+    //                 Markup.button.callback('አማርኛ', 'set_lang_channel:am')
+    //             ]));
+    //             ctx.session.languageMessageId = message.message_id;
+    //             return; // Stop further execution until the user selects a language
+    //         }
+    //     }
+    //     // Language is selected or not applicable, proceed to the next middleware or handler
+    //     await next();
+    // };
+
+    // // Apply the middleware to the bot command
+    // bot.start(checkLanguageMiddleware);
+    //   // Apply the startMiddleware to all scenes
 
 
 
@@ -230,28 +230,103 @@ mongoClient.connect()
 
         console.log("if the user is select the langunage", ctx.session.locale)
         try {
-         if(!ctx.session.locale)
-         {
-          return ctx.scene.enter("channelHandeler",{ pid: questionId })
-         }
-      
-            const response = await getSingleProduct(questionId);
-            const product = JSON.stringify(response)
+          if (!ctx.session.locale) {
+            return ctx.scene.enter("channelHandeler", { pid: questionId })
+          }
 
-            if (product) {
-              // product.quantity = typeof product.quantity === 'number' ? product.quantity : 0;
-              const singleP = await JSON.parse(product)
-              // Update the quantity based on the action
-              await ctx.scene.enter('product', { product: singleP });
+          const response = await getSingleProduct(questionId);
+          const product = JSON.stringify(response)
 
-            } else {
-              console.error('Product not found.');
-              // Handle the case when the product is not found
-            }
-          
+          if (product) {
+            // product.quantity = typeof product.quantity === 'number' ? product.quantity : 0;
+            const singleP = await JSON.parse(product)
+            // Update the quantity based on the action
+            await ctx.scene.enter('product', { product: singleP });
+
+          } else {
+            console.error('Product not found.');
+            // Handle the case when the product is not found
+          }
+
 
         } catch (error) {
           console.error('Error handling quantity action:', error);
+        }
+
+      } else if (startCommand.length === 2 && startCommand[1].startsWith('invite_')) {
+        const channelId = -1002011345443;
+        const userId = ctx.from.id
+        const isMember = await bot.telegram.getChatMember(channelId, userId)
+          .then((chatMember) => chatMember.status === 'member' || chatMember.status === 'administrator' || chatMember.status === 'creator')
+          .catch((err) => {
+            console.error('Error checking channel membership:', err);
+            return false;
+          });
+        if (!isMember) {
+          ctx.reply(
+            "ctx.from.id,",
+            Markup.inlineKeyboard([
+              [Markup.button.url('📥 በመጀመሪያ የቴሌግራም ቻናላችንን መቀላቀል አለብዎ ', "https://t.me/takeitorle"),
+
+              ],
+              [Markup.button.callback('🔄 Restart', 'restart')]
+            ])
+
+          )
+        } else {
+
+          const telegramid = startCommand[1].replace('invite_', '');
+          let user = await User.findOne({ telegramid: ctx.from.id });
+          if (!user) {
+            // If the user is new, create a new user record
+            user = new User({
+              telegramid: ctx.from.id,
+              first_name: ctx.from.first_name,
+              last_name: ctx.from.last_name,
+              username: ctx.from.username || null,
+              is_bot: ctx.from.is_bot || false,
+              from: "INVITATION",
+              language: ctx.session.locale
+            });
+
+          }
+          if (telegramid && user.invitedBy == null) {
+            user.invitedBy = telegramid;
+            if (user.invitedBy) {
+              const inviter = await User.findOne({ telegramid: user.invitedBy });
+
+              if (inviter) {
+                await User.findOneAndUpdate(
+                  { telegramid: user.invitedBy },
+                  {
+                    $inc: { 'lotteryNumbers.invitedUsers': 1 },
+
+                  },
+                  { new: true, upsert: true }// Increment invitedUsers by 1
+                );
+              }
+              // Generate lottery numbers (if applicable)
+              const invitedUsersCount = inviter.lotteryNumbers.invitedUsers || 0;
+              console.log(invitedUsersCount);
+              if (invitedUsersCount > 0 && invitedUsersCount === 2/* invitedUsersCount % 10 === 0 */) {
+                const lotteryNumber = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit number
+                await inviter.lotteryNumbers.number.push(lotteryNumber);
+                await ctx.telegram.sendMessage(user.invitedBy, `Congratulations! You've earned a lottery number: ${lotteryNumber}`);
+              }
+
+              await user.save()
+              ctx.reply(`this is your telegram id ${telegramid}`)
+
+              await inviter.save()
+            }
+          } else {
+            ctx.reply("sorry the user is already invited ")
+          }
+
+          // Increment invited user count for the inviter (if applicable)
+
+
+          await user.save()
         }
 
       } else {
@@ -271,7 +346,7 @@ mongoClient.connect()
         // }
 
         if (!ctx.session.locale) {
-          const message = await ctx.reply( ctx.i18next.t('selectL'), Markup.inlineKeyboard([
+          const message = await ctx.reply(ctx.i18next.t('selectL'), Markup.inlineKeyboard([
             Markup.button.callback('🇬🇧 English ', 'set_lang:en'),
             Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
           ]))
@@ -288,7 +363,7 @@ mongoClient.connect()
                 username: ctx.from.username || null,
                 is_bot: ctx.from.is_bot || false,
                 language: ctx.session.locale
-              }); 
+              });
 
               console.log("response.data", response)
 
@@ -356,7 +431,7 @@ mongoClient.connect()
     bot.command('search', async (ctx) => {
       await ctx.scene.enter("searchProduct")
     })
-    
+
     bot.command('cart', async (ctx) => {
       await ctx.scene.enter("cart")
     })
@@ -368,12 +443,12 @@ mongoClient.connect()
     })
     bot.command('text', async (ctx) => {
       // Your logic here...
-  
+
       // Example: Sending a message without link preview
       await ctx.reply('Check out this link: https://example.com', {
-          disable_web_page_preview: true,
+        disable_web_page_preview: true,
       });
-  });
+    });
     bot.action(/set_lang:(.+)/, async (ctx) => {
       if (!ctx.session) {
         ctx.session = {}; // Initialize session if not exists
@@ -415,52 +490,72 @@ mongoClient.connect()
         console.error(updateResult.message);
       }
       const startCommand = ctx.callbackQuery.message.text.split(' ');
-      console.log("start cpmmand",startCommand)
+      console.log("start cpmmand", startCommand)
       if (startCommand.length === 2 && startCommand[1].startsWith('chat_')) {
-          const questionId = startCommand[1].replace('chat_', '');
-          console.log("action language:", questionId);
-  
-          try {
-              const response = await getSingleProduct(questionId);
-              const product = JSON.stringify(response);
-  
-              if (product) {
-                  const singleP = await JSON.parse(product);
-                  await ctx.scene.enter('product', { product: singleP });
-              } else {
-                  console.error('Product not found.');
-                  // Handle the case when the product is not found
-              }
-          } catch (error) {
-              console.error('Error handling quantity action:', error);
+        const questionId = startCommand[1].replace('chat_', '');
+        console.log("action language:", questionId);
+
+        try {
+          const response = await getSingleProduct(questionId);
+          const product = JSON.stringify(response);
+
+          if (product) {
+            const singleP = await JSON.parse(product);
+            await ctx.scene.enter('product', { product: singleP });
+          } else {
+            console.error('Product not found.');
+            // Handle the case when the product is not found
           }
+        } catch (error) {
+          console.error('Error handling quantity action:', error);
+        }
       }
     });
 
     bot.on("pre_checkout_query", async (ctx) => {
       await ctx.answerPreCheckoutQuery(true)
-    
+
     })
+    bot.action('restart', async (ctx) => {
+      const channelId = -1002011345443;
+      const userId = ctx.from.id
+      const isMember = await bot.telegram.getChatMember(channelId, userId)
+        .then((chatMember) => chatMember.status === 'member' || chatMember.status === 'administrator' || chatMember.status === 'creator')
+        .catch((err) => {
+          console.error('Error checking channel membership:', err);
+          return false;
+        });
+      if (!isMember) {
+        ctx.reply(
+          "subscribe our telegram channel first",
+    
+    
+        )
+      }
+      else {
+        await ctx.scene.enter("homeScene")
+      }
+    });
     // bot.use(async (ctx, next) => {
     //   const telegramid = ctx.from.id;
     //   const userSpentTime = await User.findOne({ telegramid });
-    
+
     //   if (userSpentTime) {
     //     // Calculate the duration spent in milliseconds
     //     const currentTime = new Date().getTime();
     //     const duration = currentTime - ctx.session.startTime;
-    
+
     //     // Update user spent time with current date
     //     const currentDate = new Date();
     //     const currentDay = currentDate.getDate();
     //     const currentMonth = currentDate.getMonth();
     //     const currentYear = currentDate.getFullYear();
-    
+
     //     const spentTimeEntryIndex = userSpentTime.spentTime?.findIndex(entry => {
     //       const entryDate = new Date(entry.date);
     //       return entryDate.getDate() === currentDay && entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
     //     });
-    
+
     //     if (spentTimeEntryIndex !== -1) {
     //       // Update existing spent time entry
     //       userSpentTime?.spentTime[spentTimeEntryIndex].duration += duration; // Add duration for each interaction
@@ -468,11 +563,11 @@ mongoClient.connect()
     //       // Create a new spent time entry for the current day
     //       userSpentTime.spentTime.push({ duration, date: currentDate });
     //     }
-    
+
     //     // Save the updated user spent time to the database
     //     await userSpentTime.save();
     //   }
-    
+
     //   // Continue with the next middleware
     //   await next();
     // });
@@ -526,7 +621,7 @@ bot.command('mariya', async (ctx) => {
 
 const storeLocation = {
   latitude: 8.988419295555572,// Replace with the actual latitude of your store
-  longitude:  38.770562304441114, // Replace with the actual longitude of your store
+  longitude: 38.770562304441114, // Replace with the actual longitude of your store
 };
 
 
@@ -629,7 +724,7 @@ bot.on('location', async (ctx) => {
 //       total_amount: ctx.message.successful_payment.total_amount,
 //       invoice_id: invoice.id,
 //       telegram_payment_charge_id: ctx.message.successful_payment.telegram_payment_charge_id,
-    
+
 //   }
 //   const paymentdata=JSON.parse(JSON.stringify(paymentData))
 //   console.log("paymetn data", )
@@ -662,7 +757,7 @@ bot.on('location', async (ctx) => {
 //   //                Total Price: ${orderItem.quantity * orderItem.product.price} ETB
 //   //                Order ID: ${updatedOrder._id}`,
 //   // );
-  
+
 //   await product.findByIdAndUpdate(orderItem.product._id, {
 //       $inc: {   orderQuantity: +orderItem.quantity }
 //   });
@@ -682,15 +777,15 @@ bot.on('location', async (ctx) => {
 // })
 
 // Attach the link text to a message
-bot.command('link',async (ctx) => {
+bot.command('link', async (ctx) => {
   const linkText = '(\n\n[Buy](https://t.me/testecommerce12bot?start=chat_${productId})';
-const resizeimage ='https://images.pexels.com/photos/5084674/pexels-photo-5084674.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
-const imageBuffer = await sharp(response.data)
-.resize(200, 200)
-.toBuffer();
- await ctx.replyWithPhoto({ source:imageBuffer}, { caption: `[Buy](https://t.me/testecommerce12bot?start=chat_${123}`, parse_mode: 'Markdown' });
-    // ctx.replyWithMarkdown(`[Buy](https://t.me/testecommerce12bot?start=chat_${123}`);
+  const resizeimage = 'https://images.pexels.com/photos/5084674/pexels-photo-5084674.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+  const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
+  const imageBuffer = await sharp(response.data)
+    .resize(200, 200)
+    .toBuffer();
+  await ctx.replyWithPhoto({ source: imageBuffer }, { caption: `[Buy](https://t.me/testecommerce12bot?start=chat_${123}`, parse_mode: 'Markdown' });
+  // ctx.replyWithMarkdown(`[Buy](https://t.me/testecommerce12bot?start=chat_${123}`);
 });
 bot.catch(async (err, ctx) => {
   console.log(`Error while handling update ${ctx.update.update_id}:`, err)
@@ -775,27 +870,28 @@ bot.command('spendtimeperday', async (ctx) => {
 });
 
 bot.command('testDevice', async (ctx) => {
-  console.log('User is using a web platform',ctx.update.message);
+  console.log('User is using a web platform', ctx.update.message);
   if (ctx.from && ctx.from.id) {
     const userAgent = ctx.update.message && ctx.update.message.headers && ctx.update.message.headers['user-agent'];
     if (userAgent) {
-        if (userAgent.includes('Mobile') || userAgent.includes('Android') || userAgent.includes('iOS')) {
-            console.log('User is using a mobile device');
-        } else if (userAgent.includes('Windows') || userAgent.includes('Macintosh') || userAgent.includes('Linux')) {
-            console.log('User is using a desktop device');
-        } else {
-            console.log('User is using a web platform');
-        }
+      if (userAgent.includes('Mobile') || userAgent.includes('Android') || userAgent.includes('iOS')) {
+        console.log('User is using a mobile device');
+      } else if (userAgent.includes('Windows') || userAgent.includes('Macintosh') || userAgent.includes('Linux')) {
+        console.log('User is using a desktop device');
+      } else {
+        console.log('User is using a web platform');
+      }
     } else {
-        console.log('User agent information not available');
+      console.log('User agent information not available');
     }
-} else {
+  } else {
     console.log('User information not available');
-}
+  }
 
-// Your bot's start command logic here
-ctx.reply('Welcome to the bot!');
+  // Your bot's start command logic here
+  ctx.reply('Welcome to the bot!');
 });
+
 process.once("SIGINT", () => bot.stop("SIGINT"))
 process.once("SIGTERM", () => bot.stop("SIGTERM"))
 

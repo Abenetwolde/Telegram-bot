@@ -248,9 +248,7 @@ noteScene.action("make_order", async (ctx) => {
         const orderJsonParse = JSON.parse(orderJson);
 
 
-      const message=  await ctx.reply(`Thank you for your order!\n
-      Payment received for Order ID: ${orderJsonParse.orderNumber}. Total Amount: ${order.totalPrice}\n
-       The product will be delivered to you soon.`,Markup.inlineKeyboard([
+      const message=  await ctx.replyWithHTML(`Thank you for your order!\nPayment received for Order ID: <u>${orderJsonParse.orderNumber}</u>\n.Total Amount: <u>${order.totalPrice}</u> ETB\nThe product will be delivered to you soon.`,Markup.inlineKeyboard([
         Markup.button.callback(
           `View Your Order`,"showOrder")
       ]));

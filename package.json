@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "antd": "^5.14.0",
-    "react-apexcharts": "^1.4.1"
+    "react-apexcharts": "^1.4.1",
+    "urlencode": "^2.0.0"
   }
 }

@@ -1,11 +1,13 @@
-const { Scenes, Markup, session } = require("telegraf")
+const { Scenes, Telegraf,Markup, session } = require("telegraf")
 const axios = require('axios');
-
+const { encode, decode, parse, stringify }= require('urlencode') ;
+// user
 const { t, match } = require('telegraf-i18next');
 const { getAllCategories } = require("../Database/categoryController");
 const homeScene = new Scenes.BaseScene('homeScene');
 
 const UserKPI = require("../Model/KpiUser");
+const User = require("../Model/user");
 homeScene.enter(async (ctx) => {
     try {
         if (ctx.session.cleanUpState) {
@@ -14,7 +16,7 @@ homeScene.enter(async (ctx) => {
                     await ctx.telegram.deleteMessage(ctx.chat.id, message.id).catch((e) => ctx.reply(e.message));
     
                 }
-            });
+            });  
         }
         await ctx.sendChatAction('typing');
         const enterTime = new Date();
@@ -54,7 +56,7 @@ homeScene.enter(async (ctx) => {
             let keyboard = [
                 [ctx.i18next.t('Search'), ctx.i18next.t('cart')],
                 [ctx.i18next.t('order'), ctx.i18next.t('Language')],
-                [ctx.i18next.t('aboutus'), ctx.i18next.t('contactus'),ctx.i18next.t('feedback')]
+                [ctx.i18next.t('aboutus'), ctx.i18next.t('invite'),ctx.i18next.t('feedback')]
             ];
             if (showkey) {
 
@@ -121,6 +123,37 @@ homeScene.hears(match('feedback'), async (ctx) => {
 })
 homeScene.hears(match('aboutus'), async (ctx) => {
     await ctx.scene.enter("aboutus")
+})
+const bot = new Telegraf("6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM", {
+    timeout: Infinity
+  });
+homeScene.hears(match('invite'), async (ctx) => {
+    let summary=""
+    const userLottery=await User.findOne({telegramid:ctx.from.id})
+   const lotteryNUmner=userLottery.lotteryNumbers.number.map((n=>n)).join(",")
+   if(lotteryNUmner>0){
+    summary+=`here is yor lottery number` +`${lotteryNUmner}\n`;
+    
+}else{
+    summary+="you haven't any lottery number yet\n"
+}
+  const invitationnumber= userLottery.lotteryNumbers.invitedUsers
+  summary+="You invite  "+ `${invitationnumber}`+" people \n"
+
+   
+
+    await ctx.reply(summary)
+    bot.telegram.getMe().then((botInfo) => {
+        const botUsername = botInfo.username;
+        
+        // Generate invitation link
+        const inviteLink = `https://t.me/${botUsername}?start=invite_${ctx.from.id}`;
+        let text= ' ውድ ደንበኛችን ስለ አጠቃቀሙ ገለፃ ከታች ያለውን ቅደም ተከተል ይከተሉ \n\n 1️⃣ በመጀመሪያ 🎁የእርሶ መጋበዣ ሊንክ የሚለውን ይጫኑ! \n 2️⃣ በመቀጠል Official ቻናላችንን ይቀላቀሉ። \n 3️⃣ Restart 🔁 የሚለውን Button ይጫኑ \n 4️⃣ በመቀጠል የእርሶ መጋበዣ ሊንክ ለጓደኛዎ ግሩፕ ወይም ቻናል ላይ ሼር ያድርጉ። \n 5️⃣ በናንተ መጋበዣ ሊንክ አንድ ሰው ሲጋብዙ 1ብር ሰሩ ማለት ነው። \n 6️⃣ እርሶ የጋበዟቸው ሰዎች 10 ሰው በላይ ሲደርስ እስከ 100.00 ብር በ CBE,ቴሌ ብር ወይም የሞባይል ካርድ ማውጣት ይችላሉ። \n\n '
+        // Send invitation link with keyboard
+        ctx.replyWithHTML(`Invite your friends using the by copy the link below:<code>${inviteLink}</code>`, Markup.inlineKeyboard([
+          Markup.button.url('Invite', 't.me/share/url?url='+ encode(text + `👥 የእርስዎ ሪፈራል ሊንክ(referal link): ${inviteLink}`)),
+        ]));
+      });
 })
 homeScene.hears('Admin 📊', async (ctx) => {
     await ctx.scene.enter("adminBaseScene")

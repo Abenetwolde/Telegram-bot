@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
   from: {
     type: String,
     default: 'BOT',
-    enum: ['BOT', 'CHANNEL'],
+    enum: ['BOT', 'CHANNEL','INVITATION'],
     required: [true, 'status is required'],
   },
   language: {
@@ -46,6 +46,22 @@ const userSchema = new mongoose.Schema({
   },
   token: {
     type: String,
+  },
+  invitedBy: {
+    type: Number, // Store Telegram ID of the user who invited
+    default: null,
+  },
+  lotteryNumbers: {
+    number: {
+      type: Array,
+      default:null,
+      required: true,
+    },
+    invitedUsers: {
+      type: Number,
+      default:0
+      // required: true,
+    },
   },
   timestamp: { type: Date, default: Date.now },
   // spentTime: [{

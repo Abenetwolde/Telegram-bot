@@ -199,7 +199,7 @@ paymentScene.hears(match("Home"), async (ctx) => {
  
 })
 paymentScene.on("message", async (ctx) => {
-    if (ctx.message.text === "🏠 Back to Home") {
+    if (ctx.message.text === "/start") {
         ctx.scene.enter("homeScene")
     }
 })
