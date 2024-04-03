@@ -11,6 +11,7 @@ const pageSize = 6;
 const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
 const { match } = require("telegraf-i18next");
+const KpiProducts = require("../Model/KpiProduct");
 // const apiUrl = 'https://backend-vg1d.onrender.com';
 const productSceneTest = new Scenes.BaseScene('product');
 productSceneTest.enter(async (ctx) => {
@@ -41,7 +42,7 @@ productSceneTest.enter(async (ctx) => {
     } else if (sortBy) {
         replyText = `You are now viewing our products sorted by ${sortBy}.`;
     }
-    console.log("product single from product scene", product)
+    // console.log("product single from product scene", product)
     const productsArray = Array.isArray(product) ? product : [product];
     const simplifiedProducts = productsArray.map(product => ({
         ...product,
@@ -209,7 +210,7 @@ productSceneTest.action(/size_(.+)_([^_]+)/, async (ctx) => {
 
 
 // When the user clicks on a "Next" inline button, update the current image productId for that product and send an updated message using the sendProduct function
-productSceneTest.action(/next_(.+)/, (ctx) => {
+productSceneTest.action(/next_(.+)/, async(ctx) => {
     console.log(ctx.session.currentImageIndex)
     const productId = ctx.match[1];
     const products = ctx.session.products;
@@ -220,11 +221,68 @@ productSceneTest.action(/next_(.+)/, (ctx) => {
          ctx.session.currentImageIndex[productId] = 0;
         // return
     }
-    sendProduct(ctx, productId, product[0]);
+   await sendProduct(ctx, productId, product[0]);
+   const userId = ctx.from.id
+   let clickCount = await KpiProducts.findOne({
+    product: productId,
+     
+   });
+   console.log("clickCount", clickCount);
+   if (!clickCount) {
+       try {
+           createclickCount = new KpiProducts({
+               product: productId,
+               clicks: [{
+                   // date: today,
+                   count: 1,
+                   userId: String(userId)
+               }]
+           });
+           await createclickCount.save()
+           console.log("clickCount1", clickCount);
+       } catch (error) {
+           console.log("error", error)
+       }
+ 
+
+   } else {
+       const today = new Date();
+       today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+       const tomorrow = new Date(today);
+       tomorrow.setDate(tomorrow.getDate() + 1);
+      
+       let clickCount1 = await KpiProducts.findOne({
+           product: productId,   clicks: {
+               $elemMatch: { 
+                 userId: userId, 
+                  date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+                } 
+             }
+       });
+       console.log("clickCount......of>>perdate", clickCount1)
+       // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
+       // const lastDate = new Date(lastClick.date);
+
+       if (clickCount1!==null) {
+           clickCount1.clicks[0].count++;
+       } else {
+           let list = await KpiProducts.findOne({
+               product: productId
+           });
+          await list.clicks.push({
+               date: today,
+                count: 1,
+               userId: String(userId) 
+           }); 
+           await list.save()
+           console.log("clickCount......of>>perdate", list)
+       }
+       await clickCount1.save()
+    }
 });
 
 // When the user clicks on a "Previous" inline button, update the current image productId for that product and send an updated message using the sendProduct function
-productSceneTest.action(/previous_(.+)/, (ctx) => {
+productSceneTest.action(/previous_(.+)/, async(ctx) => {
     console.log(ctx.session.currentImageIndex)
     const productId = ctx.match[1];
 
@@ -241,9 +299,67 @@ productSceneTest.action(/previous_(.+)/, (ctx) => {
     }
 
     sendProduct(ctx, productId, product[0]);
+
+    const userId = ctx.from.id
+    let clickCount = await KpiProducts.findOne({
+     product: productId,
+      
+    });
+    console.log("clickCount", clickCount);
+    if (!clickCount) {
+        try {
+            createclickCount = new KpiProducts({
+                product: productId,
+                clicks: [{
+                    // date: today,
+                    count: 1,
+                    userId: String(userId)
+                }]
+            });
+            await createclickCount.save()
+            console.log("clickCount1", clickCount);
+        } catch (error) {
+            console.log("error", error)
+        }
+  
+ 
+    } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+       
+        let clickCount1 = await KpiProducts.findOne({
+            product: productId,   clicks: {
+                $elemMatch: { 
+                  userId: userId, 
+                   date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+                 } 
+              }
+        });
+
+        // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
+        // const lastDate = new Date(lastClick.date);
+ 
+        if (clickCount1!==null) {
+            clickCount1.clicks[0].count++;
+        } else {
+            let list = await KpiProducts.findOne({
+                product: productId
+            });
+           await list.clicks.push({
+                date: today,
+                 count: 1,
+                userId: String(userId) 
+            }); 
+            await list.save()
+         
+        }
+        await clickCount1.save()
+     }
 });
 
-productSceneTest.action(/viewMore_(.+)/, (ctx) => {
+productSceneTest.action(/viewMore_(.+)/,async (ctx) => {
     console.log("reach...viewmore")
     const productId = ctx.match[1];
     ctx.session.viewMore[productId] = true;
@@ -251,9 +367,66 @@ productSceneTest.action(/viewMore_(.+)/, (ctx) => {
     const product = products.filter((p) => p._id == productId)
     console.log("is prodcut found", ctx.session)
     sendProduct(ctx, productId, product[0]);
+    const userId = ctx.from.id
+    let clickCount = await KpiProducts.findOne({
+     product: productId,
+      
+    });
+    console.log("clickCount", clickCount);
+    if (!clickCount) {
+        try {
+            createclickCount = new KpiProducts({
+                product: productId,
+                clicks: [{
+                    // date: today,
+                    count: 1,
+                    userId: String(userId)
+                }]
+            });
+            await createclickCount.save()
+            console.log("clickCount1", clickCount);
+        } catch (error) {
+            console.log("error", error)
+        }
+  
+ 
+    } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+       
+        let clickCount1 = await KpiProducts.findOne({
+            product: productId,   clicks: {
+                $elemMatch: { 
+                  userId: userId, 
+                   date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+                 } 
+              }
+        });
+       
+        // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
+        // const lastDate = new Date(lastClick.date);
+ 
+        if (clickCount1!==null) {
+            clickCount1.clicks[0].count++;
+        } else {
+            let list = await KpiProducts.findOne({
+                product: productId
+            });
+           await list.clicks.push({
+                date: today,
+                 count: 1,
+                userId: String(userId) 
+            }); 
+            await list.save()
+          
+        }
+        await clickCount1.save()
+     }
 });
 
-productSceneTest.action(/viewLess_(.+)/, (ctx) => {
+productSceneTest.action(/viewLess_(.+)/, async(ctx) => {
     const productId = ctx.match[1];
     ctx.session.viewMore[productId] = false;
     // ctx.session.quantity[productId] = 0;
@@ -261,6 +434,63 @@ productSceneTest.action(/viewLess_(.+)/, (ctx) => {
     const product = products.filter((p) => p._id == productId)
     product[0].quantity[productId] = 0;
     sendProduct(ctx, productId, product[0]);
+    const userId = ctx.from.id
+    let clickCount = await KpiProducts.findOne({
+     product: productId,
+      
+    });
+    console.log("clickCount", clickCount);
+    if (!clickCount) {
+        try {
+            createclickCount = new KpiProducts({
+                product: productId,
+                clicks: [{
+                    // date: today,
+                    count: 1,
+                    userId: String(userId)
+                }]
+            });
+            await createclickCount.save()
+            console.log("clickCount1", clickCount);
+        } catch (error) {
+            console.log("error", error)
+        }
+  
+ 
+    } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+       
+        let clickCount1 = await KpiProducts.findOne({
+            product: productId,   clicks: {
+                $elemMatch: { 
+                  userId: userId, 
+                   date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+                 } 
+              }
+        });
+      
+        // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
+        // const lastDate = new Date(lastClick.date);
+ 
+        if (clickCount1!==null) {
+            clickCount1.clicks[0].count++;
+        } else {
+            let list = await KpiProducts.findOne({
+                product: productId
+            });
+           await list.clicks.push({
+                date: today,
+                 count: 1,
+                userId: String(userId) 
+            }); 
+            await list.save()
+          
+        }
+        await clickCount1.save()
+     }
 });
 
 productSceneTest.action(/buy_(.+)/, async (ctx) => {
@@ -278,7 +508,63 @@ productSceneTest.action(/buy_(.+)/, async (ctx) => {
         console.log("cartItem..........................", cartArg)
         // Send the product information to the user
         sendProduct(ctx, productId, cartArg);
-
+        // const userId = ctx.from.id
+        let clickCount = await KpiProducts.findOne({
+         product: productId,
+          
+        });
+        console.log("clickCount", clickCount);
+        if (!clickCount) {
+            try {
+                createclickCount = new KpiProducts({
+                    product: productId,
+                    clicks: [{
+                        // date: today,
+                        count: 1,
+                        userId: String(userId)
+                    }]
+                });
+                await createclickCount.save()
+                console.log("clickCount1", clickCount);
+            } catch (error) {
+                console.log("error", error)
+            }
+      
+     
+        } else {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+           
+            let clickCount1 = await KpiProducts.findOne({
+                product: productId,   clicks: {
+                    $elemMatch: { 
+                      userId: userId, 
+                       date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+                     } 
+                  }
+            });
+        
+            // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
+            // const lastDate = new Date(lastClick.date);
+     
+            if (clickCount1!==null) {
+                clickCount1.clicks[0].count++;
+            } else {
+                let list = await KpiProducts.findOne({
+                    product: productId
+                });
+               await list.clicks.push({
+                    date: today,
+                     count: 1,
+                    userId: String(userId) 
+                }); 
+                await list.save()
+              
+            }
+            await clickCount1.save()
+         }
         // Send a confirmation message
         //   await ctx.answerCbQuery(`You have added ${cartItem.quantity} of product ${cartItem.product.name} to your cart.`);
     } catch (error) {
@@ -305,7 +591,63 @@ productSceneTest.action(/addQuantity_(.+)/, async (ctx) => {
 console.log("productArg", productArg)
         // Send the product information to the user
         sendProduct(ctx, productId, productArg);
-
+        // const userId = ctx.from.id
+        let clickCount = await KpiProducts.findOne({
+         product: productId,
+          
+        });
+        console.log("clickCount", clickCount);
+        if (!clickCount) {
+            try {
+                createclickCount = new KpiProducts({
+                    product: productId,
+                    clicks: [{
+                        // date: today,
+                        count: 1,
+                        userId: String(userId)
+                    }]
+                });
+                await createclickCount.save()
+                console.log("clickCount1", clickCount);
+            } catch (error) {
+                console.log("error", error)
+            }
+      
+     
+        } else {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+           
+            let clickCount1 = await KpiProducts.findOne({
+                product: productId,   clicks: {
+                    $elemMatch: { 
+                      userId: userId, 
+                       date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+                     } 
+                  }
+            });
+            console.log("clickCount......of>>perdate", clickCount1)
+            // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
+            // const lastDate = new Date(lastClick.date);
+     
+            if (clickCount1!==null) {
+                clickCount1.clicks[0].count++;
+            } else {
+                let list = await KpiProducts.findOne({
+                    product: productId
+                });
+               await list.clicks.push({
+                    date: today,
+                     count: 1,
+                    userId: String(userId) 
+                }); 
+                await list.save()
+                console.log("clickCount......of>>perdate", list)
+            }
+            await clickCount1.save()
+         }
         // Send a confirmation message
         await ctx.answerCbQuery(`You have added ${quantity} of product ${productArg.name} to your cart.`);
     } catch (error) {
@@ -347,7 +689,63 @@ productSceneTest.action(/removeQuantity_(.+)/, async (ctx) => {
         //     await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
         //     return;
         // }
-        
+        const userId = ctx.from.id
+        let clickCount = await KpiProducts.findOne({
+         product: productId,
+          
+        });
+        console.log("clickCount", clickCount);
+        if (!clickCount) {
+            try {
+                createclickCount = new KpiProducts({
+                    product: productId,
+                    clicks: [{
+                        // date: today,
+                        count: 1,
+                        userId: String(userId)
+                    }]
+                });
+                await createclickCount.save()
+                console.log("clickCount1", clickCount);
+            } catch (error) {
+                console.log("error", error)
+            }
+      
+     
+        } else {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+           
+            let clickCount1 = await KpiProducts.findOne({
+                product: productId,   clicks: {
+                    $elemMatch: { 
+                      userId: userId, 
+                       date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+                     } 
+                  }
+            });
+            console.log("clickCount......of>>perdate", clickCount1)
+            // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
+            // const lastDate = new Date(lastClick.date);
+     
+            if (clickCount1!==null) {
+                clickCount1.clicks[0].count++;
+            } else {
+                let list = await KpiProducts.findOne({
+                    product: productId
+                });
+               await list.clicks.push({
+                    date: today,
+                     count: 1,
+                    userId: String(userId) 
+                }); 
+                await list.save()
+                console.log("clickCount......of>>perdate", list)
+            }
+            await clickCount1.save()
+         }
         // // console.log("removed item...",productArg)
         // sendProduct(ctx, productId, productArg);
         // await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);

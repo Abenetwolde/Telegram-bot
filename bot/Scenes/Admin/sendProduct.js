@@ -39,7 +39,7 @@ ${formattedButton}
         let mediaGroup=[]
         images.map((i,index)=>index==0?mediaGroup.push(            {
                   media: i,
-                  type: 'photo',
+                   type: 'photo',
                   caption: caption,
                   parse_mode: 'Markdown'
             //    parse_mode: 'MarkdownV2'
@@ -71,11 +71,11 @@ ${formattedButton}
             );
 
             // Store the sent message ID in the session
-            ctx.session.cleanUpState.push({
-                id: sentMessage.message_id,
-                type: 'channelpost',
-                productId: productId,
-            });
+            // ctx.session.cleanUpState.push({
+            //     id: sentMessage.message_id,
+            //     type: 'channelpost',
+            //     productId: productId,
+            // });
             await Product.findByIdAndUpdate(product._id, {channelMessageId:  sentMessage.message_id });
         } else if(images.length > 1){
          
@@ -87,11 +87,11 @@ ${formattedButton}
             let messagesaved;
             // Store the sent message IDs in the session
             sentMessage.forEach(async (message, index) => {
-                ctx.session.cleanUpState.push({
-                    id: message.message_id,
-                    type: 'channelpostGroup',
-                    productId: productId,
-                });
+                // ctx.session.cleanUpState.push({
+                //     id: message.message_id,
+                //     type: 'channelpostGroup',
+                //     productId: productId,
+                // });
                 
                 if (index === 0) {
                     messagesaved = message.message_id;
@@ -109,11 +109,11 @@ ${formattedButton}
                 parse_mode: 'Markdown',
                 ...paginationKeyboard,
             });
-            ctx.session.cleanUpState.push({
-                id: message.message_id,
-                type: 'channelpost',
-                productId: productId,
-            });
+            // ctx.session.cleanUpState.push({
+            //     id: message.message_id,
+            //     type: 'channelpost',
+            //     productId: productId,
+            // });
             await Product.findByIdAndUpdate(product._id, {channelMessageId:  message.message_id });
 
            

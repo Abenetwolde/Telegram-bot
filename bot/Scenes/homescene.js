@@ -1,6 +1,6 @@
-const { Scenes, Telegraf,Markup, session } = require("telegraf")
+const { Scenes, Telegraf, Markup, session } = require("telegraf")
 const axios = require('axios');
-const { encode, decode, parse, stringify }= require('urlencode') ;
+const { encode, decode, parse, stringify } = require('urlencode');
 // user
 const { t, match } = require('telegraf-i18next');
 const { getAllCategories } = require("../Database/categoryController");
@@ -8,15 +8,16 @@ const homeScene = new Scenes.BaseScene('homeScene');
 
 const UserKPI = require("../Model/KpiUser");
 const User = require("../Model/user");
+const KpiCategorys = require("../Model/KpiCategory");
 homeScene.enter(async (ctx) => {
     try {
         if (ctx.session.cleanUpState) {
             ctx.session.cleanUpState.forEach(async (message) => {
                 if (message?.type === 'aboutme' /* || message?.type === 'pageNavigation' || message?.type === 'productKeyboard'|| message?.type === 'home'||message?.type === 'first' */) {
                     await ctx.telegram.deleteMessage(ctx.chat.id, message.id).catch((e) => ctx.reply(e.message));
-    
+
                 }
-            });  
+            });
         }
         await ctx.sendChatAction('typing');
         const enterTime = new Date();
@@ -56,7 +57,7 @@ homeScene.enter(async (ctx) => {
             let keyboard = [
                 [ctx.i18next.t('Search'), ctx.i18next.t('cart')],
                 [ctx.i18next.t('order'), ctx.i18next.t('Language')],
-                [ctx.i18next.t('aboutus'), ctx.i18next.t('invite'),ctx.i18next.t('feedback')]
+                [ctx.i18next.t('aboutus'), ctx.i18next.t('invite'), ctx.i18next.t('feedback')]
             ];
             if (showkey) {
 
@@ -66,11 +67,11 @@ homeScene.enter(async (ctx) => {
             //     `👋 Hello ${ctx.session.token ? 'again, ' : ''}${ctx.from.first_name}!`,
             //     Markup.keyboard(keyboard).resize()
             // );
-            const welcomeMessage = await ctx.reply(` 👋 ${ctx.i18next.t('gretting')} ${ctx.from.first_name} ${ctx.session.token ? ctx.i18next.t('hello')  : ''}!`,
-              
+            const welcomeMessage = await ctx.reply(` 👋 ${ctx.i18next.t('gretting')} ${ctx.from.first_name} ${ctx.session.token ? ctx.i18next.t('hello') : ''}!`,
+
                 Markup.keyboard(keyboard).resize()
             );
-        
+
             // Save the welcome message ID to the cleanUpState array in the session data
             ctx.session.cleanUpState.push({ id: welcomeMessage.message_id, type: 'home' });
         } catch (error) {
@@ -101,9 +102,72 @@ homeScene.action(/category_(.+)/, async (ctx) => {
     // Now, you have both the category ID and name separately
     console.log('Category ID:', categoryId);
     console.log('Category Name:', categoryName);
+
+
+
+    const userId = ctx.from.id
+    let clickCount = await KpiCategorys.findOne({
+        category: categoryId,  
+      
+    });
+    console.log("clickCount", clickCount);
+    if (!clickCount) {
+        try {
+            createclickCount = new KpiCategorys({
+                category: categoryId,
+                clicks: [{
+                    // date: today,
+                    count: 1,
+                    userId: String(userId)
+                }]
+            });
+            await createclickCount.save()
+            console.log("clickCount1", clickCount);
+        } catch (error) {
+            console.log("error", error)
+        }
+
+
+    } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        let clickCount1 = await KpiCategorys.findOne({
+            category: categoryId,   clicks: {
+                $elemMatch: { 
+                  userId: userId, 
+                   date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+                 } 
+              }
+        });
+        console.log("clickCount......of>>perdate", clickCount1)
+        // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
+        // const lastDate = new Date(lastClick.date);
+
+        if (clickCount1!==null) {
+          await  clickCount1.clicks[0].count++;
+        } else {
+            let list = await KpiCategorys.findOne({
+                category: categoryId
+            });
+           await list.clicks.push({
+                date: today,
+                 count: 1,
+                userId: String(userId)
+            });
+            await list.save()
+            console.log("clickCount......of>>perdate", list)
+        }
+        await clickCount1.save()
+
+
+        
+    }
+    // await clickCount.save()
     // ctx.scene.enter('product',  { category: categoryId });
     await ctx.scene.enter('product', { category: { id: categoryId, name: categoryName, icon: categoryIcon } });
-
+ 
 });
 homeScene.hears(match('Search'), async (ctx) => {
     await ctx.scene.enter("searchProduct")
@@ -116,7 +180,7 @@ homeScene.hears(match('order'), async (ctx) => {
     await ctx.scene.enter("myOrderScene")
 })
 homeScene.hears(match('contactus'), async (ctx) => {
-    await ctx.reply('📥 Contact me \n ✍️ Support: @abman', )
+    await ctx.reply('📥 Contact me \n ✍️ Support: @abman',)
 })
 homeScene.hears(match('feedback'), async (ctx) => {
     await ctx.scene.enter("feedback")
@@ -126,34 +190,34 @@ homeScene.hears(match('aboutus'), async (ctx) => {
 })
 const bot = new Telegraf("6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM", {
     timeout: Infinity
-  });
+});
 homeScene.hears(match('invite'), async (ctx) => {
-    let summary=""
-    const userLottery=await User.findOne({telegramid:ctx.from.id})
-   const lotteryNUmner=userLottery.lotteryNumbers.number.map((n=>n)).join(",")
-   if(lotteryNUmner>0){
-    summary+=`here is yor lottery number` +`${lotteryNUmner}\n`;
-    
-}else{
-    summary+="you haven't any lottery number yet\n"
-}
-  const invitationnumber= userLottery.lotteryNumbers.invitedUsers
-  summary+="You invite  "+ `${invitationnumber}`+" people \n"
+    let summary = ""
+    const userLottery = await User.findOne({ telegramid: ctx.from.id })
+    const lotteryNUmner = userLottery.lotteryNumbers.number.map((n => n)).join(",")
+    if (lotteryNUmner > 0) {
+        summary += `Here is yor lottery number:` + `<u>${lotteryNUmner}</u>\n`;
 
-   
+    } else {
+        summary += "You haven't any lottery number yet\n"
+    }
+    const invitationnumber = userLottery.lotteryNumbers.invitedUsers
+    summary += "You invite  " + `<u>${invitationnumber}</u>` + " people \n"
 
-    await ctx.reply(summary)
+
+
+    await ctx.replyWithHTML(summary)
     bot.telegram.getMe().then((botInfo) => {
         const botUsername = botInfo.username;
-        
+
         // Generate invitation link
         const inviteLink = `https://t.me/${botUsername}?start=invite_${ctx.from.id}`;
-        let text= ' ውድ ደንበኛችን ስለ አጠቃቀሙ ገለፃ ከታች ያለውን ቅደም ተከተል ይከተሉ \n\n 1️⃣ በመጀመሪያ 🎁የእርሶ መጋበዣ ሊንክ የሚለውን ይጫኑ! \n 2️⃣ በመቀጠል Official ቻናላችንን ይቀላቀሉ። \n 3️⃣ Restart 🔁 የሚለውን Button ይጫኑ \n 4️⃣ በመቀጠል የእርሶ መጋበዣ ሊንክ ለጓደኛዎ ግሩፕ ወይም ቻናል ላይ ሼር ያድርጉ። \n 5️⃣ በናንተ መጋበዣ ሊንክ አንድ ሰው ሲጋብዙ 1ብር ሰሩ ማለት ነው። \n 6️⃣ እርሶ የጋበዟቸው ሰዎች 10 ሰው በላይ ሲደርስ እስከ 100.00 ብር በ CBE,ቴሌ ብር ወይም የሞባይል ካርድ ማውጣት ይችላሉ። \n\n '
+        let text = ' ውድ ደንበኛችን ስለ አጠቃቀሙ ገለፃ ከታች ያለውን ቅደም ተከተል ይከተሉ \n\n 1️⃣ በመጀመሪያ 🎁የእርሶ መጋበዣ ሊንክ የሚለውን ይጫኑ! \n 2️⃣ በመቀጠል Official ቻናላችንን ይቀላቀሉ። \n 3️⃣ Restart 🔁 የሚለውን Button ይጫኑ \n 4️⃣ በመቀጠል የእርሶ መጋበዣ ሊንክ ለጓደኛዎ ግሩፕ ወይም ቻናል ላይ ሼር ያድርጉ። \n 5️⃣ በናንተ መጋበዣ ሊንክ አንድ ሰው ሲጋብዙ 1 ነጥብ ያገኛሉ። \n 6️⃣ እርሶ የጋበዟቸው ሰዎች 10 ሰው ሲደርስ ወዲያውኑ የሎተሪ እጣ ቁጥር ይላክሎታል።\n እጣው በሳምንቱ ይወጣል ለባለ አሸናፊዎች የፈለጉትን የምግብ አይነት ከ Delivery ጋር ይደርሶታል\n\n '
         // Send invitation link with keyboard
         ctx.replyWithHTML(`Invite your friends using the by copy the link below:<code>${inviteLink}</code>`, Markup.inlineKeyboard([
-          Markup.button.url('Invite', 't.me/share/url?url='+ encode(text + `👥 የእርስዎ ሪፈራል ሊንክ(referal link): ${inviteLink}`)),
+            Markup.button.url('Invite', 't.me/share/url?url=' + encode(text + `👥 የእርስዎ ሪፈራል ሊንክ(referal link): ${inviteLink}`)),
         ]));
-      });
+    });
 })
 homeScene.hears('Admin 📊', async (ctx) => {
     await ctx.scene.enter("adminBaseScene")

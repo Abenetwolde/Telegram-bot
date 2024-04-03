@@ -26,6 +26,7 @@ adminBaseScene.hears('Post Product', async (ctx) => {
   };
   const productsResult = await getAllProducts();
   const { products } = productsResult;
+
   // Check if there are no more products left to process
   // if (lastProcessedIndex >= products.length) {
   //   // lastProcessedIndex=0
@@ -41,8 +42,7 @@ adminBaseScene.hears('Post Product', async (ctx) => {
       // Attempt to send products to channel from the last processed index
       for (let i = lastProcessedIndex; i < products.length; i++) {
         const product = products[i];
-        ctx.session.currentImageIndex[product._id] = 0;
-        ctx.session.viewMore[product._id] = false;
+        
         await sendProductToChannel(ctx, product._id, product);
         lastProcessedIndex = i;
         if (lastProcessedIndex >= products.length) {

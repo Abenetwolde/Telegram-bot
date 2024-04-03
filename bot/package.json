@@ -30,6 +30,7 @@
     "moment": "^2.29.4",
     "mongodb": "^6.3.0",
     "mongoose": "^7.4.1",
+    "node-cron": "^3.0.3",
     "nodemon": "^2.0.22",
     "numeral": "^2.0.6",
     "pm2": "^5.3.0",
@@ -38,6 +39,7 @@
     "telegraf": "^4.14.0",
     "telegraf-i18next": "^5.0.0",
     "telegraf-pagination": "^1.4.1",
+    "telegraf-ratelimit": "^2.0.0",
     "telegraf-session-local": "^2.1.1",
     "telegraf-session-mongodb": "^2.0.2",
     "urlencode": "^2.0.0"

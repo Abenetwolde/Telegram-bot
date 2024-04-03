@@ -53,7 +53,7 @@ module.exports = {
           });
     
          const productsJson = JSON.stringify(product);
-          console.log("Prodcut.........",productsJson)
+          // console.log("Prodcut.........",productsJson)
           return productsJson
         } catch (error) {
           throw new Error('Error fetching products from the database.');

@@ -80,7 +80,7 @@ module.exports = {
         const image = product?.images[ctx.session.currentImageIndex[productId]]?.imageUrl;
         // const response = await axios.get(image, { responseType: 'arraybuffer' });
 
-        console.log("imagesa............", image)
+        // console.log("imagesa............", image)
         if (ctx.session.cleanUpState && ctx.session.cleanUpState.find(message => message?.type === 'product' && message?.productId === productId)) {
             const productMessage = ctx.session.cleanUpState.find(message => message?.type === 'product' && message?.productId === productId);
             if (productMessage) {
@@ -181,12 +181,12 @@ module.exports = {
             try {
                 if (image) {
                     const resizeimage = image
-                    console.log("imagebuferx............", resizeimage)
+                    // console.log("imagebuferx............", resizeimage)
                     const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
                     const imageBuffer = await sharp(response.data)
                         .resize(200, 200)
                         .toBuffer();
-                    console.log("buffer............", imageBuffer)
+                    // console.log("buffer............", imageBuffer)
                     const message = await ctx.replyWithPhoto({ source: imageBuffer }, {
                         caption: telegramMessage,
                         ...Markup.inlineKeyboard([

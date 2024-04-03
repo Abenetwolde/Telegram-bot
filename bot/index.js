@@ -1,7 +1,7 @@
 
 const { Telegraf, Markup, InputFile, Scene, session, WizardScene, Scenes } = require('telegraf');
 const { i18next } = require('telegraf-i18next');
-
+const cron = require('node-cron');
 const sharp = require('sharp');
 const { reply } = require('telegraf-i18next')
 const { Redis } = require("@telegraf/session/redis");
@@ -15,6 +15,7 @@ const { homeScene, productSceneTest, cart, informationCash, searchProduct, myOrd
 const { checkUserToken } = require('./Utils/checkUserToken');
 const { Mongo } = require("@telegraf/session/mongodb");
 const { MongoClient } = require('mongodb');
+const rateLimit = require('telegraf-ratelimit')
 const { createUser, updateUserLanguage } = require('./Database/UserController.js');
 const UserKPI = require("./Model/KpiUser");
 const bot = new Telegraf("6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM", {
@@ -22,8 +23,10 @@ const bot = new Telegraf("6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM", {
 });
 require("dotenv").config();
 const connectDatabase = require('./config/database.js');
-const { getSingleProduct } = require('./Database/productcontroller.js');
+const { getSingleProduct, getAllProducts } = require('./Database/productcontroller.js');
 const User = require('./Model/user.js');
+const { sendProductToChannel } = require('./Scenes/Admin/sendProduct.js');
+const { cronSendProductToChannel } = require('./Scenes/Cron/index.js');
 
 connectDatabase()
 bot.use(i18next({
@@ -40,6 +43,20 @@ bot.use(i18next({
     }
   }
 }));
+const buttonsLimit = {
+  window: 1000,
+  limit: 1,
+  onLimitExceeded: (ctx, next) => {
+    if ('callback_query' in ctx.update)
+    ctx.answerCbQuery('You`ve pressed buttons too oftern, wait.', true)
+      .catch((err) => sendError(err, ctx))
+  },
+  keyGenerator: (ctx) => {
+    return ctx.callbackQuery ? true : false
+  }
+}
+bot.use(rateLimit(buttonsLimit))
+
 const { Stage } = Scenes;
 const stage = new Stage([homeScene, channelHandeler, searchProduct, productSceneTest, cart, myOrderScene, selectePaymentType, addressOnline, informationCash, noteScene, paymentScene, adminBaseScene, feedback, aboutUs])
 
@@ -84,7 +101,62 @@ mongoClient.connect()
 
 
     bot.use(session({ store, getSessionKey: (ctx) => ctx.from?.id.toString(), }));
+    cron.schedule('*/30 * * * *', async () => {
+      try {
+        // const ctx = bot.context; 
+        // console.log("The time is up");
+        // // console.log(ctx)
+        // // await ctx.scene.enter("adminBaseScene")
+        // let lastProcessedIndex = /* ctx.session?.lastProcessedIndex || */ 0;
+        // console.log("Last processed index:", lastProcessedIndex);
+        let lastProcessedIndex = /* ctx.session?.lastProcessedIndex || */ 0;
+        const productsData = {
+          page: 1,
+          pageSize: 10,
+        };
+    
+        const productsResult = await getAllProducts();
+        const { products } = productsResult;
 
+    
+        // Define exponential backoff parameters
+        let delay = 1000; // Initial delay (1 second)
+        let success = false;
+    
+        while (!success) {
+          try {
+            // Attempt to send products to channel from the last processed index
+            for (let i = lastProcessedIndex; i < products.length; i++) {
+              const product = products[i];
+              await cronSendProductToChannel( product._id, product);
+              lastProcessedIndex = i;
+              if (lastProcessedIndex >= products.length) {
+                console.log('All products have been posted to the channel.');
+                break; // Exit the loop if all products have been processed
+              }
+            }
+            success = true; // Mark success if products are sent without errors
+          } catch (error) {
+            if (error.code === 429) {
+              // If rate limit exceeded, wait for the specified delay and then retry
+              await new Promise(resolve => setTimeout(resolve, delay));
+              delay *= 2; // Double the delay for exponential backoff
+            } else {
+              // Handle other errors
+              console.error("Error:", error);
+              throw error; // Throw the error to stop the cron job
+            }
+          }
+        }
+    
+        // Store the last processed index in the session
+        ctx.session.lastProcessedIndex = lastProcessedIndex;
+    
+      } catch (error) {
+        console.error("Error:", error);
+        // Handle any uncaught errors
+      }
+    });
 
     bot.use((ctx, next) => {
       // if (!ctx.session) {
@@ -536,6 +608,59 @@ mongoClient.connect()
         await ctx.scene.enter("homeScene")
       }
     });
+    async function sendError(err, ctx) {
+      const errorCode = err.response && err.response.error_code;
+      let errorMessage = '';
+    
+      switch (errorCode) {
+        case 400:
+          errorMessage = 'Bad Request: The request was not understood or lacked required parameters.';
+          break;
+        case 403:
+          errorMessage = 'Forbidden: The bot was blocked by the user.';
+          break;
+        case 404:
+          errorMessage = 'Not Found: The requested resource could not be found.';
+          break;
+        case 409:
+          errorMessage = 'Conflict: The request could not be completed due to a conflict with the current state of the resource.';
+          break;
+        case 429:
+          errorMessage = 'Too Many Requests: The bot is sending too many requests to the Telegram servers.';
+          break;
+        case 500:
+          errorMessage = 'Internal Server Error: An error occurred on the server.';
+          break;
+        default:
+          errorMessage = 'An error occurred while processing your request.';
+      }
+      // console.log(err.toString())
+      if (ctx != undefined) {
+        if (err.code === 400) {
+          return setTimeout(() => {
+            ctx.answerCbQuery()
+           ctx.scene.enter("homeScene")
+          }, 500)
+        } else if (err.code === 429) {
+          return ctx.reply(
+            'You`ve pressed buttons too often and were blocked by Telegram' +
+            'Wait some minutes and try again'
+          )
+        }
+        const adminChatId = '2126443079'
+        bot.telegram.sendMessage(adminChatId, '[' + ctx.from.first_name + '](tg://user?id=' + ctx.from.id + ') has got an error.\nError text: ' + errorMessage, {parse_mode: 'markdown'})
+      } else {
+        bot.telegram.sendMessage(adminChatId, 'There`s an error:' + err.toString())
+      }
+    }
+    
+    bot.catch((err) => {
+      sendError(err)
+    })
+    
+    process.on('uncaughtException', (err) => {
+      sendError(err)
+    })
     // bot.use(async (ctx, next) => {
     //   const telegramid = ctx.from.id;
     //   const userSpentTime = await User.findOne({ telegramid });
@@ -787,45 +912,47 @@ bot.command('link', async (ctx) => {
   await ctx.replyWithPhoto({ source: imageBuffer }, { caption: `[Buy](https://t.me/testecommerce12bot?start=chat_${123}`, parse_mode: 'Markdown' });
   // ctx.replyWithMarkdown(`[Buy](https://t.me/testecommerce12bot?start=chat_${123}`);
 });
-bot.catch(async (err, ctx) => {
-  console.log(`Error while handling update ${ctx.update.update_id}:`, err)
 
-  const errorCode = err.response && err.response.error_code;
-  let errorMessage = '';
 
-  switch (errorCode) {
-    case 400:
-      errorMessage = 'Bad Request: The request was not understood or lacked required parameters.';
-      break;
-    case 403:
-      errorMessage = 'Forbidden: The bot was blocked by the user.';
-      break;
-    case 404:
-      errorMessage = 'Not Found: The requested resource could not be found.';
-      break;
-    case 409:
-      errorMessage = 'Conflict: The request could not be completed due to a conflict with the current state of the resource.';
-      break;
-    case 429:
-      errorMessage = 'Too Many Requests: The bot is sending too many requests to the Telegram servers.';
-      break;
-    case 500:
-      errorMessage = 'Internal Server Error: An error occurred on the server.';
-      break;
-    default:
-      errorMessage = 'An error occurred while processing your request.';
-  }
-  const adminChatId = '2126443079'
-  // Notify the user
-  await ctx.telegram.sendMessage(adminChatId, errorMessage).catch((err) => {
-    console.log('Failed to send error message to user:', err);
-  });
-  // if (ctx && ctx.chat && ctx.chat.id) {
-  await ctx.telegram.sendMessage(adminChatId, errorMessage).catch((err) => {
-    console.log('Failed to send error message to user:', err);
-  });
-  // }
-})
+// bot.catch(async (err, ctx) => {
+//   console.log(`Error while handling update ${ctx.update.update_id}:`, err)
+
+//   const errorCode = err.response && err.response.error_code;
+//   let errorMessage = '';
+
+//   switch (errorCode) {
+//     case 400:
+//       errorMessage = 'Bad Request: The request was not understood or lacked required parameters.';
+//       break;
+//     case 403:
+//       errorMessage = 'Forbidden: The bot was blocked by the user.';
+//       break;
+//     case 404:
+//       errorMessage = 'Not Found: The requested resource could not be found.';
+//       break;
+//     case 409:
+//       errorMessage = 'Conflict: The request could not be completed due to a conflict with the current state of the resource.';
+//       break;
+//     case 429:
+//       errorMessage = 'Too Many Requests: The bot is sending too many requests to the Telegram servers.';
+//       break;
+//     case 500:
+//       errorMessage = 'Internal Server Error: An error occurred on the server.';
+//       break;
+//     default:
+//       errorMessage = 'An error occurred while processing your request.';
+//   }
+//   const adminChatId = '2126443079'
+//   // Notify the user
+//   await ctx.telegram.sendMessage(adminChatId, errorMessage).catch((err) => {
+//     console.log('Failed to send error message to user:', err);
+//   });
+//   // if (ctx && ctx.chat && ctx.chat.id) {
+//   await ctx.telegram.sendMessage(adminChatId, errorMessage).catch((err) => {
+//     console.log('Failed to send error message to user:', err);
+//   });
+//   // }
+// })
 bot.command('time', async (ctx) => {
   const telegramid = ctx.from.id;
   const activities = await User.find({ telegramid }).sort({ timestamp: 1 });

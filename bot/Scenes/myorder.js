@@ -172,29 +172,38 @@ myOrderScene.action(/cancel_order:(.+)/, async (ctx) => {
 // Handle user's confirmation
 myOrderScene.action(/confirm_cancel:(.+)/, async (ctx) => {
     // Delete the message with the cancellation confirmation prompt
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
+    try {
+        await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
 
-    // Retrieve the orderId from the callback data
-    const orderId = ctx.match[1];
-
-    // Perform cancellation logic here...
-    const cancellationResult = await cancelOrder(orderId, ctx.from.id);
-    await ctx.answerCbQuery("Order canceled successfully");
-    if (cancellationResult.success) {
-        await ctx.answerCbQuery("Order canceled successfully.");
-        // await ctx.scene.reenter()
-    } else {
-        await ctx.answerCbQuery("Failed to cancel the order.");
+        // Retrieve the orderId from the callback data
+        const orderId = ctx.match[1];
+    
+        // Perform cancellation logic here...
+        const cancellationResult = await cancelOrder(orderId, ctx.from.id);
+        await ctx.answerCbQuery("Order canceled successfully");
+        if (cancellationResult.success) {
+            await ctx.answerCbQuery("Order canceled successfully.");
+            // await ctx.scene.reenter()
+        } else { 
+            await ctx.answerCbQuery("Failed to cancel the order.");
+        }
+    } catch (error) {
+        console.log(error);
     }
+   
 });
 
 // Handle user's rejection
 myOrderScene.action('reject_cancel', async (ctx) => {
-  
+  try {
     await ctx.answerCbQuery("Cancellation request rejected.");
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
+    // await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
 
     await ctx.scene.reenter()
+  } catch (error) {
+    console.log("erorr", error);
+  }
+    
 });
 myOrderScene.hears("My Order History", async (ctx) => {
     if (ctx.session.cleanUpState) {
@@ -383,14 +392,29 @@ async function OrderMessageWithProducts(ctx, orderid, orderItems,orderNumber) {
         }
         else if (videoUrl) {
             console.log("If there is a video, reply with the video")
-            const orderMessage = await ctx.reply(
-                 caption,
-                Markup.inlineKeyboard([
-                
-                    [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
-                ]),
-            );
-            ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
+            // const imageUrls = orderItems.flatMap((item) => item.product.images.map(image => image.imageUrl));
+            // const imageBuffer = await resizeImage(imageUrls[0]);
+            // console.log(imageBuffer)
+            try {
+                console.log("imageBuffer")
+                const orderMessage = await ctx.replyWithPhoto(
+                    {source: "https://th.bing.com/th/id/R.e999a2a1c67874cc430e05b2d667d897?rik=XNTR0QBgIX65fA&riu=http%3a%2f%2fwww.pngmart.com%2ffiles%2f1%2fVideo-Icon-PNG-File.png&ehk=SV9RycWEvhpiPwx03de0K2l4nQZ5pOI7vhYYhLDNJ4I%3d&risl=&pid=ImgRaw&r=0"},
+                     { 
+                        parse_mode: 'HTML' ,
+                        caption:caption,
+                   
+                        
+                    ...Markup.inlineKeyboard([
+                    
+                        [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
+                    ]),
+                }
+                );
+                ctx.session.cleanUpState.push({ id: orderMessage.message_id, type: "myorder" });
+            } catch (error) {
+                console.log(error)
+            }
+          
         }
     }
 // }
