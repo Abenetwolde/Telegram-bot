@@ -398,7 +398,7 @@ async function OrderMessageWithProducts(ctx, orderid, orderItems,orderNumber) {
             try {
                 console.log("imageBuffer")
                 const orderMessage = await ctx.replyWithPhoto(
-                    {source: "https://th.bing.com/th/id/R.e999a2a1c67874cc430e05b2d667d897?rik=XNTR0QBgIX65fA&riu=http%3a%2f%2fwww.pngmart.com%2ffiles%2f1%2fVideo-Icon-PNG-File.png&ehk=SV9RycWEvhpiPwx03de0K2l4nQZ5pOI7vhYYhLDNJ4I%3d&risl=&pid=ImgRaw&r=0"},
+                    {url: "https://gagadget.com/media/cache/db/a4/dba452f0af5bbf105934a103c578a5b9.jpg"},
                      { 
                         parse_mode: 'HTML' ,
                         caption:caption,

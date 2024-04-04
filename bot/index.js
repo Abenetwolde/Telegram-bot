@@ -293,6 +293,7 @@ mongoClient.connect()
 
 
     bot.start(async (ctx) => {
+      
       console.log("ctx.from.............", ctx.from)
       console.log("ctx.session.locale", ctx.session.locale)
       const startCommand = ctx.message.text.split(' ');
@@ -730,8 +731,22 @@ bot.telegram.setMyCommands([
 
 bot.command('mariya', async (ctx) => {
   const userId = ctx.message.from.id
+  const orderid=1
   try {
-    const res = await bot.telegram.sendMessage("355514342", 'Hey Maria, How are you?This is Lelasew, my Telegram is accidentally banned(idk what happen) you can reach me now at @abnetw see you!')
+    const orderMessage = await ctx.replyWithPhoto(
+      { url: "https://gagadget.com/media/cache/db/a4/dba452f0af5bbf105934a103c578a5b9.jpg" },
+       { 
+          parse_mode: 'HTML' ,
+          caption:"caption",
+     
+          
+      ...Markup.inlineKeyboard([
+      
+          [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
+      ]),
+  }
+  );
+    // const res = await bot.telegram.sendMessage("355514342", 'Hey Maria, How are you?This is Lelasew, my Telegram is accidentally banned(idk what happen) you can reach me now at @abnetw see you!')
     console.log("res...........", res)
   } catch (err) {
     console.log('An error occurred:', err)

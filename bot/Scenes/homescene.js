@@ -105,7 +105,7 @@ homeScene.action(/category_(.+)/, async (ctx) => {
 
 
 
-    const userId = ctx.from.id
+    const userId = ctx.from.id.toString()
     let clickCount = await KpiCategorys.findOne({
         category: categoryId,  
       
@@ -113,7 +113,7 @@ homeScene.action(/category_(.+)/, async (ctx) => {
     console.log("clickCount", clickCount);
     if (!clickCount) {
         try {
-            createclickCount = new KpiCategorys({
+            createclickCount = await new KpiCategorys({
                 category: categoryId,
                 clicks: [{
                     // date: today,
@@ -122,7 +122,7 @@ homeScene.action(/category_(.+)/, async (ctx) => {
                 }]
             });
             await createclickCount.save()
-            console.log("clickCount1", clickCount);
+            // console.log("clickCount1", clickCount);
         } catch (error) {
             console.log("error", error)
         }
@@ -141,25 +141,40 @@ homeScene.action(/category_(.+)/, async (ctx) => {
                  } 
               }
         });
+        console.log("userId.............", userId);
         console.log("clickCount......of>>perdate", clickCount1)
         // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
         // const lastDate = new Date(lastClick.date);
 
         if (clickCount1!==null) {
-          await  clickCount1.clicks[0].count++;
+            const todayClick = clickCount1.clicks.find(click => {
+                // Ensure the date comparison is in UTC
+                const clickDate = new Date(click.date);
+                return click.userId === userId && clickDate >= today && clickDate < tomorrow;
+            });
+        
+            if (todayClick) {
+                todayClick.count++;
+                await clickCount1.save();
+                console.log("Count incremented successfully.");
+            } else {
+                console.log("No click found for today.");
+            }
+            // await clickCount1.clicks[0].count++;
+            
         } else {
             let list = await KpiCategorys.findOne({
                 category: categoryId
             });
-           await list.clicks.push({
-                date: today,
+  
+             list.clicks.push({
                  count: 1,
                 userId: String(userId)
             });
             await list.save()
             console.log("clickCount......of>>perdate", list)
         }
-        await clickCount1.save()
+        // await clickCount1.save()
 
 
         
@@ -168,7 +183,7 @@ homeScene.action(/category_(.+)/, async (ctx) => {
     // ctx.scene.enter('product',  { category: categoryId });
     await ctx.scene.enter('product', { category: { id: categoryId, name: categoryName, icon: categoryIcon } });
  
-});
+}); 
 homeScene.hears(match('Search'), async (ctx) => {
     await ctx.scene.enter("searchProduct")
 })

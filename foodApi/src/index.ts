@@ -43,7 +43,7 @@ app.use('/api/order', order);
 app.use('/api/payment', payment);
 connectToDatabase()
   
-app.listen(8000, () => {
+app.listen(7000, () => {
   console.log('Server running on http://localhost:8080/');
 });
  
