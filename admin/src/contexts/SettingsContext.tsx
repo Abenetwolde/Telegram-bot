@@ -4,7 +4,7 @@ import { createContext } from 'react';
 // import useLocalStorage from '../hooks/useLocalStorage';
 import useLocalStorage from '../hooks/useLocalStorage';
 // utils
-import getColorPresets, { colorPresets, defaultPreset } from '../utils/getColorPresets';
+import getColorPresets, { colorPresets, defaultPreset } from '../utils/getColorPresets.tsx';
 // config
 import { defaultSettings } from '../config';
 

@@ -1,37 +1,78 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import store from './app/store.ts'
-import { Provider } from 'react-redux'
-import { BrowserRouter as Router } from 'react-router-dom';
-import Router1 from './routes/index.tsx'
-import ThemeProvider from './theme';
-import ThemeLocalization from './components/ThemeLocalization.tsx'
-import ThemeColorPresets from './components/ThemeColorPresets.tsx'
-import RtlLayout from './components/RtlLayout.tsx'
-import MotionLazyContainer from './components/animate/MotionLazyContainer.tsx'
+// i18n
+// @mui
+// import AdapterDateFns from '@mui/lab/AdapterDateFns';
+// import LocalizationProvider from '@mui/lab/LocalizationProvider';
+// map
+// import 'mapbox-gl/dist/mapbox-gl.css';
+import ReactDOM from 'react-dom';
+// import { HelmetProvider } from 'react-helmet-async';
+// lightbox
+// import 'react-image-lightbox/style.css';
+import 'react-lazy-load-image-component/src/effects/black-and-white.css';
+// lazy image
+import 'react-lazy-load-image-component/src/effects/blur.css';
+import 'react-lazy-load-image-component/src/effects/opacity.css';
+// editor
+// import 'react-quill/dist/quill.snow.css';
+import { Provider, Provider as ReduxProvider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+// import { PersistGate } from 'redux-persist/lib/integration/react';
+// scroll bar
+// import 'simplebar/src/simplebar.css';
+// import 'slick-carousel/slick/slick-theme.css';
+// // slick-carousel
+// import 'slick-carousel/slick/slick.css';
+// import { AuthProvider } from './contexts/Auth0Context';
+// import { AuthProvider } from './contexts/FirebaseContext';
+// import { AuthProvider } from './contexts/AwsCognitoContext';
+//
+import App from './App.tsx';
+import { CollapseDrawerProvider } from './contexts/CollapseDrawerContext';
+// Check our docs
+// https://docs-minimals.vercel.app/authentication/ts-version
+// import { AuthProvider } from './contexts/JWTContext';
+// contexts
+import { SettingsProvider } from './contexts/SettingsContext';
+import store from './app/store.ts';
+// import './locales/i18n';
+// redux
+// import { persistor, store } from './redux/store';
+// import reportWebVitals from './reportWebVitals';
+// import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+// highlight
+// import './utils/highlight';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
 
-  <React.StrictMode>
-    <ThemeProvider themeDirection={undefined}>
-    <ThemeColorPresets>
-    <ThemeLocalization>
-    <RtlLayout>
-    <MotionLazyContainer>
-      <Router>
-      <Provider store={store}>
-          {/* <App /> */}
-            <Router1/>
-          
-        </Provider> 
-       
-       </Router>
-      </MotionLazyContainer>
-      </RtlLayout>
-      </ThemeLocalization>
-      </ThemeColorPresets>
-    </ThemeProvider>
-  </React.StrictMode>,
-)
+
+
+
+
+
+
+
+
+// ----------------------------------------------------------------------
+
+ReactDOM.render(
+  <Provider store={store}>
+    <SettingsProvider>
+      <CollapseDrawerProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </CollapseDrawerProvider>
+    </SettingsProvider>
+  </Provider>,
+
+  document.getElementById('root')
+);
+
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://cra.link/PWA
+// serviceWorkerRegistration.unregister();
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+// reportWebVitals();

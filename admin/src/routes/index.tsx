@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 import LoadingScreen from '../components/LoadingScreen.tsx';
-import DashboardLayout from '../layouts/dashboard/index.tsx';
+// import DashboardLayout from '../layouts/dashboard/index.tsx';
 import { PATH_AFTER_LOGIN } from '../config.ts';
 // components
 // import LoadingScreen from '../components/LoadingScreen';
@@ -11,6 +11,7 @@ import { PATH_AFTER_LOGIN } from '../config.ts';
 // import GuestGuard from '../guards/GuestGuard';
 // import RoledGuard from '../guards/RoleGuard';
 // import DashboardLayout from '../layouts/dashboard';
+// import DashboardLayout from '../layouts/dashboard/index.tsx';
 // import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 // layouts
 // import MainLayout from '../layouts/main';
@@ -60,6 +61,8 @@ export default function  Router() {
       ],
     },
 
+
+
     // // Dashboard Routes
     {
       path: 'dashboard',
@@ -73,6 +76,7 @@ export default function  Router() {
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         { path: 'app', element: <Dashboard /> },
+        { path: 'category', element: <Category /> },
         // { path: 'ecommerce', element: <GeneralEcommerce /> },
         // { path: 'analytics', element: <GeneralAnalytics /> },
         // { path: 'banking', element: <GeneralBanking /> },
@@ -213,6 +217,8 @@ console.log("resources---", resources)
 // // Authentication
 const Login = Loadable(lazy(() => import('../components/Login.tsx')));
 const Dashboard = Loadable(lazy(() => import('../Page/Dashboard.tsx')));
+const Category = Loadable(lazy(() => import('../Page/NewCategory.tsx')));
+const DashboardLayout  = Loadable(lazy(() => import('../layouts/dashboard/index.tsx')));
 // const ResetPassword = Loadable(lazy(() => import('../pages/auth/ResetPassword')));
 // const VerifyCode = Loadable(lazy(() => import('../pages/auth/VerifyCode')));
 // // Dashboard

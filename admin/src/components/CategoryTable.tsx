@@ -16,12 +16,7 @@ const CategoryTable: React.FC = () => {
     const [deleteRow, setDeletedRow] = useState<Category | null>(null);
     const [editedRow, setEditedRow] = useState<Category | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
-    // const [data, setData] = useState<Category[]>([]);
-    // const [page, setPage] = useState<number>(0);
-    // const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-    
-    // const [totalRows, setTotalRows] = useState<number>(0);
-    // const [totalPages, setTotalPages] = useState<number>(0);
+
     const columns = [
         { Header: 'ID', accessor: '_id' },
         {
@@ -114,7 +109,7 @@ const CategoryTable: React.FC = () => {
                 {
                     !categoryState.loading ?
                         (
-                            <TableContainer component={Paper} className="overflow-auto ">
+                            <TableContainer component={Paper} className="overflow-auto mt-10 ">
                                 <Table sx={{ maxWidth: 1300 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
                                     <TableHead className="bg-blue-200 !text-white">
                                         <TableRow>

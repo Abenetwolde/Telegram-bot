@@ -6,30 +6,16 @@ import { createTheme, ThemeProvider as MUIThemeProvider, StyledEngineProvider, T
 // hooks
 import useSettings from '../hooks/useSettings';
 //
-import palette from './palette';
-import typography from './typography';
-import breakpoints from './breakpoints';
+import palette from './palette.tsx';
+import typography from './typography.tsx';
+import breakpoints from './breakpoints.tsx';
 import componentsOverride from './overrides';
-import shadows, { customShadows } from './shadows';
+import shadows, { customShadows } from './shadows.tsx';
 
 // ----------------------------------------------------------------------
 
-interface ThemeProviderProps {
-  children: ReactNode;
-  themeDirection: any;
-}
-interface ThemeOptions extends Theme {
-  palette: any;
-  typography: any;
-  breakpoints: any;
-  shape: {
-    borderRadius: number;
-  };
-  direction: any;
-  shadows: any;
-  customShadows: any;
-}
-export default function ThemeProvider({ children }: ThemeProviderProps) {
+
+export default function ThemeProvider({ children }: any) {
   const { themeMode, themeDirection }:any = useSettings();
   const isLight = themeMode === 'light';
 
