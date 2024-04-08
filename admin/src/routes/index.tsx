@@ -3,6 +3,8 @@ import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 import LoadingScreen from '../components/LoadingScreen.tsx';
 // import DashboardLayout from '../layouts/dashboard/index.tsx';
 import { PATH_AFTER_LOGIN } from '../config.ts';
+import MainLayout from '../layouts/main/index.tsx';
+// import ProdcutPage from '../Page/ProdcutPage.tsx';
 // components
 // import LoadingScreen from '../components/LoadingScreen';
 // // config
@@ -25,15 +27,15 @@ const Loadable = (Component) => (props) => {
   const { pathname } = useLocation();
 
   return (
-  
+
     <Suspense fallback={<LoadingScreen isDashboard={pathname.includes('/dashboard')} />}>
       <Component {...props} />
     </Suspense>
   );
 };
 
-export default function  Router() {
- 
+export default function Router() {
+
   const allRoutes = [
     {
       path: 'auth',
@@ -41,17 +43,17 @@ export default function  Router() {
         {
           path: 'login',
           element: (
-              // <GuestGuard>
-                <Login />
-              // </GuestGuard>
+            // <GuestGuard>
+            <Login />
+            // </GuestGuard>
           ),
         },
         {
           path: 'dashboard',
           element: (
-              // <GuestGuard>
-                <Dashboard />
-              // </GuestGuard>
+            // <GuestGuard>
+            <Dashboard />
+            // </GuestGuard>
           ),
         },
         { path: 'login-unprotected', element: <Login /> },
@@ -67,16 +69,20 @@ export default function  Router() {
     {
       path: 'dashboard',
       element: (
-          // <RoledGuard>
-          //   <AuthGuard>
-            <DashboardLayout />
-            /* </AuthGuard>
-          </RoledGuard> */
+        // <RoledGuard>
+        //   <AuthGuard>
+        <DashboardLayout />
+        /* </AuthGuard>
+      </RoledGuard> */
       ),
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         { path: 'app', element: <Dashboard /> },
         { path: 'category', element: <Category /> },
+        { path: 'foods', element: <ProdcutPage /> },
+        { path: 'orders', element: <OrdersPage /> },
+        { path: 'payments', element: <PaymentPage /> },
+        { path: 'users', element: <UsersPage /> },
         // { path: 'ecommerce', element: <GeneralEcommerce /> },
         // { path: 'analytics', element: <GeneralAnalytics /> },
         // { path: 'banking', element: <GeneralBanking /> },
@@ -165,24 +171,24 @@ export default function  Router() {
     //     { path: '*', element: <Navigate to="/404" replace /> },
     //   ],
     // },
-    // {
-    //   path: '/',
-    //   element: <MainLayout />,
-    //   children: [
-    //     // { element: <HomePage />, index: true }, //todo uncomment when ready
-    //     { element: <Navigate to='/auth/login' replace />, index: true },
-    //     { path: 'about-us', element: <About /> },
-    //     { path: 'contact-us', element: <Contact /> },
-    //     { path: 'faqs', element: <Faqs /> },
-    //   ],
-    // },
+    {
+      path: '/',
+      element: <DashboardLayout />,
+      children: [
+        { element: <Dashboard />, index: true }, //todo uncomment when ready
+        { element: <Navigate to='/auth/login' replace />, index: true },
+        // { path: 'about-us', element: <About /> },
+        // { path: 'contact-us', element: <Contact /> },
+        // { path: 'faqs', element: <Faqs /> },
+      ],
+    },
     // { path: '*', element: <Navigate to="/404" replace /> },
   ]
 
   // genarate all router paths
-  const resources=[];
-  const push =(pathStr: any)=>{
-    const path = `/${pathStr.replace(/^\/+/g, '')}` 
+  const resources = [];
+  const push = (pathStr: any) => {
+    const path = `/${pathStr.replace(/^\/+/g, '')}`
     resources.push({
       name: path,
       alias: path,// `${path.split("/")?.[1] ?? ""}-${path.split("/")?.[2] ?? ""}`,
@@ -190,25 +196,25 @@ export default function  Router() {
     });
   }
   // eslint-disable-next-line array-callback-return
-  allRoutes.map(routeA=>{
+  allRoutes.map(routeA => {
     // eslint-disable-next-line no-unused-expressions,array-callback-return
-    routeA?.children && routeA.children.map(routeB=>{
+    routeA?.children && routeA.children.map(routeB => {
       // eslint-disable-next-line no-unused-expressions,array-callback-return
-      !routeB?.children ? routeB?.path && push((`${routeA?.path }/${ routeB?.path}`).replace("*","")) : routeB?.children.map(routeC=>{
-        const path = `${routeA?.path }/${ routeB?.path}/${routeC.path}`;
+      !routeB?.children ? routeB?.path && push((`${routeA?.path}/${routeB?.path}`).replace("*", "")) : routeB?.children.map(routeC => {
+        const path = `${routeA?.path}/${routeB?.path}/${routeC.path}`;
         // eslint-disable-next-line no-unused-expressions
         routeC.path && push(path);
       })
     })
   })
-// post paths to resources api
-  try{
-  //  addManyResources(resources).then((result) => result);
-  }catch(error){
-    console.error("addManyResources error---",error);
+  // post paths to resources api
+  try {
+    //  addManyResources(resources).then((result) => result);
+  } catch (error) {
+    console.error("addManyResources error---", error);
   }
 
-console.log("resources---", resources)
+  console.log("resources---", resources)
   return useRoutes(allRoutes);
 }
 
@@ -218,7 +224,11 @@ console.log("resources---", resources)
 const Login = Loadable(lazy(() => import('../components/Login.tsx')));
 const Dashboard = Loadable(lazy(() => import('../Page/Dashboard.tsx')));
 const Category = Loadable(lazy(() => import('../Page/NewCategory.tsx')));
-const DashboardLayout  = Loadable(lazy(() => import('../layouts/dashboard/index.tsx')));
+const ProdcutPage = Loadable(lazy(() => import('../Page/ProdcutPage.tsx')));
+const OrdersPage = Loadable(lazy(() => import('../Page/Orders.tsx')));
+const PaymentPage = Loadable(lazy(() => import('../Page/PaymentPage.tsx')));
+const UsersPage = Loadable(lazy(() => import('../Page/User.tsx')));
+const DashboardLayout = Loadable(lazy(() => import('../layouts/dashboard/index.tsx')));
 // const ResetPassword = Loadable(lazy(() => import('../pages/auth/ResetPassword')));
 // const VerifyCode = Loadable(lazy(() => import('../pages/auth/VerifyCode')));
 // // Dashboard

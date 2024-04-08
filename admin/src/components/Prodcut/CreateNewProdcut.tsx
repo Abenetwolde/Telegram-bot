@@ -9,10 +9,11 @@ import { createProduct } from '../../services/product';
 import { useDispatch } from 'react-redux';
 import { createProductSuccess, fetchProductSuccess } from '../../redux/productSlice';
 import { Category } from '../../types/product';
-import { Autocomplete } from '@mui/material';
+import { Autocomplete, Typography } from '@mui/material';
 import { getCategoryList } from '../../services/category';
 import { ApiResponse, CategoryApi } from '../../types/Category';
 import { Height } from '@mui/icons-material';
+import Button from '@mui/material/Button';
 
 interface ImagePreview {
     file: File;
@@ -153,22 +154,38 @@ const CreateNewProduct: React.FC = () => {
             // Add other fields as needed
         };
         console.log(productData)
-        // const formData = new FormData();
-        // formData.append("name", name);
-        // formData.append("description", description);
-        // formData.append("price", price.toString());
-        // formData.append("category", selectedCategory?._id || ""); // Add the category ID, handle null case
-        // formData.append("highlights", JSON.stringify(highlights));
-
-        // // Append each image file to the form data
-        // images.forEach((image) => {
-        //     formData.append("images", image);
-        // });
-
         console.log("images................", images)
         const response = await createProduct(productData)
         dispatch(createProductSuccess(response));
-        console.log("prodcut data", response)
+        setSelectedImages("")
+        setUploadedImages("")
+        setSelectedVideo(null)
+        setUploadedVideo("")
+        // setHighlights("")
+        setHighlightInput("")
+        setName("")
+        setSelectedCategory
+        setCategories([])
+        setDescription('')
+        setPrice(0)
+
+    };
+    const ClearValue = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        setSelectedImages("")
+        setUploadedImages("")
+        setSelectedVideo(null)
+        setUploadedVideo("")
+        // setHighlights("")
+        setHighlightInput("")
+        setName("")
+        setSelectedCategory
+        setCategories([])
+        setDescription('')
+        setPrice(0)
+
+
 
     };
     useEffect(() => {
@@ -188,7 +205,7 @@ const CreateNewProduct: React.FC = () => {
     return (
         <>
             <div className="mb-8 flex-col items-start justify-center mx-auto w-full">
-                <form onSubmit={newProductSubmitHandler} className="flex flex-col sm:flex-row bg-white rounded-lg shadow p-4  mx-10" id="mainform" encType="multipart/form-data" >
+                <form onSubmit={newProductSubmitHandler} className="flex flex-col sm:flex-row rounded-lg shadow-xl p-4  mx-10" id="mainform" encType="multipart/form-data" >
 
                     <div className="flex flex-col gap-3 m-2 sm:w-1/2">
                         <TextField
@@ -234,16 +251,23 @@ const CreateNewProduct: React.FC = () => {
 
 
                         <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-center border rounded">
-                                <input value={highlightInput} onChange={(e) => setHighlightInput(e.target.value)} type="text" placeholder="Highlight" className="px-2 flex-1 outline-none border-none" />
-                                <span onClick={() => addHighlight()} className="py-2 px-6 bg-green-400  hover:bg-green-500 text-white rounded-r hover:shadow-lg cursor-pointer">Add</span>
+                            <div className="flex justify-between items-center">
+                                <TextField value={highlightInput} onChange={(e) => setHighlightInput(e.target.value)} type="text" placeholder="Highlight" className="px-2 flex-1 outline-none border-none bg-transparent" />
+                                <Button
+                                    onClick={() => addHighlight()}
+                                    variant="contained"
+                                    className="py-2 px-6 rounded-r hover:shadow-lg cursor-pointer"
+                                    sx={{ height: '100%', padding: '12px 24px' }} // Adjust padding as needed
+                                >
+                                    Add
+                                </Button>
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                {highlights.map((h, i) => (
-                                    <div className="flex justify-between rounded items-center py-1 px-2 bg-green-50">
-                                        <p className="text-green-800 text-sm font-medium">{h}</p>
-                                        <span onClick={() => deleteHighlight(i)} className="text-red-600 hover:bg-red-100 p-1 rounded-full cursor-pointer">
+                                {highlights?.map((h, i) => (
+                                    <div className="flex justify-between rounded items-center py-1 px-2">
+                                        <p className=" text-sm font-medium">{h}</p>
+                                        <span onClick={() => deleteHighlight(i)} className="text-red-600 p-1 rounded-full cursor-pointer">
                                             <DeleteIcon />
                                         </span>
                                     </div>
@@ -254,63 +278,57 @@ const CreateNewProduct: React.FC = () => {
                     {/* ... Other form elements ... */}
 
                     <div className="flex flex-col gap-2 m-2 sm:w-1/2">
-                        <h2 className="font-medium">Product Images</h2>
-                        <div className="flex gap-2 overflow-x-auto h-32 border rounded">
-                            {uploadedImages.length > 0 ? (
-                                uploadedImages.map((imageUrl: any, index) => (
-                                    <img key={index} src={`${imageUrl?.imageUrl}`} alt={`Uploaded ${index}`} />
-                                ))
-                            ) : (
-                                selectedImages.length > 0 && (
-                                    <div className="flex gap-2 overflow-x-auto h-32 border rounded">
-                                        {selectedImages.map((file, index) => (
-                                            <div key={index} className="relative">
-                                                <img src={file.preview} alt={`Selected ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div>
+                            <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary' ,mb:"10px"}}>Product Images</Typography>
+                            <div className="flex gap-2 overflow-x-auto h-32 border rounded">
+                                {uploadedImages?.length > 0 ? (
+                                    uploadedImages?.map((imageUrl: any, index) => (
+                                        <img key={index} src={`${imageUrl?.imageUrl}`} alt={`Uploaded ${index}`} />
+                                    ))
+                                ) : (
+                                    selectedImages?.length > 0 && (
+                                        <div className="flex gap-2 overflow-x-auto h-32 border rounded">
+                                            {selectedImages?.map((file, index) => (
+                                                <div key={index} className="relative">
+                                                    <img src={file.preview} alt={`Selected ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
-                                                <button
-                                                    className="absolute top-0 right-0 bg-red-400 text-white rounded-full  cursor-pointer"
-                                                    onClick={() => handleRemoveSelected(index)}
-                                                >
-                                                    X
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )
-                            )}
-                        </div>
-                        {loading && <div>Loading...</div>}
+                                                    <Button
+                                                        variant="contained"
+                                                        sx={{ height: '100%', padding: '12px 24px' }} // Adjust padding as needed
+                                                        className="absolute top-0 right-0 bg-red-400 text-white rounded-full  cursor-pointer"
+                                                        onClick={() => handleRemoveSelected(index)}
+                                                    >
+                                                        X
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )
+                                )}
+                            </div>
+                            {loading && <div className='absolute top-10'>Loading...</div>}
 
-                        <div className='flex items-center justify-center gap-4 w-full'>
-                            <label className="rounded font-medium bg-gray-400 text-center cursor-pointer text-white p-2 shadow hover:shadow-lg my-2 flex-1 bg-green-200 text-white hover:bg-green-300 uppercase w-1/3 p-3 text-blue font-medium rounded shadow hover:shadow-lg cursor-pointer">
-                                <input
+                            <div className='flex items-center justify-center gap-4 w-full'>
+                                {/* <label className="rounded font-medium text-center"> */}
+                                <TextField
                                     type="file"
                                     name="images"
-                                    accept="image/*"
-                                    multiple
+                                    inputProps={{ multiple: true, accept: 'image/*' }}
                                     onChange={handleFileChange}
                                     className="hidden"
                                 />
-                                Choose Files
-                            </label>
-                            <button type="button" className=' bg-blue-400 text-white  hover:bg-blue-300 border-blue-300' onClick={handleUpload}>
-                                Upload Images
-                            </button>
 
+                                <Button type="button" variant="contained"
+                                    sx={{ height: '100%', padding: '12px 24px' }} onClick={handleUpload}>
+                                    Upload Images
+                                </Button>
+
+                            </div>
                         </div>
-                        <div className="flex flex-col gap-2 m-2 sm:w-1/2">
-                            <h2 className="font-medium">Product Video</h2>
+
+                        <div className='mt-7 justify-center items-center w-full '>
+                        <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary' ,mb:"10px"}}>Product Video</Typography>
                             <div className="flex gap-2 overflow-x-auto h-32 border rounded">
-                                <label className="rounded font-medium bg-gray-400 text-center cursor-pointer text-white p-2 shadow hover:shadow-lg my-2 flex-1 bg-green-200 text-white hover:bg-green-300 uppercase w-1/3 p-3 text-blue font-medium rounded shadow hover:shadow-lg cursor-pointer">
-                                    <input
-                                        name="images"
-                                        type="file" accept="video/*" onChange={handleVideoFileChange}
-                                        className="hidden"
-                                    />
-                                    Choose Video
-                                </label>
-                                {/* <input type="file" accept="video/*" onChange={handleVideoFileChange} /> */}
-                                <button type="button" className=' bg-blue-400 text-white  hover:bg-blue-300 border-blue-300' onClick={handleUploadVideo}>Upload Video</button>
                                 {selectedVideo && (
                                     <div>
                                         <video controls>
@@ -321,30 +339,78 @@ const CreateNewProduct: React.FC = () => {
                                 )}
                                 {vloading && <div>Loading...</div>}
 
-                                {uploadedVideo?.videoUrl && (
-                                    <div>
 
-                                        <video controls>
-                                            <source src={uploadedVideo?.videoUrl} type="video/mp4" />
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    </div>
-                                )}
+                                <div className="flex gap-2 overflow-x-auto h-32 border rounded">
+                                    {uploadedVideo?.videoUrl && (
+                                        <div>
+                                            <video controls>
+                                                <source src={uploadedVideo?.videoUrl} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
+
+                                            <Button
+                                                variant="contained"
+                                                sx={{ height: '100%', padding: '12px 24px' }} // Adjust padding as needed
+                                                className="absolute top-0 right-0 bg-red-400 text-white rounded-full  cursor-pointer"
+                                            // onClick={() => handleRemoveSelected()}
+                                            >
+                                                X
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+
+
                             </div>
+                            {loading && <div className='absolute top-10'>Loading...</div>}
 
+                            <div className='flex items-center justify-center mt-5 gap-4 w-full'>
+                                {/* <label className="rounded font-medium text-center"> */}
+                                <TextField
+                                    type="file"
+                                    name="images"
+                                    inputProps={{ multiple: true, accept: 'video/*' }}
+                                    onChange={handleVideoFileChange}
+                                    className="hidden"
+                                />
+
+                                <Button type="button" variant="contained"
+                                    sx={{ height: '100%', padding: '12px 24px' }} onClick={handleUploadVideo}>
+                                    Upload Video
+                                </Button>
+
+                            </div>
                         </div>
-                        <div className="flex justify-end ">
-                            <input
+                        <div className="flex gap-5 justify-end ">
+                            <Button
+                                // onClick={newProductSubmitHandler}
+                                variant='contained'
                                 form="mainform"
                                 type="submit"
+                                sx={{ height: '100%', padding: '12px 24px' }}
                                 className=" bg-green-400 text-white hover:bg-green-500 uppercase w-1/3 p-3 text-blue font-medium rounded shadow hover:shadow-lg cursor-pointer"
                                 value="Submit"
-                            />
+                            >
+                                Submit
+
+                            </Button>
+                            <Button
+                                onClick={ClearValue}
+                                variant='contained'
+                                form="mainform"
+                                // type="submit"
+                                sx={{ height: '100%', padding: '12px 24px' }}
+                                className=" bg-green-400 text-white hover:bg-green-500 uppercase w-1/3 p-3 text-blue font-medium rounded shadow hover:shadow-lg cursor-pointer"
+                            // value="Submit"
+                            >
+                                Clear
+
+                            </Button>
                         </div>
                     </div>
 
-                </form>
-            </div>
+                </form >
+            </div >
 
             <ToastContainer />
         </>

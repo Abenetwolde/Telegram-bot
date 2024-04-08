@@ -20,7 +20,7 @@ const ProdcutTable: React.FC = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
 
     const columns = [
-        { Header: 'ID', accessor: '_id' },
+        // { Header: 'ID', accessor: '_id' },
         {
             accessor: 'name',
             Header: 'Product Name',
@@ -49,6 +49,25 @@ const ProdcutTable: React.FC = () => {
                         {`+${value.length - 2}`}
                       </Avatar>
                     )}
+                  </div>
+                );
+              },
+        },
+        {
+            accessor: 'video',
+            Header: 'Video Thumbnail',
+            Cell: ({ value }: any) => {
+                return (
+                  <div className="flex items-center gap-2">
+                    {value&& (
+                      <Avatar
+                  
+                        alt={`Product Image ${1}`}
+                        src={value?.thumbnail}
+                        className="rounded-full h-8 w-8 object-cover"
+                      />
+                    )}
+              
                   </div>
                 );
               },
@@ -179,12 +198,13 @@ const ProdcutTable: React.FC = () => {
                 {
                     !categoryState.loading ?
                         (
-                            <TableContainer component={Paper} className="overflow-auto ">
-                                <Table sx={{ maxWidth: 1300 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
-                                    <TableHead className="bg-blue-200 !text-white">
+                        <div className="overflow-auto flex item-center justify-center shadow-xl">
+                            <TableContainer component={Paper}sx={{ maxWidth: 1200 }} className="overflow-auto item-center justify-center">
+                                <Table  aria-label="product table" className="border-collapse align-center justify-center mx-auto">
+                                    <TableHead >
                                         <TableRow>
                                             {columns.map((column) => (
-                                                <TableCell key={column.accessor} className={`p-2 !text-md !text-black`}>
+                                                <TableCell key={column.accessor} className={`p-2 !text-md`}>
                                                     {column.Header}
                                                 </TableCell>
                                             ))}
@@ -197,7 +217,7 @@ const ProdcutTable: React.FC = () => {
                                         {categoryState?.data && categoryState?.data.map((product, index) => (
                                             <TableRow
                                                 key={product._id}
-                                                className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
+                                                // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
                                             >
                                                 {columns.map((column) => (
                                                     <TableCell key={column.accessor} className={`p-2`}>
@@ -235,6 +255,7 @@ const ProdcutTable: React.FC = () => {
                                     </TableFooter>
                                 </Table>
                             </TableContainer>
+                            </div>
                         ) :
 
                         (

@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import api from '../services/api';
 import { DashboardTotalCountCard } from '../components/Dashboard/total-count-card';
 import { PieChart, Pie } from 'recharts';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -105,6 +106,7 @@ const Dashboard = () => {
   const renderTotalCountCard = (resource, isLoading, totalCount, data) => (
 
     <Col xs={24} sm={24} xl={7} className=' bg-white rounded-xl shadow-lg p-4 text-center '>
+  
       <DashboardTotalCountCard
         resource={resource}
         isLoading={isLoading}
@@ -140,6 +142,15 @@ const Dashboard = () => {
       <div className="flex flex-col lg:flex-row w-full space-y-5 my-5">
         <div className="lg:w-5/6 w-full h-96 mb-5 lg:mb-0 lg:mr-5  bg-white rounded-xl shadow-lg p-10 text-center">
           <p className="text-xl font-semibold mb-4 text-left">User analysis per day</p>
+          <FormControl fullWidth>
+        <InputLabel id="filter-label">Filter</InputLabel>
+        <Select labelId="filter-label" id="filter" /* value={filter} */ /* onChange={handleFilterChange} */>
+          <MenuItem value="perDay">Per Day</MenuItem>
+          <MenuItem value="perWeek">Per Week</MenuItem>
+          <MenuItem value="perMonth">Per Month</MenuItem>
+          <MenuItem value="perYear">Per Year</MenuItem>
+        </Select>
+      </FormControl>
           <ResponsiveContainer>
           <BarChart
               data={userCounts}

@@ -111,10 +111,10 @@ const CategoryTable: React.FC = () => {
                         (
                             <TableContainer component={Paper} className="overflow-auto mt-10 ">
                                 <Table sx={{ maxWidth: 1300 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
-                                    <TableHead className="bg-blue-200 !text-white">
+                                    <TableHead className=" !text-white">
                                         <TableRow>
                                             {columns.map((column) => (
-                                                <TableCell key={column.accessor} className={`p-2 !text-md !text-black`}>
+                                                <TableCell key={column.accessor} className={`p-2 !text-m`}>
                                                     {column.Header}
                                                 </TableCell>
                                             ))}
@@ -127,7 +127,7 @@ const CategoryTable: React.FC = () => {
                                         {categoryState.data.map((product, index) => (
                                             <TableRow
                                                 key={product._id}
-                                                className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
+                                                // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
                                             >
                                                 {columns.map((column) => (
                                                     <TableCell key={column.accessor} className={`p-2`}>

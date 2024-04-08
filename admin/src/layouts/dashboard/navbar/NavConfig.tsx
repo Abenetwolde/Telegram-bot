@@ -32,7 +32,10 @@ const navConfig = [
     items: [
       { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
       { title: 'category', path: PATH_DASHBOARD.general.category, icon: ICONS.ecommerce },
-      { title: 'e-commerce', path: PATH_DASHBOARD.general.ecommerce, icon: ICONS.ecommerce },
+      { title: 'Foods', path: PATH_DASHBOARD.general.foods, icon: ICONS.ecommerce },
+      { title: 'Orders', path: PATH_DASHBOARD.general.orders, icon: ICONS.ecommerce },
+      { title: 'Payments', path: PATH_DASHBOARD.general.payments, icon: ICONS.ecommerce },
+      { title: 'Users', path: PATH_DASHBOARD.general.users, icon: ICONS.ecommerce },
       // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics }, //todo uncommitted when ready
       // { title: 'banking', path: PATH_DASHBOARD.general.banking, icon: ICONS.banking },
       // { title: 'booking', path: PATH_DASHBOARD.general.booking, icon: ICONS.booking },

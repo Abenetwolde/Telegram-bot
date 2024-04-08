@@ -11,7 +11,7 @@ import { MutatingDots } from 'react-loader-spinner';
 // import EditProdcut from './EditProdcut';
 import { Product } from '../../types/product';
 import EditOrder from './EditOrder';
-import Scrollbar from '../scrollbar';
+
 // import DeleteProduct from './DeleteProduct';
 // import DeleteUser from '../User/DeleteUser';
 // import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
@@ -44,7 +44,7 @@ const OrderTable: React.FC = () => {
                 <div className="flex flex-col items-center">
                      <ul className="list-disc">
                 {value.map((p, index) => (
-                    <li key={index}>{p.product.name}</li>
+                    <li key={index}>{p?.product?.name}</li>
                 ))}
             </ul>
                 </div>
@@ -288,16 +288,17 @@ const OrderTable: React.FC = () => {
                     !categoryState.loading ?
                         (
                         //  <Scrollbar>
+                        <div className="overflow-auto flex item-center justify-center shadow-xl">
                             <TableContainer      sx={{
-                                width: { xs: '100%', md: isTablet ? '100%' : '1300px', lg: '1400px' },
+                                width: { xs: '100%', md: isTablet ? '100%' : '1200px', lg: '1200px' },
                                 marginX: { xs: 1, md: isTablet ? 1 : 4, lg: 1 },
                                 flexGrow: 1
                             }}component={Paper} className="overflow-auto mx-auto ">
                                 <Table sx={{ maxWidth: 1000 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
-                                    <TableHead className="bg-blue-200 !text-white">
+                                    <TableHead >
                                         <TableRow>
                                             {columns.map((column) => (
-                                                <TableCell key={column.accessor} className={`p-2 !text-md !text-black`}>
+                                                <TableCell key={column.accessor} className={`p-2 !text-md`}>
                                                     {column.Header}
                                                 </TableCell>
                                             ))}
@@ -310,7 +311,7 @@ const OrderTable: React.FC = () => {
                                         {categoryState?.data && categoryState?.data.map((product, index) => (
                                             <TableRow
                                                 key={product._id}
-                                                className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
+                                                // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
                                             >
                                                 {columns.map((column) => (
                                                     <TableCell key={column.accessor} className={`p-2`}>
@@ -348,7 +349,7 @@ const OrderTable: React.FC = () => {
                                     </TableFooter>
                                 </Table>
                             </TableContainer>
-                      /* </Scrollbar> */
+                            </div>
             ) :
 
             (

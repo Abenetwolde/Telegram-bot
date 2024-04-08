@@ -114,7 +114,7 @@ const PaymentTable: React.FC = () => {
             accessor: 'order',
             Header: 'Payment Status',
             Cell: ({ value }: any) => (
-                <div className={`flex items-center justify-center p-1 rounded-md text-white ${getStatusColor(value?.paymentStatus)}`}>
+                <div className={`flex items-center justify-center p-1 rounded-md  ${getStatusColor(value?.paymentStatus)}`}>
                     {value?.paymentStatus}
                 </div>
             ),
@@ -123,7 +123,7 @@ const PaymentTable: React.FC = () => {
             accessor: 'order',
             Header: 'Payment Method',
             Cell: ({ value }: any) => (
-                <div className={`flex items-center justify-center p-1 rounded-md text-white ${getStatusColorType(value?.paymentType)}`}>
+                <div className={`flex items-center justify-center p-1 rounded-md  ${getStatusColorType(value?.paymentType)}`}>
                     {value?.paymentType}
                 </div>
             ),
@@ -217,16 +217,17 @@ const PaymentTable: React.FC = () => {
                     !categoryState.loading ?
                         (
                         //  <Scrollbar>
+                        <div className="overflow-auto flex item-center justify-center shadow-xl">
                             <TableContainer      sx={{
                                 width: { xs: '100%', md: isTablet ? '100%' : '1300px', lg: '1400px' },
                                 marginX: { xs: 1, md: isTablet ? 1 : 4, lg: 1 },
                                 flexGrow: 1
                             }}component={Paper} className="overflow-auto mx-auto ">
-                                <Table sx={{ maxWidth: 1000 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
-                                    <TableHead className="bg-blue-200 !text-white">
+                                <Table  aria-label="product table" className="border-collapse align-center justify-center mx-auto">
+                                    <TableHead >
                                         <TableRow>
                                             {columns.map((column) => (
-                                                <TableCell key={column.accessor} className={`p-2 !text-md !text-black`}>
+                                                <TableCell key={column.accessor} className={`p-2 !text-md`}>
                                                     {column.Header}
                                                 </TableCell>
                                             ))}
@@ -239,7 +240,7 @@ const PaymentTable: React.FC = () => {
                                         {categoryState?.data && categoryState?.data.map((product, index) => (
                                             <TableRow
                                                 key={product._id}
-                                                className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
+                                                // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
                                             >
                                                 {columns.map((column) => (
                                                     <TableCell key={column.accessor} className={`p-2`}>
@@ -277,7 +278,7 @@ const PaymentTable: React.FC = () => {
                                     </TableFooter>
                                 </Table>
                             </TableContainer>
-                      /* </Scrollbar> */
+                            </div>
             ) :
 
             (

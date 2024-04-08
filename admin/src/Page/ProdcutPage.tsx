@@ -20,16 +20,16 @@ const ProdcutPage = () => {
     <div className="">
 
       {/* <AdminSidebar /> */}
-      <div  className="mb-8  flex-col align-center justify-center mx-auto w-full">
- <CreateNewProdcut/>
+      <div className="mb-8  flex-col align-center justify-center mx-auto w-full">
+        <CreateNewProdcut />
 
-   
+
       </div>
       <div className="max-w-full  overflow-x-auto">
-     
-     <ProdcutTable/>
 
-   </div>
+        <ProdcutTable />
+
+      </div>
       <ToastContainer />
     </div>
   );

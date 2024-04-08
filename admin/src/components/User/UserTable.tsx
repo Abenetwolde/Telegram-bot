@@ -170,12 +170,14 @@ const UserTable: React.FC = () => {
                 {
                     !user.loading ?
                         (
+                            <div className="overflow-auto flex item-center justify-center shadow-xl">
+                             
                             <TableContainer component={Paper} className="overflow-auto ">
-                                <Table sx={{ maxWidth: 1300 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
-                                    <TableHead className="bg-blue-200 !text-white">
+                                <Table sx={{ maxWidth: 1200 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
+                                    <TableHead>
                                         <TableRow>
                                             {columns.map((column) => (
-                                                <TableCell key={column.accessor} className={`p-2 !text-md !text-black`}>
+                                                <TableCell key={column.accessor} className={`p-2 !text-md`}>
                                                     {column.Header}
                                                 </TableCell>
                                             ))}
@@ -188,7 +190,7 @@ const UserTable: React.FC = () => {
                                         {user?.data && user?.data.map((product, index) => (
                                             <TableRow
                                                 key={product._id}
-                                                className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
+                                                // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
                                             >
                                                 {columns.map((column) => (
                                                     <TableCell key={column.accessor} className={`p-2`}>
@@ -226,6 +228,7 @@ const UserTable: React.FC = () => {
                                     </TableFooter>
                                 </Table>
                             </TableContainer>
+                            </div>
                         ) :
 
                         (
