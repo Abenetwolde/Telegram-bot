@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Col, Row } from "antd";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { format } from 'date-fns';
+import { DateRangePicker } from 'react-date-range';
+import 'react-date-range/dist/styles.css'; // Main style file
+import 'react-date-range/dist/theme/default.css'; // Theme CSS fil
 import api from '../services/api';
 import { DashboardTotalCountCard } from '../components/Dashboard/total-count-card';
 import { PieChart, Pie } from 'recharts';
+import { addDays } from 'date-fns'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
@@ -22,6 +26,15 @@ const CustomTooltip = ({ label, payload }) => {
   );
 };
 const Dashboard = () => {
+  const [open, setOpen] = useState(true);
+  const [range, setRange] = useState([
+      {
+          startDate: new Date(),
+          endDate: addDays(new Date(), 7),
+          key: 'selection'
+      }
+  ]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isOrderLoading, setIsOrderLoading] = useState(true);
   const [iscancelOrderLoading, setIsCancelOrderLoading] = useState(true);
@@ -36,12 +49,36 @@ const Dashboard = () => {
 
   const [topOrderFood, settopOrderFood] = useState([]);
   const [userCounts, setUserCounts] = useState([]);
-  const [opacity, setOpacity] = useState({ frombotcount: 1, fromchannelcount: 1 });
+  const [opacity, setOpacity] = useState({ frombotcount: 1, fromchannelcount: 1 ,frominvitation:1});
 
+  // get the target element to toggle 
+  const refOne = useRef(null)
   const handleMouseEnter = (o) => {
     const { dataKey } = o;
     setOpacity(prevOpacity => ({ ...prevOpacity, [dataKey]: 0.5 }));
   };
+  useEffect(() => {
+    // event listeners
+    document.addEventListener("keydown", hideOnEscape, true)
+    document.addEventListener("click", hideOnClickOutside, true)
+  }, [])
+
+  // hide dropdown on ESC press
+  const hideOnEscape = (e) => {
+    // console.log(e.key)
+    if( e.key === "Escape" ) {
+      setOpen(false)
+    }
+  }
+
+  // Hide dropdown on outside click
+  const hideOnClickOutside = (e) => {
+    // console.log(refOne.current)
+    // console.log(e.target)
+    if( refOne.current && !refOne.current.contains(e.target) ) {
+      setOpen(false)
+    }
+  }
 
   const handleMouseLeave = (o) => {
     const { dataKey } = o;
@@ -62,19 +99,46 @@ const Dashboard = () => {
     }
     fetchData()
   }, []);
-  useEffect(() => {
-    const fetchDataq = async () => {
-      const response: any = await api.get("user/getnewuser");
-      // console.log(response.data)
-      // if (!response.ok) {
-      //   throw new Error('Failed to fetch data');
-      // }
-      const data = await response.data.newUserCounts;
-      setUserCounts(data)
+  const [filter, setFilter] = useState('perMonth');
 
-    }
-    fetchDataq()
-  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`user/getnewuser?interval=${filter}`);
+        const data = response.data.newUserCounts;
+        setUserCounts(data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchData();
+  }, [filter])
+
+  useEffect(() => {
+    console.log("start"+range[0].startDate, "end"+range[0].endDate)
+    const fetchData = async () => {
+        try {
+            const response = await api.post<any,any>('user/getuserrange',   {
+           
+                  startDate: range[0].startDate,
+                  endDate: range[0].endDate
+              
+          });
+            setUserCounts(response.data.newUserCounts);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
+
+    fetchData();
+}, [range]);
+const handleDateRangeChange = (item) => {
+  setRange([item.selection]);
+  setOpen(false); // Close the DateRangePicker
+};
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value);
+  };
   console.log("userCounts", userCounts)
   console.log(topOrderFood)
   useEffect(() => {
@@ -98,7 +162,7 @@ const Dashboard = () => {
       }
     };
 
-    fetchData('user/getnewuser', setNewUsersData, setIsLoading, setTotalUserCount, setIsLoading);
+    // fetchData('user/getnewuser', setNewUsersData, setIsLoading, setTotalUserCount, setIsLoading);
     fetchData('order/getordersperday', setNewOrderData, setIsOrderLoading, setTotalOrderCount, setIsOrderLoading);
     fetchData('order/cancelled-orders-per-day', setNewCancelOrderData, setIsCancelOrderLoading, setTotalCancelOrderCount, setIsCancelOrderLoading);
   }, []);
@@ -142,9 +206,38 @@ const Dashboard = () => {
       <div className="flex flex-col lg:flex-row w-full space-y-5 my-5">
         <div className="lg:w-5/6 w-full h-96 mb-5 lg:mb-0 lg:mr-5  bg-white rounded-xl shadow-lg p-10 text-center">
           <p className="text-xl font-semibold mb-4 text-left">User analysis per day</p>
+        
+          <div ref={refOne}>
+            <input
+                value={`${format(range[0].startDate, "MM/dd/yyyy")} to ${format(range[0].endDate, "MM/dd/yyyy")}`}
+                readOnly
+                className="inputBox"
+                onClick={() => setOpen((prevOpen) => !prevOpen)}
+            />
+
+            <div>
+                {open && (
+                    <DateRangePicker
+                    onChange={(item) => setRange([item.selection])}
+                        editableDateInputs={true}
+                        // minDate={new Date()}
+                        moveRangeOnFirstSelection={false}
+                        ranges={range}
+                        months={2}
+                        direction="horizontal"
+                        className="calendarElement"
+                    />
+                )}
+            </div>
+         </div>
           <FormControl fullWidth>
-        <InputLabel id="filter-label">Filter</InputLabel>
-        <Select labelId="filter-label" id="filter" /* value={filter} */ /* onChange={handleFilterChange} */>
+          <InputLabel id="filter-label">Filter</InputLabel>
+          <Select
+            labelId="filter-label"
+            id="filter"
+            value={filter}
+            onChange={handleFilterChange}
+          >
           <MenuItem value="perDay">Per Day</MenuItem>
           <MenuItem value="perWeek">Per Week</MenuItem>
           <MenuItem value="perMonth">Per Month</MenuItem>
@@ -157,8 +250,15 @@ const Dashboard = () => {
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="_id" 
-                tickFormatter={date => format(new Date(date), 'dd')}
+               <XAxis dataKey="_id" 
+                 tickFormatter={(date) =>{
+               if (filter === "perYear") {
+                    return date/*  format(new Date(date), "MMMM"); */ // Format as month/year for perYear
+                  } else {
+                    return date /* format(new Date(date), "dd"); */ // Default format as day for others
+                  }
+                }
+              }
                 interval="preserveStartEnd"
               />
               <YAxis />
@@ -166,6 +266,7 @@ const Dashboard = () => {
               <Legend onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
               <Bar dataKey="frombotcount" strokeOpacity={opacity.frombotcount} stackId="a" fill="#8884d8" name="From Bot"  fillOpacity={opacity.frombotcount}  />
               <Bar dataKey="fromchannelcount" strokeOpacity={opacity.fromchannelcount} stackId="a" fill="#82ca9d" name="From Channel" fillOpacity={opacity.fromchannelcount} />
+              <Bar dataKey="frominvitation" strokeOpacity={opacity.frominvitation} stackId="a" fill="#000000" name="From Invitation" fillOpacity={opacity.frominvitation} />
               {/* <Bar dataKey="total" stackId="a" fill="#00000" name="Total" /> */}
             </BarChart>
           </ResponsiveContainer>

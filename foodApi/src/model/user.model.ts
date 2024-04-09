@@ -46,7 +46,7 @@ export interface IUser extends Document {
   from: {
     type: String,
     default: 'BOT',
-    enum: ['BOT', 'CHANNEL'],
+    enum: ['BOT', 'CHANNEL', 'INVITATION'],
     required: [true, 'status is required'],
   }, 
   createdAt:Date

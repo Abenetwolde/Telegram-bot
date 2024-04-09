@@ -148,26 +148,18 @@ interface NewUserCount {
     fromchannelcount: number;
     total: number;
 }
-
-
-
-export const NewuserDaily = async (req: Request, res: Response): Promise<void> => {
-    console.log("hit the get new user api");
+export const NewuserCustomRange = async (req: Request, res: Response): Promise<void> => {
+    console.log("range")
+    console.log(JSON.stringify(req.body,null,"\t")+"date")
     try {
-        // Get the current date
-        const currentDate = new Date();
-        currentDate.setUTCHours(0, 0, 0, 0);
+        // Extract start and end dates from request body
+        const { startDate, endDate } = req.body;
 
-        // Calculate the start and end of the current month
-        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-        endOfMonth.setUTCHours(23, 59, 59, 999);
-
-        // Query the database to find all users created between the start and end of the month
-        const newUserCounts = await User.aggregate<NewUserCount>([
+        // Query the database to find all users created within the specified date range
+        const newUserCounts = await User.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+                    createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }
                 }
             },
             {
@@ -189,37 +181,289 @@ export const NewuserDaily = async (req: Request, res: Response): Promise<void> =
                         }
                     }
                 }
-            }
-        ]);
+            },
+        ]).limit(200);
 
         // Format the response with counts for each date
-        const formattedCounts = newUserCounts.map(({ _id, newUserCounts }:any) => {
-            const counts: Partial<NewUserCount> = { frombotcount: 0, fromchannelcount: 0 };
-            newUserCounts.forEach(({ from, count }:any) => {
+        const formattedCounts = newUserCounts.map(({ _id, newUserCounts }) => {
+            const counts: any = { frombotcount: 0, fromchannelcount: 0, frominvitation: 0 };
+            newUserCounts.forEach(({ from, count }: any) => {
                 if (from === 'BOT') {
-                    counts.frombotcount! += count;
+                    counts.frombotcount += count;
                 } else if (from === 'CHANNEL') {
-                    counts.fromchannelcount! += count;
+                    counts.fromchannelcount += count;
+                } else if (from === 'INVITATION') {
+                    counts.frominvitation += count;
                 }
             });
-            counts.total = (counts.frombotcount || 0) + (counts.fromchannelcount || 0);
+            counts.total = (counts.frombotcount || 0) + (counts.fromchannelcount || 0) + (counts.frominvitation || 0);
             return { _id, ...counts };
         });
 
-        // Get date range within the current month
-        const dateRange = getDatesWithinRange(startOfMonth, endOfMonth);
-
-        // Merge counts with date range to fill in missing dates with count 0
-        const mergedCounts = mergeCounts(dateRange, formattedCounts);
-
         // Send the response containing the number of new users joined per date
-        res.json({ newUserCounts: mergedCounts });
+        res.json({ newUserCounts: formattedCounts });
     } catch (error) {
         // Handle errors
         console.error('Error fetching new users per date:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
+
+export const NewuserDaily = async (req: Request, res: Response): Promise<void> => {
+    console.log("test users link" )
+    try {
+
+        const { interval = 'perMonth' } = req.query;
+console.log(interval)
+        // Get the current date
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        switch (interval) {
+            case 'perWeek':
+                // Calculate the start of the current week (Sunday)
+                startDate = new Date(currentDate);
+                startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
+                startDate.setUTCHours(0, 0, 0, 0);
+                // Calculate the end of the current week (Saturday)
+                endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 6); // Move to Saturday
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perMonth':
+                // Calculate the start and end of the current month
+                startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perYear':
+                // Calculate the start and end of the current year
+                startDate = new Date(currentDate.getFullYear(), 0, 1);
+                endDate = new Date(currentDate.getFullYear(), 11, 31);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perDay':
+            default:
+                // Default to per day, use the current date
+                startDate = new Date(currentDate);
+                endDate = new Date(currentDate);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+        }
+
+        // Query the database to find all users created within the specified interval
+        let newUserCounts = [];
+
+if(interval==="perWeek"||interval==="perMonth"){
+        // Query the database to find all users created within the specified interval
+         newUserCounts = await User.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        date: { $dateToString: { format: "%d", date: "$createdAt" } },
+                        from: "$from"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.date",
+                    newUserCounts: {
+                        $push: {
+                            from: "$_id.from",
+                            count: "$count"
+                        }
+                    }
+                }
+            },
+            
+        ]);
+    }else if(interval === "perYear"){
+         newUserCounts = await User.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        month: { $dateToString: { format: "%b", date: "$createdAt" } },
+                        from: "$from"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.month",
+                    newUserCounts: {
+                        $push: {
+                            from: "$_id.from",
+                            count: "$count"
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    monthDate: {
+                        $dateFromString: {
+                            dateString: { $concat: ["2023-", "$_id.month", "-01"] }, // Assuming a specific year for sorting
+                            format: "%Y-%b-%d" // Format to convert the abbreviated month name back to a date
+                        }
+                    }
+                }
+            },
+            {
+                $sort: { "monthDate": 1 } // Sort by the newly added monthDate field in ascending order
+            }
+            
+        ]).sort({ "monthDate": 1 });
+    }else if (interval === "perDay") {
+        newUserCounts = await User.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        hour: { $hour: "$createdAt" },
+                        from: "$from"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.hour",
+                    newUserCounts: {
+                        $push: {
+                            from: "$_id.from",
+                            count: "$count"
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: {
+                        $cond: [
+                            { $gte: ["$_id", 12] },
+                            { $concat: [{ $substr: ["$_id", 0, -2] }, " PM"] },
+                            { $concat: [{ $substr: ["$_id", 0, -2] }, " AM"] }
+                        ]
+                    },
+                    newUserCounts: 1
+                }
+            }
+        ]);
+    }
+        // Format the response with counts for each date
+        const formattedCounts = newUserCounts.map(({ _id, newUserCounts }) => {
+            const counts:any = { frombotcount: 0, fromchannelcount: 0 ,frominvitation:0};
+            newUserCounts.forEach(({ from, count }:any) => {
+                if (from === 'BOT') {
+                    counts.frombotcount += count;
+                } else if (from === 'CHANNEL') {
+                    counts.fromchannelcount += count;
+                }
+                else if (from === 'INVITATION') {
+                    counts.frominvitation += count;
+                }
+            });
+            counts.total = (counts.frombotcount || 0) + (counts.fromchannelcount || 0) + (counts.frominvitation || 0);
+            return { _id, ...counts };
+        });
+
+        // Send the response containing the number of new users joined per date
+        res.json({ newUserCounts: formattedCounts });
+    } catch (error) {
+        // Handle errors
+        console.error('Error fetching new users per date:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+// export const NewuserDaily = async (req: Request, res: Response): Promise<void> => {
+//     console.log("hit the get new user api");
+//     try {
+//         // Get the current date
+//         const currentDate = new Date();
+//         currentDate.setUTCHours(0, 0, 0, 0);
+
+//         // Calculate the start and end of the current month
+//         const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+//         const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+//         endOfMonth.setUTCHours(23, 59, 59, 999);
+
+//         // Query the database to find all users created between the start and end of the month
+//         const newUserCounts = await User.aggregate<NewUserCount>([
+//             {
+//                 $match: {
+//                     createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: {
+//                         date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+//                         from: "$from"
+//                     },
+//                     count: { $sum: 1 }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$_id.date",
+//                     newUserCounts: {
+//                         $push: {
+//                             from: "$_id.from",
+//                             count: "$count"
+//                         }
+//                     }
+//                 }
+//             }
+//         ]);
+
+//         // Format the response with counts for each date
+//         const formattedCounts = newUserCounts.map(({ _id, newUserCounts }:any) => {
+//             const counts: Partial<NewUserCount> = { frombotcount: 0, fromchannelcount: 0 };
+//             newUserCounts.forEach(({ from, count }:any) => {
+//                 if (from === 'BOT') {
+//                     counts.frombotcount! += count;
+//                 } else if (from === 'CHANNEL') {
+//                     counts.fromchannelcount! += count;
+//                 }
+//             });
+//             counts.total = (counts.frombotcount || 0) + (counts.fromchannelcount || 0);
+//             return { _id, ...counts };
+//         });
+
+//         // Get date range within the current month
+//         const dateRange = getDatesWithinRange(startOfMonth, endOfMonth);
+
+//         // Merge counts with date range to fill in missing dates with count 0
+//         const mergedCounts = mergeCounts(dateRange, formattedCounts);
+
+//         // Send the response containing the number of new users joined per date
+//         res.json({ newUserCounts: mergedCounts });
+//     } catch (error) {
+//         // Handle errors
+//         console.error('Error fetching new users per date:', error);
+//         res.status(500).json({ message: 'Internal server error' });
+//     }
+// }
 
 // Function to generate dates within a range
 function getDatesWithinRange(startDate: Date, endDate: Date): string[] {
