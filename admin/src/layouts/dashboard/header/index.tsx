@@ -34,6 +34,7 @@ const RootStyle = styled(AppBar, {
     duration: theme.transitions.duration.shorter,
   }),
   [theme.breakpoints.up('lg')]: {
+
     height: HEADER.DASHBOARD_DESKTOP_HEIGHT,
     width: `calc(100% - ${NAVBAR.DASHBOARD_WIDTH + 1}px)`,
     ...(isCollapse && {

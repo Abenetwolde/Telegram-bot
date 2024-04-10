@@ -23,6 +23,8 @@ const MainStyle = styled('main', {
   paddingTop: HEADER.MOBILE_HEIGHT + 24,
   paddingBottom: HEADER.MOBILE_HEIGHT + 24,
   [theme.breakpoints.up('lg')]: {
+
+    // backgroundColor:theme.palette.background.default,
     paddingLeft: 16,
     backgrounColor: theme.palette.background.default,
     paddingRight: 16,
@@ -85,6 +87,7 @@ export default function DashboardLayout() {
   return (
     <Box
       sx={{
+        
         display: { lg: 'flex' },
         minHeight: { lg: 1 },
       }}

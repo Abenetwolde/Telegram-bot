@@ -26,7 +26,7 @@ const CustomTooltip = ({ label, payload }) => {
   );
 };
 const Dashboard = () => {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [range, setRange] = useState([
       {
           startDate: new Date(),
@@ -169,7 +169,7 @@ const handleDateRangeChange = (item) => {
 
   const renderTotalCountCard = (resource, isLoading, totalCount, data) => (
 
-    <Col xs={24} sm={24} xl={7} className=' bg-white rounded-xl shadow-lg p-4 text-center '>
+    <Col xs={24} sm={24} xl={7} className='  rounded-xl shadow-lg  text-center '>
   
       <DashboardTotalCountCard
         resource={resource}
@@ -192,8 +192,8 @@ const handleDateRangeChange = (item) => {
   };
   const COLORS = ['#8884d8', 'rgba(53, 162, 235, 0.5)', '#FFBB28', '#FF8042'];
   return (
-    <div className="p-6 mb-6 bg-slate-50 min-h-screen ">
-      <div className="flex  flex-wrap ">
+    <div className="pb-6 mb-6   ">
+      <div className="flex flex-wrap ">
         <div className="w-full my-2 rounded-xl space-y-5  ">
           <Row gutter={[32, 32]} className="space-x-2 item-center justify-center">
             {renderTotalCountCard("User", isLoading, totalUserCount, userCounts)}

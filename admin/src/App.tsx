@@ -30,15 +30,7 @@ return(
                 <ProgressBarStyle />
                 <ChartStyle />
                 <Settings />
-               
-                {/* <Router> */}
-                  {/* <Provider store={store}> */}
-                    {/* <App /> */}
                     <Router1 />
-
-                  {/* </Provider> */}
-
-                {/* </Router> */}
               </MotionLazyContainer>
             </NotistackProvider>
           </RtlLayout>
