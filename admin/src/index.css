@@ -15,7 +15,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+.custom-date-range-picker {
+  width: 200px;
+  align-items: center;
+  position: 'absolute';
+  z-index: 9999;
+  top: '100%';
+  left: '50%';
+  transform: 'translateX(-50%)', /* Adjust the width as needed */
+}
 a {
   font-weight: 500;
   color: #646cff;

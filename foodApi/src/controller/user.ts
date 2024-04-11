@@ -394,7 +394,37 @@ if(interval==="perWeek"||interval==="perMonth"){
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+export const LanguagePreferance = async (req: Request, res: Response): Promise<void> => {
+    console.log("language users link" )
+    try {
 
+       // Count users for each language
+    const languageStats: { [key: string]: { count: number, percentage: number } } = {};
+
+    const totalCount = await User.countDocuments();
+
+    const usersByLanguage = await User.aggregate([
+      {
+        $group: {
+          _id: '$language',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    usersByLanguage.forEach((language: { _id: string, count: number }) => {
+      const percentage = (language.count / totalCount) * 100;
+      languageStats[language._id] = { count: language.count, percentage };
+    });
+
+    // Return the language statistics
+    res.json(languageStats)
+    } catch (error) {
+        // Handle errors
+        console.error('Error fetching new users per date:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
 // export const NewuserDaily = async (req: Request, res: Response): Promise<void> => {
 //     console.log("hit the get new user api");
 //     try {

@@ -2,8 +2,9 @@ import React from "react";
 
 import {  CloseSquareOutlined, ShoppingOutlined , UsergroupAddOutlined } from "@ant-design/icons";
 import { Area, AreaConfig } from "@ant-design/plots";
-import { Card, Skeleton,Typography  } from "antd";
-
+import { Skeleton  } from "antd";
+import { Card ,Typography} from "@mui/material";
+import { useTheme } from "@mui/material";
 
 
 type Type = "User" | "Order" | "Cancel";
@@ -22,7 +23,7 @@ export const DashboardTotalCountCard = ({
   data,
 }: Props) => {
   const { primaryColor, secondaryColor, icon, title } = variants[resource];
-
+const theme =useTheme()
   const config: AreaConfig = {
     appendPadding: [1, 0, 0, 0],
     padding: 0,
@@ -61,10 +62,7 @@ export const DashboardTotalCountCard = ({
   };
 
   return (
-    <Card
-      style={{ height: "96px", padding: 0 }}
-      size="small"
-    >
+    <Card style={{ height: "96px", padding: 10 }} variant="outlined">
       <div
         style={{
           display: "flex",
@@ -74,9 +72,10 @@ export const DashboardTotalCountCard = ({
         }}
       >
         {icon}
-        <p className="secondary size-20text-base ml-2" id={`${resource}-title`}>
+        <Typography sx={{color: theme.palette.text.secondary,
+    fontSize: theme.typography.subtitle2.fontSize,}} className="secondary size-20text-base ml-2" id={`${resource}-title`}>
           {title}
-        </p>
+        </Typography>
       </div>
       <div
         style={{
@@ -102,7 +101,10 @@ export const DashboardTotalCountCard = ({
               }}
             />
           ) : (
-            totalCount
+            <Typography sx={{color: theme.palette.text.secondary,
+              fontSize: theme.typography.subtitle2.fontSize,}} className="secondary size-20text-base ml-2" id={`${resource}-title`}>
+                    {totalCount}
+                  </Typography>
           )}
         </Typography>
         <Area
@@ -150,7 +152,7 @@ const variants: {
     primaryColor: "#1677FF",
     secondaryColor: "#BAE0FF",
     icon: (
-      <IconWrapper color="#E6F4FF">
+      <IconWrapper>
         <UsergroupAddOutlined 
           className="md"
           style={{
@@ -160,14 +162,14 @@ const variants: {
         />
       </IconWrapper>
     ),
-    title: "Number of User",
+    title:"Number of User",
 
   },
   Order: {
     primaryColor: "#52C41A",
     secondaryColor: "#D9F7BE",
     icon: (
-      <IconWrapper color="#F6FFED">
+      <IconWrapper >
         <ShoppingOutlined 
           className="md"
           style={{
@@ -184,7 +186,7 @@ const variants: {
     primaryColor: "#FA541C",
     secondaryColor: "#FFD8BF",
     icon: (
-      <IconWrapper color="#FFF2E8">
+      <IconWrapper>
         <CloseSquareOutlined
           className="md"
           style={{
