@@ -13,6 +13,7 @@ import product from './routers/product';
 import category from './routers/category';
 import order from './routers/order';
 import payment from './routers/payment';
+import useKpi from './routers/UserKPI';
 // import mongoose from 'mongoose';
 import path from 'path';
  
@@ -41,6 +42,7 @@ app.use('/api/product', product);
 app.use('/api/category', category);
 app.use('/api/order', order);
 app.use('/api/payment', payment);
+app.use('/api/kpi', useKpi);
 connectToDatabase()
   
 app.listen(7000, () => {

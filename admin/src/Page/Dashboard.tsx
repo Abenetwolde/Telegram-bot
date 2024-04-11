@@ -326,45 +326,14 @@ const Dashboard = () => {
             </BarChart>
           </ResponsiveContainer>
         </Card>
-        <Card sx={{ width: { xs: 'full', lg: 'full' }, height: "full", mb: { xs: 5, lg: 0 }, borderRadius: 'xl', boxShadow: 'lg', p: 2, textAlign: 'center' }}>
+        <Card sx={{ width: { xs: 'full', lg: '300px' },mb: { xs: 5, lg: 2 }, mt: { xs: 5, lg: 2 }, height: "full",  borderRadius: 'xl', boxShadow: 'lg', p: 2, textAlign: 'center' }}>
+        <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>Language Distribution</Typography>
         {languageData ? ( // Render the LanguagePieChart component if data is available
         <LanguagePieChart data={languageData} />
       ) : (
         <p>Loading...</p> // Show a loading message while data is being fetched
       )}
-          <Typography variant="h5" className="text-xl font-semibold my-5">User analysis per day</Typography>
-          <ResponsiveContainer height={300} >
-          <PieChart  >
-        <Pie
-          data={datad}
-          cx="50%"
-          cy="50%"
-          label
-          innerRadius={60}
-          outerRadius={80}
-          fill="#8884d8"
-          paddingAngle={2}
-          dataKey="value"
-         stroke={null}
-         strokeWidth= {0}
-        >
-          {datad.map((entry, index) => (
-            <Cell key={`cell-${index}`}      style={{ outline: 'none' }} stroke='none' strokeWidth= {0} fill={COLORSd[index]} />
-          ))}
-        </Pie>
-        <Legend
-                verticalAlign="bottom"
-                align="center"
-                wrapperStyle={{ paddingTop: '20px' }}
-                iconSize={15}
-                iconType="square"
-                layout="horizontal"
-                formatter={(value, entry) => <span style={{ color: entry.color }}>{value}</span>}
-      
-              />
-              <Tooltip />
-      </PieChart>
-      </ResponsiveContainer>
+     
   
         </Card>
       </Box>
@@ -391,7 +360,7 @@ const Dashboard = () => {
               fill="#8884d8"
               label
               onClick={handleClick}
-              stroke={activeIndex !== null ? 'blue' : 'none'}
+              // stroke={activeIndex !== null ? 'blue' : 'none'}
             // strokeWidth={activeIndex !== null ? 1 : 0}
             >
               {topOrderFood.map((entry, index) => (
