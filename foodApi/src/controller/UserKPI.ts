@@ -15,6 +15,13 @@ export const GetUSerSpentTime = async (req: Request, res: Response) => {
     // Initialize start and end dates based on the selected interval
     let startDate, endDate;
     switch (interval) {
+        case 'perDay':
+            const selectedDate = new Date();
+            startDate = new Date(selectedDate);
+            startDate.setUTCHours(0, 0, 0, 0);
+            endDate = new Date(selectedDate);
+            endDate.setUTCHours(23, 59, 59, 999);
+            break;
         case 'perWeek':
             // Calculate the start of the current week (Sunday)
             startDate = new Date(currentDate);
@@ -37,6 +44,7 @@ export const GetUSerSpentTime = async (req: Request, res: Response) => {
             endDate = new Date(currentDate.getFullYear(), 11, 31);
             endDate.setUTCHours(23, 59, 59, 999);
             break;
+            
     }
     const results = await UserKPI.aggregate([
       { $unwind: '$scene' }, // Unwind the scene array
@@ -91,5 +99,63 @@ res.json(results);
     res.status(500).json({ success: false, message: 'Server error!' });
   }
 };
+export const dateRangeSpentTime = async (req: Request, res: Response) => {
+    console.log("range user kpi ")
+    try {
+        const { startDate, endDate } = req.body;
+        console.log("range user kpi "+startDate)
+      const results = await UserKPI.aggregate([
+        { $unwind: '$scene' }, // Unwind the scene array
+        {
+            $match: {
+                createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }
+            }
+        },
+      {
+        $group: {
+            _id: {
+                year: { $year: '$scene.enterTime' },
+                month: { $month: '$scene.enterTime' },
+                day: { $dayOfMonth: '$scene.enterTime' }
+            },
+            totalDuration: {
+                $sum: {
+                    $add: [
+                        { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 0] } }, 3600] }, // Convert hours to seconds
+                        { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 1] } }, 60] }, // Convert minutes to seconds
+                        { $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 2] } } // Extract seconds
+                    ]
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            date: {
+                $dateFromParts: {
+                    year: '$_id.year',
+                    month: '$_id.month',
+                    day: '$_id.day'
+                }
+            },
+            totalDurationInMinutes: { $divide: ['$totalDuration', 60] } // Convert total duration to minutes
+        }
+    },
+    {
+        $project: {
+            date: { $dateToString: { format: '%Y-%m-%d', date: '$date' } }, // Format date as 'YYYY-MM-DD'
+            totalDurationInMinutes: 1
+        }
+    },
+    { $sort: { date: 1 } } 
+  ]);
+  console.log(results)
+  res.json(results);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Server error!' });
+    }
+  };
 
         
