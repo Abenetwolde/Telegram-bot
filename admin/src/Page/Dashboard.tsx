@@ -16,6 +16,7 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import { IconButton, InputAdornment, TextField, useTheme } from '@mui/material';
 import { Box, Card, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import LanguagePieChart from '../components/Dashboard/LanguagePieChart';
+import UserSpentTime from '../components/Dashboard/SpentTime';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -57,7 +58,7 @@ const Dashboard = () => {
   const [topOrderFood, settopOrderFood] = useState([]);
   const [userCounts, setUserCounts] = useState([]);
   const [opacity, setOpacity] = useState({ frombotcount: 1, fromchannelcount: 1, frominvitation: 1 });
-  const [languageData, setLanguageData] = useState(null); 
+  const [languageData, setLanguageData] = useState(null);
 
   // get the target element to toggle 
   const refOne = useRef(null)
@@ -145,7 +146,7 @@ const Dashboard = () => {
     setRange([item.selection]);
     setOpen(false); // Close the DateRangePicker
   };
-  
+
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
     //  setRange([]);
@@ -190,13 +191,13 @@ const Dashboard = () => {
 
     fetchData();
   }, [range]);
-  const datad:any = [
+  const datad: any = [
     { name: 'Group A', value: 400 },
     { name: 'Group B', value: 300 },
     { name: 'Group C', value: 900 },
     { name: 'Group D', value: 200 },
   ];
-  const COLORSd:any = ['#0088FE', '#00C49F', '#FFBB28', '#FFFFFF'];
+  const COLORSd: any = ['#0088FE', '#00C49F', '#FFBB28', '#FFFFFF'];
   const renderTotalCountCard = (resource, isLoading, totalCount, data) => (
 
     <Col xs={24} sm={24} xl={7} className='  rounded-xl shadow-lg  text-center '>
@@ -235,13 +236,13 @@ const Dashboard = () => {
           </Row>
         </div>
       </div>
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' },  width: "full", }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, width: "full", }}>
         <Card sx={{ width: { xs: 'full', lg: '800px' }, mb: { xs: 5, lg: 2 }, mt: { xs: 5, lg: 2 }, mr: { lg: 5 }, borderRadius: 'xl', boxShadow: 'lg', p: 5, textAlign: 'center' }}>
-        <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>User analysis per day</Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb:2 }}>
-            
-            <Box sx={{ width: '260px', marginRight: '2px', gap: 5}} >
-            <Box ref={refOne} sx={{ position: 'relative' }}>
+          <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>User analysis per day</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+
+            <Box sx={{ width: '260px', marginRight: '2px', gap: 5 }} >
+              <Box ref={refOne} sx={{ position: 'relative' }}>
                 <TextField fullWidth
                   value={`${format(range[0].startDate, "MM/dd/yyyy")} to ${format(range[0].endDate, "MM/dd/yyyy")}`}
                   readOnly
@@ -258,29 +259,29 @@ const Dashboard = () => {
                 />
                 {open && (
                   <Box
-                  sx={{
-                    position: 'absolute',
-                    zIndex: 9999,
-                    top: '100%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    //  maxWidth: '260px', // Adjust the width here
-                    textAlign: 'center',
-                  }}
-                >
-                  <DateRangePicker
-                    onChange={(item) => setRange([item.selection])}
-                    editableDateInputs={true}
-                    moveRangeOnFirstSelection={false}
-                    ranges={range}
-                    // color={"#00000"}
-                    // fixedHeight=true
-                    months={1}
-                    direction="horizontal"
-                    className="calendarElement"
+                    sx={{
+                      position: 'absolute',
+                      zIndex: 9999,
+                      top: '100%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      //  maxWidth: '260px', // Adjust the width here
+                      textAlign: 'center',
+                    }}
+                  >
+                    <DateRangePicker
+                      onChange={(item) => setRange([item.selection])}
+                      editableDateInputs={true}
+                      moveRangeOnFirstSelection={false}
+                      ranges={range}
+                      // color={"#00000"}
+                      // fixedHeight=true
+                      months={1}
+                      direction="horizontal"
+                      className="calendarElement"
                     // calendarWidth={200}
-                  />
-                </Box>
+                    />
+                  </Box>
                 )}
               </Box>
             </Box>
@@ -326,29 +327,31 @@ const Dashboard = () => {
             </BarChart>
           </ResponsiveContainer>
         </Card>
-        <Card sx={{ width: { xs: 'full', lg: '300px' },mb: { xs: 5, lg: 2 }, mt: { xs: 5, lg: 2 }, height: "full",  borderRadius: 'xl', boxShadow: 'lg', p: 2, textAlign: 'center' }}>
-        <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>Language Distribution</Typography>
-        {languageData ? ( // Render the LanguagePieChart component if data is available
-        <LanguagePieChart data={languageData} />
-      ) : (
-        <p>Loading...</p> // Show a loading message while data is being fetched
-      )}
-     
-  
+        <Card sx={{ width: { xs: 'full', lg: '300px' }, mb: { xs: 5, lg: 2 }, mt: { xs: 5, lg: 2 }, height: "full", borderRadius: 'xl', boxShadow: 'lg', p: 2, textAlign: 'center' }}>
+          <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>Language Distribution</Typography>
+          {languageData ? ( // Render the LanguagePieChart component if data is available
+            <LanguagePieChart data={languageData} />
+          ) : (
+            <p>Loading...</p> // Show a loading message while data is being fetched
+          )}
+
+
         </Card>
       </Box>
 
       <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-8 min-w-full">
         <div className="bg-white rounded-xl h-auto w-full shadow-lg p-2">
-          {/* <Line data={lineState} /> */}
+
         </div>
         <Box sx={{ width: '100%', textAlign: 'center' }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>Language Distribution</Typography>
-
-    </Box>
-        {/* <div className="bg-white rounded-xl shadow-lg p-4 text-center"> */}
-         
+          <Typography variant="h5" sx={{ mb: 2 }}>Language Distribution</Typography>
           <ResponsiveContainer  height={300}>
+        <UserSpentTime />
+        </ResponsiveContainer>
+        </Box>
+        {/* <div className="bg-white rounded-xl shadow-lg p-4 text-center"> */}
+    
+        {/* <ResponsiveContainer  height={300}>
           <PieChart >
             <Pie
               dataKey="value"
@@ -390,7 +393,7 @@ const Dashboard = () => {
             />
             <Tooltip />
           </PieChart>
-          </ResponsiveContainer>
+          </ResponsiveContainer> */}
         {/* </div> */}
       </div>
 
