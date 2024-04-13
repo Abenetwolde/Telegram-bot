@@ -182,6 +182,9 @@ export const NewuserCustomRange = async (req: Request, res: Response): Promise<v
                     }
                 }
             },
+            {
+                $sort: { "_id": 1 } // Sort by the newly added monthDate field in ascending order
+            }
         ]).limit(200);
 
         // Format the response with counts for each date
@@ -200,8 +203,10 @@ export const NewuserCustomRange = async (req: Request, res: Response): Promise<v
             return { _id, ...counts };
         });
 
+        const totalUsers = formattedCounts.reduce((total, item) => total + (item.total || 0), 0);
+
         // Send the response containing the number of new users joined per date
-        res.json({ newUserCounts: formattedCounts });
+        res.json({ newUserCounts: formattedCounts ,totalUsers});
     } catch (error) {
         // Handle errors
         console.error('Error fetching new users per date:', error);
@@ -285,7 +290,7 @@ if(interval==="perWeek"||interval==="perMonth"){
                 }
             },
             
-        ]);
+        ])
     }else if(interval === "perYear"){
          newUserCounts = await User.aggregate([
             {
@@ -296,7 +301,7 @@ if(interval==="perWeek"||interval==="perMonth"){
             {
                 $group: {
                     _id: {
-                        month: { $dateToString: { format: "%b", date: "$createdAt" } },
+                        month: { $dateToString: { format: "%Y-%m", date: "$createdAt" } }, // Format to YYYY-MM
                         from: "$from"
                     },
                     count: { $sum: 1 }
@@ -313,21 +318,12 @@ if(interval==="perWeek"||interval==="perMonth"){
                     }
                 }
             },
-            {
-                $addFields: {
-                    monthDate: {
-                        $dateFromString: {
-                            dateString: { $concat: ["2023-", "$_id.month", "-01"] }, // Assuming a specific year for sorting
-                            format: "%Y-%b-%d" // Format to convert the abbreviated month name back to a date
-                        }
-                    }
-                }
-            },
-            {
-                $sort: { "monthDate": 1 } // Sort by the newly added monthDate field in ascending order
-            }
+   
+    { $sort: { "_id": 1 } }
+       
             
-        ]).sort({ "monthDate": 1 });
+            
+        ]);
     }else if (interval === "perDay") {
         newUserCounts = await User.aggregate([
             {
@@ -385,9 +381,10 @@ if(interval==="perWeek"||interval==="perMonth"){
             counts.total = (counts.frombotcount || 0) + (counts.fromchannelcount || 0) + (counts.frominvitation || 0);
             return { _id, ...counts };
         });
+        const totalUsers = formattedCounts.reduce((total, item) => total + (item.total || 0), 0);
 
         // Send the response containing the number of new users joined per date
-        res.json({ newUserCounts: formattedCounts });
+        res.json({ newUserCounts: formattedCounts ,totalUsers});
     } catch (error) {
         // Handle errors
         console.error('Error fetching new users per date:', error);

@@ -40,7 +40,7 @@ const UserSpentTime = () => {
       setOpen(false)
     }
   }
-
+  const [totalspent, setTotalSpent] = useState(0);
   const [filter, setFilter] = useState('perMonth');
   const [options, setOptions] = useState<any>({
     chart: {
@@ -57,26 +57,14 @@ const UserSpentTime = () => {
           borderColor: '#999',
           label: {
             show: true,
-            text: 'Support',
+            text: 'Daily Goal',
             style: {
               color: "#fff",
               background: '#00E396'
             }
           }
         }],
-        xaxis: [{
-          x: new Date('14 Nov 2012').getTime(),
-          borderColor: '#999',
-          yAxisIndex: 0,
-          label: {
-            show: true,
-            text: 'Rally',
-            style: {
-              color: "#fff",
-              background: '#775DD0'
-            }
-          }
-        }]
+    
       },
       dataLabels: {
         enabled: false
@@ -148,9 +136,11 @@ const UserSpentTime = () => {
         // Extract dates and durations from the received data
         const updatedSeries = [{
           name: 'Time Spent',
-          data: data.map(item => [new Date(item.date).getTime(), item.totalDurationInMinutes])
+          data: data?.userTime.map(item => [new Date(item.date).getTime(), item.totalDurationInMinutes]),
+          totalusertime: data?.totalUserTime
         }];
         setSeries(updatedSeries);
+setTotalSpent(data.totalUserTime)
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -171,9 +161,11 @@ const UserSpentTime = () => {
         // Extract dates and durations from the received data
         const updatedSeries = [{
           name: 'Time Spent',
-          data: data.map(item => [new Date(item.date).getTime(), item.totalDurationInMinutes])
+          data: data?.userTime.map(item => [new Date(item.date).getTime(), item.totalDurationInMinutes]),
+          totalusertime: data?.totalUserTime
         }];
         setSeries(updatedSeries);
+setTotalSpent(data.totalUserTime)
         // setUserCounts(response.data.newUserCounts);
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -182,6 +174,7 @@ const UserSpentTime = () => {
 
     fetchData();
   }, [range]);
+  // console.log(totalspent);
   return (
     <div>
       <div>
@@ -203,6 +196,11 @@ const UserSpentTime = () => {
         ),
       }}
     />
+    {/* <p>{totalspent}</p> */}
+    <Box sx={{mt:3, mb:3,flex:1, width:"100%" ,justifyContent:'flex-end',alignItems:'center'}}>
+    <Typography  > Total Time: {totalspent.toFixed(2)} Minutes</Typography>
+    </Box>
+    
     {open && (
       <Box
         sx={{
@@ -247,11 +245,11 @@ const UserSpentTime = () => {
 </FormControl>
 </Box>
         <div>
-          <ReactApexChart options={options} series={series} type="area" height={350} />
+          {series?<ReactApexChart options={options} series={series} type="area" height={350} />:<Box><Typography>Loading...</Typography></Box>}
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default UserSpentTime;

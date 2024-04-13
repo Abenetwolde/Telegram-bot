@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Col, Row } from "antd";
+import { Button, Col, Row } from "antd";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { format } from 'date-fns';
 import Chart from 'react-apexcharts';
@@ -13,10 +13,11 @@ import { PieChart, Pie } from 'recharts';
 
 import { addDays } from 'date-fns'
 import DateRangeIcon from '@mui/icons-material/DateRange';
-import { IconButton, InputAdornment, TextField, useTheme } from '@mui/material';
+import { ButtonGroup, IconButton, InputAdornment, TextField, useTheme } from '@mui/material';
 import { Box, Card, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import LanguagePieChart from '../components/Dashboard/LanguagePieChart';
 import UserSpentTime from '../components/Dashboard/SpentTime';
+import UserClicks from '../components/Dashboard/userClicks';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -47,7 +48,7 @@ const Dashboard = () => {
   const [isOrderLoading, setIsOrderLoading] = useState(true);
   const [iscancelOrderLoading, setIsCancelOrderLoading] = useState(true);
 
-  const [totalUserCount, setTotalUserCount] = useState<number | undefined>(undefined);
+  const [totalUserCount, setTotalUserCount] = useState<number | undefined>(0);
   const [totalOrderCount, setTotalOrderCount] = useState<number | undefined>(undefined);
   const [totalCancelOrderCount, setTotalCancelOrderCount] = useState<number | undefined>(undefined);
 
@@ -59,7 +60,14 @@ const Dashboard = () => {
   const [userCounts, setUserCounts] = useState([]);
   const [opacity, setOpacity] = useState({ frombotcount: 1, fromchannelcount: 1, frominvitation: 1 });
   const [languageData, setLanguageData] = useState(null);
+  const [filter, setFilter] = useState('perYear');
+  const [filterClick, setfilterClick] = useState("perWeek"); // Initialize the state with the default value
 
+  const handlefilterClickChange = (event, newFilter) => {
+    setfilterClick(newFilter); 
+    console.log(filterClick)
+    // Update the state with the selected filter value
+  };
   // get the target element to toggle 
   const refOne = useRef(null)
   const handleMouseEnter = (o) => {
@@ -93,36 +101,21 @@ const Dashboard = () => {
     const { dataKey } = o;
     setOpacity(prevOpacity => ({ ...prevOpacity, [dataKey]: 1 }));
   };
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await api.get("order/high-order-food");
-      // console.log(response.data)
-      const data = response.data.map((entry, index) => ({
-        index: String(index + 1),
-        name: entry._id,// Assuming index starts from 1
-        value: entry.count, // Assuming userCount property in each entry represents the number of new users
-      }));
-      settopOrderFood(data);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const response = await api.get("order/high-order-food");
+  //     // console.log(response.data)
+  //     const data = response.data.map((entry, index) => ({
+  //       index: String(index + 1),
+  //       name: entry._id,// Assuming index starts from 1
+  //       value: entry.count, // Assuming userCount property in each entry represents the number of new users
+  //     }));
+  //     settopOrderFood(data);
 
-      // settopOrderFood(response.data)
-    }
-    fetchData()
-  }, []);
-  const [filter, setFilter] = useState('perMonth');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get(`user/getnewuser?interval=${filter}`);
-        const data = response.data.newUserCounts;
-        setUserCounts([]);
-        setUserCounts(data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-    fetchData();
-  }, [filter])
+  //     // settopOrderFood(response.data)
+  //   }
+  //   fetchData()
+  // }, []);
 
   useEffect(() => {
     console.log("start" + range[0].startDate, "end" + range[0].endDate)
@@ -134,7 +127,11 @@ const Dashboard = () => {
           endDate: range[0].endDate
 
         });
-        setUserCounts(response.data.newUserCounts);
+
+        // setUserCounts(data);
+        await setUserCounts(response.data.newUserCounts);
+        setTotalUserCount(response.data.totalUsers)
+
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -142,6 +139,24 @@ const Dashboard = () => {
 
     fetchData();
   }, [range]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`user/getnewuser?interval=${filter}`);
+        const data = response.data.newUserCounts;
+        // setUserCounts([]);
+        setUserCounts(data);
+        // await setUserCounts(response.data.newUserCounts);
+       
+        setTotalUserCount(response.data.totalUsers)
+
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchData();
+  }, [filter])
+
   const handleDateRangeChange = (item) => {
     setRange([item.selection]);
     setOpen(false); // Close the DateRangePicker
@@ -151,32 +166,31 @@ const Dashboard = () => {
     setFilter(event.target.value);
     //  setRange([]);
   };
-  console.log("userCounts", userCounts)
-  console.log(topOrderFood)
-  useEffect(() => {
-    const fetchData = async (endpoint, setData, setLoading, setTotalCount, setLoadingState) => {
-      try {
-        let totalCount = 0
-        const response = await api.get(endpoint);
-        setData(response.data);
-        if (endpoint === 'user/getnewuser') {
-          totalCount = response.data?.newUserCounts?.reduce((acc, curr) => acc + curr.total, 0);
-        } else {
-          totalCount = response.data?.reduce((acc, curr) => acc + curr.count, 0);
-        }
 
-        setTotalCount(totalCount);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async (endpoint, setData, setLoading, setTotalCount, setLoadingState) => {
+  //     try {
+  //       let totalCount = 0
+  //       const response = await api.get(endpoint);
+  //       setData(response.data);
+  //       if (endpoint === 'user/getnewuser') {
+  //         totalCount = response.data?.newUserCounts?.reduce((acc, curr) => acc + curr.total, 0);
+  //       } else {
+  //         totalCount = response.data?.reduce((acc, curr) => acc + curr.count, 0);
+  //       }
 
-    // fetchData('user/getnewuser', setNewUsersData, setIsLoading, setTotalUserCount, setIsLoading);
-    fetchData('order/getordersperday', setNewOrderData, setIsOrderLoading, setTotalOrderCount, setIsOrderLoading);
-    fetchData('order/cancelled-orders-per-day', setNewCancelOrderData, setIsCancelOrderLoading, setTotalCancelOrderCount, setIsCancelOrderLoading);
-  }, []);
+  //       // setTotalCount(totalCount);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   // fetchData('user/getnewuser', setNewUsersData, setIsLoading, setTotalUserCount, setIsLoading);
+  //   fetchData('order/getordersperday', setNewOrderData, setIsOrderLoading, setTotalOrderCount, setIsOrderLoading);
+  //   fetchData('order/cancelled-orders-per-day', setNewCancelOrderData, setIsCancelOrderLoading, setTotalCancelOrderCount, setIsCancelOrderLoading);
+  // }, []);
 
   useEffect(() => {
     console.log("start" + range[0].startDate, "end" + range[0].endDate)
@@ -190,7 +204,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [range]);
+  }, []);
   const datad: any = [
     { name: 'Group A', value: 400 },
     { name: 'Group B', value: 300 },
@@ -239,6 +253,7 @@ const Dashboard = () => {
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, width: "full", }}>
         <Card sx={{ width: { xs: 'full', lg: '800px' }, mb: { xs: 5, lg: 2 }, mt: { xs: 5, lg: 2 }, mr: { lg: 5 }, borderRadius: 'xl', boxShadow: 'lg', p: 5, textAlign: 'center' }}>
           <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>User analysis per day</Typography>
+       
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
 
             <Box sx={{ width: '260px', marginRight: '2px', gap: 5 }} >
@@ -300,6 +315,12 @@ const Dashboard = () => {
               </Select>
             </FormControl>
           </Box>
+
+          <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-end', alignItems: 'center' }}>
+            <Typography  > Total Register: {totalUserCount} Users</Typography>
+          </Box>
+
+
           <ResponsiveContainer height={300}>
             <BarChart
               data={userCounts}
@@ -340,17 +361,26 @@ const Dashboard = () => {
       </Box>
 
       <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-8 min-w-full">
-        <div className="bg-white rounded-xl h-auto w-full shadow-lg p-2">
-
-        </div>
         <Box sx={{ width: '100%', textAlign: 'center' }}>
-          <Typography variant="h5" sx={{ mb: 2 }}>Language Distribution</Typography>
-          <ResponsiveContainer  height={300}>
-        <UserSpentTime />
-        </ResponsiveContainer>
+          <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>Users Total Time Spent</Typography>
+          {/* <Typography variant="h5" sx={{ mb: 2 }}>Users Time Spent</Typography> */}
+          <ResponsiveContainer height={300}>
+            <UserSpentTime />
+          </ResponsiveContainer>
+        </Box>
+        <Box sx={{ width: '100%', textAlign: 'center' }}>
+          <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>Users Clicks</Typography>
+          <ButtonGroup variant="outlined" aria-label="Basic button group"    value={filter}  onChange={handlefilterClickChange}>
+          <Button value={"perWeek"}>One</Button> {/* Provide the value prop */}
+      <Button value={"perMonth"}>Two</Button> {/* Provide the value prop */}
+      <Button value={"perYear"}>Three</Button> {/* Provide the value prop */}
+</ButtonGroup>
+          <ResponsiveContainer height={300}>
+           <UserClicks filter={filterClick}/>
+          </ResponsiveContainer>
         </Box>
         {/* <div className="bg-white rounded-xl shadow-lg p-4 text-center"> */}
-    
+
         {/* <ResponsiveContainer  height={300}>
           <PieChart >
             <Pie
