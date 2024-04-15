@@ -18,6 +18,7 @@ import { Box, Card, FormControl, InputLabel, MenuItem, Select, Typography } from
 import LanguagePieChart from '../components/Dashboard/LanguagePieChart';
 import UserSpentTime from '../components/Dashboard/SpentTime';
 import UserClicks from '../components/Dashboard/userClicks';
+import UsersSpentTimePerScene from '../components/Dashboard/UsersSpentTimePerScene';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -61,11 +62,11 @@ const Dashboard = () => {
   const [opacity, setOpacity] = useState({ frombotcount: 1, fromchannelcount: 1, frominvitation: 1 });
   const [languageData, setLanguageData] = useState(null);
   const [filter, setFilter] = useState('perYear');
-  const [filterClick, setfilterClick] = useState("perWeek"); // Initialize the state with the default value
-
-  const handlefilterClickChange = (event, newFilter) => {
-    setfilterClick(newFilter); 
-    console.log(filterClick)
+  const [filterClick, setfilterClick] = useState("perMonth"); // Initialize the state with the default value
+  const [filterScene, setfilterScene] = useState("perMonth");
+  const handlefilterClickChange = (newFilter) => {
+    setfilterClick(newFilter);
+    console.log("newFilter.........", filterClick)
     // Update the state with the selected filter value
   };
   // get the target element to toggle 
@@ -147,7 +148,7 @@ const Dashboard = () => {
         // setUserCounts([]);
         setUserCounts(data);
         // await setUserCounts(response.data.newUserCounts);
-       
+
         setTotalUserCount(response.data.totalUsers)
 
       } catch (error) {
@@ -164,6 +165,11 @@ const Dashboard = () => {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
+    //  setRange([]);
+  };
+  
+  const handlefilterScene = (string) => {
+    setfilterScene(string);
     //  setRange([]);
   };
 
@@ -253,7 +259,7 @@ const Dashboard = () => {
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, width: "full", }}>
         <Card sx={{ width: { xs: 'full', lg: '800px' }, mb: { xs: 5, lg: 2 }, mt: { xs: 5, lg: 2 }, mr: { lg: 5 }, borderRadius: 'xl', boxShadow: 'lg', p: 5, textAlign: 'center' }}>
           <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>User analysis per day</Typography>
-       
+
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
 
             <Box sx={{ width: '260px', marginRight: '2px', gap: 5 }} >
@@ -360,71 +366,50 @@ const Dashboard = () => {
         </Card>
       </Box>
 
-      <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-8 min-w-full">
-        <Box sx={{ width: '100%', textAlign: 'center' }}>
+      <div className="flex flex-col  sm:flex-row justify-between gap-3 sm:gap-8 min-w-full lg:h-800  lg:mt-10">
+        <Box sx={{ width: '100%', textAlign: 'center', }}>
           <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>Users Total Time Spent</Typography>
           {/* <Typography variant="h5" sx={{ mb: 2 }}>Users Time Spent</Typography> */}
-          <ResponsiveContainer height={300}>
+          <ResponsiveContainer height={"100%"}>
             <UserSpentTime />
           </ResponsiveContainer>
         </Box>
+
+
+      </div>
+
+      <div className="flex flex-col  sm:flex-row justify-between gap-3 sm:gap-8 min-w-full   lg:mt-50">
+
         <Box sx={{ width: '100%', textAlign: 'center' }}>
           <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>Users Clicks</Typography>
-          <ButtonGroup variant="outlined" aria-label="Basic button group"    value={filter}  onChange={handlefilterClickChange}>
-          <Button value={"perWeek"}>One</Button> {/* Provide the value prop */}
-      <Button value={"perMonth"}>Two</Button> {/* Provide the value prop */}
-      <Button value={"perYear"}>Three</Button> {/* Provide the value prop */}
-</ButtonGroup>
+          <ButtonGroup variant="outlined" aria-label="Basic button group"   >
+            <Button value={filterClick} onClick={() => handlefilterClickChange("perWeek")}>Per Week</Button> {/* Provide the value prop */}
+            <Button value={filterClick} onClick={() => handlefilterClickChange("perMonth")}>Per Month</Button> {/* Provide the value prop */}
+            <Button value={filterClick} onClick={() => handlefilterClickChange("perYear")}>Per Year</Button> {/* Provide the value prop */}
+          </ButtonGroup>
+
           <ResponsiveContainer height={300}>
-           <UserClicks filter={filterClick}/>
+            <UserClicks filter={filterClick} />
           </ResponsiveContainer>
         </Box>
-        {/* <div className="bg-white rounded-xl shadow-lg p-4 text-center"> */}
 
-        {/* <ResponsiveContainer  height={300}>
-          <PieChart >
-            <Pie
-              dataKey="value"
-              isAnimationActive={false}
-              data={topOrderFood}
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              fill="#8884d8"
-              label
-              onClick={handleClick}
-              // stroke={activeIndex !== null ? 'blue' : 'none'}
-            // strokeWidth={activeIndex !== null ? 1 : 0}
-            >
-              {topOrderFood.map((entry, index) => (
-                <Cell key={`cell-${index}`}
-                  style={{ outline: 'none' }}
-                  // strokeWidth={activeIndex !== null ? 5 : 0}
-                  fill={COLORS[index % COLORS.length]}
-                  stroke={activeIndex === index ? 'white' : 'none'} />
-              ))}
-            </Pie>
-            <Legend
-              verticalAlign="bottom"
-              align="center"
-              wrapperStyle={{ paddingTop: '20px' }}
-              iconSize={15}
-              iconType="square"
-              layout="horizontal"
-              formatter={(value, entry) => <span style={{ color: entry.color }}>{value}</span>}
-              onClick={(e) => {
-                const { index }: any = e.payload;
-                console.log("strokeDasharray", index)
-                const indexd = topOrderFood.findIndex((entry) => entry.index === index);
-                if (indexd !== -1) {
-                  setActiveIndex(indexd);
-                }
-              }}
-            />
-            <Tooltip />
-          </PieChart>
-          </ResponsiveContainer> */}
-        {/* </div> */}
+      </div>
+
+      <div className="flex flex-col  sm:flex-row justify-between gap-3 sm:gap-8 min-w-full   lg:mt-50">
+
+        <Box sx={{ width: '100%', textAlign: 'center' }}>
+          <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: "left" }}>Users Clicks</Typography>
+          <ButtonGroup variant="outlined" aria-label="Basic button group"   >
+            <Button value={filterClick} onClick={() => handlefilterScene("perWeek")}>Per Week</Button> {/* Provide the value prop */}
+            <Button value={filterClick} onClick={() => handlefilterScene("perMonth")}>Per Month</Button> {/* Provide the value prop */}
+            <Button value={filterClick} onClick={() => handlefilterScene("perYear")}>Per Year</Button> {/* Provide the value prop */}
+          </ButtonGroup>
+
+          <ResponsiveContainer height={300} width={"100%"}>
+            <UsersSpentTimePerScene filter={filterScene} />
+          </ResponsiveContainer>
+        </Box>
+
       </div>
 
     </div>

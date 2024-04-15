@@ -122,8 +122,8 @@ export const GetUSerSpentTime = async (req: Request, res: Response) => {
                 }
             }
         ]);
-        console.log(JSON.stringify(results[0].totalUserTime[0].totalDurationInMinutes));
-        res.json({ userTime: results[0].userTime, totalUserTime: results[0].totalUserTime[0].totalDurationInMinutes })
+        // console.log(JSON.stringify(results[0].totalUserTime[0].totalDurationInMinutes));
+        res.json({ userTime: results[0]?.userTime, totalUserTime: results[0]?.totalUserTime[0]?.totalDurationInMinutes })
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error!' });
@@ -209,7 +209,88 @@ export const dateRangeSpentTime = async (req: Request, res: Response) => {
             }
         ]);
         // console.log(JSON.stringify(results[0].totalUserTime[0].totalDurationInMinutes));
-        res.json({ userTime: results[0].userTime, totalUserTime: results[0].totalUserTime[0].totalDurationInMinutes })
+        res.json({ userTime: results[0].userTime, totalUserTime: results[0]?.totalUserTime[0]?.totalDurationInMinutes })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error!' });
+    }
+};
+
+export const spendTimePerScene = async (req: Request, res: Response) => {
+    console.log("spendTimePerScene user kpi ")
+    try {
+        const { interval = 'perMonth' } = req.query;
+
+        // Get the current date
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        switch (interval) {
+            case 'perDay':
+                const selectedDate = new Date();
+                startDate = new Date(selectedDate);
+                startDate.setUTCHours(0, 0, 0, 0);
+                endDate = new Date(selectedDate);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perWeek':
+                // Calculate the start of the current week (Sunday)
+                startDate = new Date(currentDate);
+                startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
+                startDate.setUTCHours(0, 0, 0, 0);
+                // Calculate the end of the current week (Saturday)
+                endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 6); // Move to Saturday
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perMonth':
+                // Calculate the start and end of the current month
+                startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perYear':
+                // Calculate the start and end of the current year
+                startDate = new Date(currentDate.getFullYear(), 0, 1);
+                endDate = new Date(currentDate.getFullYear(), 11, 31);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+
+        }
+
+        const results = await UserKPI.aggregate([
+            { $unwind: '$scene' }, // Unwind the scene array
+            {
+                $match: {
+                    'scene.enterTime': { $gte: startDate, $lte: endDate } // Filter based on the calculated start and end dates
+                }
+            },
+            {
+                $group: {
+                    _id: '$scene.name',
+                    totalDuration: {
+                        $sum: {
+                            $add: [
+                                { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 0] } }, 3600] }, // Convert hours to seconds
+                                { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 1] } }, 60] }, // Convert minutes to seconds
+                                { $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 2] } } // Extract seconds
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    sceneName: '$_id',
+                    totalDurationInMinutes: { $divide: ['$totalDuration', 60] } // Convert total duration to minutes
+                }
+            }
+        ]);
+
+        res.json(results);
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error!' });

@@ -2,17 +2,18 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ReactApexChart from 'react-apexcharts';
 import api from '../../services/api';
+import { Box, Typography } from '@mui/material';
 
-const UserClicks = ({filterClick}:any) => {
+const UserClicks = ({filter}:any) => {
   const [chartData, setChartData] = useState({
     totalClicks: 0,
     clicksByDate: []
   });
-
+console.log("....................", filter);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api.get(`kpi/get-user-clicks?interval=${filterClick}`);
+        const response = await api.get(`kpi/get-user-clicks?interval=${filter}`);
         setChartData(response.data);
         console.log(response.data)
       } catch (error) {
@@ -21,10 +22,13 @@ const UserClicks = ({filterClick}:any) => {
     };
 
     fetchData();
-  }, []);
+  }, [filter]);
 console.log(chartData)
   return (
     <div>
+        <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-end', alignItems: 'center' }}>
+             {chartData?.totalClicks!==0?<Typography  > Total Clicks: {chartData?.totalClicks&&chartData?.totalClicks.toFixed(2)} Clicks {filter}</Typography>:<Typography>There isnt any Click {filter}</Typography>} 
+              </Box>
       {/* <div id="chart"> */}
         <ReactApexChart
           options={{
@@ -60,7 +64,7 @@ console.log(chartData)
             data: chartData?.clicksByDate?.map(data => data.totalClicks)
           }]}
           type="line"
-          height={350}
+          height={"100%"}
         />
       </div>
  
