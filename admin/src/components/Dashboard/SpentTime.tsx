@@ -41,12 +41,12 @@ const UserSpentTime = () => {
     }
   }
   const [totalspent, setTotalSpent] = useState(0);
-  const [filter, setFilter] = useState('perMonth');
+  const [filter, setFilter] = useState('perWeek');
   const [options, setOptions] = useState<any>({
     chart: {
       id: 'area-datetime',
       type: 'area',
-      height: 350,
+      height: 550,
       zoom: {
         autoScaleYaxis: true
       }
@@ -83,6 +83,7 @@ const UserSpentTime = () => {
       },
     },
     yaxis: {
+      
       labels: {
         formatter: function (val) {
           return val.toFixed(2) + ' minutes'; // Format y-axis labels with two decimal points and append "minutes" suffix
@@ -110,22 +111,7 @@ const UserSpentTime = () => {
     setFilter(event.target.value);
     //  setRange([]);
   };
-  // const [selection, setSelection] = useState('one_year');
-
-  // const updateData = (timeline) => {
-  //   setSelection(timeline);
-
-  //   switch (timeline) {
-  //     case 'one_month':
-  //       // Update data for one month...
-  //       break;
-  //     case 'six_months':
-  //       // Update data for six months...
-  //       break;
-  //     // More cases...
-  //     default:
-  //   }
-  // }
+ 
   useEffect(() => {
     console.log("start" + range[0].startDate, "end" + range[0].endDate)
     const fetchData = async () => {
@@ -140,11 +126,11 @@ const UserSpentTime = () => {
         // Extract dates and durations from the received data
         const updatedSeries = [{
           name: 'Time Spent',
-          data: data?.userTime.map(item => [new Date(item.date).getTime(), item.totalDurationInMinutes]),
-          totalusertime: data?.totalUserTime
+          data: data?.userTime?.map(item => [item._id, item.totalDurationInMinutes]),
+          totalusertime: data?.totalDurationInMinutes
         }];
-        setSeries(updatedSeries);
-setTotalSpent(data.totalUserTime)
+       await setSeries(updatedSeries);
+setTotalSpent(data.totalDurationInMinutes)
         // setUserCounts(response.data.newUserCounts);
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -162,11 +148,11 @@ setTotalSpent(data.totalUserTime)
         // Extract dates and durations from the received data
         const updatedSeries = [{
           name: 'Time Spent',
-          data: data?.userTime.map(item => [new Date(item.date).getTime(), item.totalDurationInMinutes]),
-          totalusertime: data?.totalUserTime
+          data: data?.userTime.map(item => [item._id, item.totalDurationInMinutes]),
+          totalusertime: data?.totalDurationInMinutes
         }];
         setSeries(updatedSeries);
-        setTotalSpent(data.totalUserTime)
+        setTotalSpent(data.totalDurationInMinutes)
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -198,7 +184,7 @@ setTotalSpent(data.totalUserTime)
               />
               {/* <p>{totalspent}</p> */}
               <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-end', alignItems: 'center' }}>
-             {totalspent?<Typography  > Total Time: {totalspent&&totalspent.toFixed(2)} Minutes</Typography>:<Typography>The Users not spent any time {filter}</Typography>} 
+             {totalspent?<Typography  > Total Time: {totalspent&&totalspent.toFixed(2)} Minutes</Typography>:<Typography>The Users not spent any time</Typography>} 
               </Box>
 
               {open && (

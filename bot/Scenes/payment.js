@@ -12,6 +12,7 @@ let priceLabels = []
 const paymentScene = new Scenes.BaseScene("paymentScene")
 const UserKPI=require("../Model/KpiUser");
 const { match } = require("telegraf-i18next");
+const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 
 paymentScene.enter(async (ctx) => {
     const enterTime = new Date();
@@ -215,42 +216,8 @@ paymentScene.leave(async (ctx) => {
         const enterTime = ctx.scene.state.enterTime;
         const durationMs = new Date(leaveTime - enterTime);
         // Convert milliseconds to minutes
-        const durationMinutes = Math.floor(durationMs / 60000);
-    
-        // Check if the duration exceeds 5 minutes
-        if (durationMinutes <= 5) {
-            // If the duration is less than or equal to 5 minutes, save the information to the database
-            // Convert milliseconds to hours, minutes, and seconds
-            const hours = Math.floor(durationMs / 3600000);
-            const minutes = Math.floor((durationMs % 3600000) / 60000);
-            const seconds = Math.floor((durationMs % 60000) / 1000);
-            const durationFormatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    
-            // Check if the user already exists in the database
-            let existingUserKPI = await UserKPI.findOne({ telegramId: ctx.from.id });
-            if (existingUserKPI) {
-                // If the user exists, update the scene details
-                existingUserKPI.scene.push({
-                    name: 'PaymentScene',
-                    enterTime: enterTime,
-                    leaveTime: leaveTime,
-                    duration: durationFormatted
-                });
-                await existingUserKPI.save();
-            } else {
-                // If the user doesn't exist, create a new UserKPI document
-                const newUserKPI = new UserKPI({
-                    telegramId: ctx.from.id,
-                    scene: [{
-                        name: 'PaymentScene',
-                        enterTime: enterTime,
-                        leaveTime: leaveTime,
-                        duration: durationFormatted
-                    }]
-                });
-                await newUserKPI.save();
-            }
-        }
+
+        await updateSceneDuration(ctx, durationMs, "Payment_Scene")
     } catch (error) {
         console.error('Error saving UserKPI in homeScene.leave:', error);
     }

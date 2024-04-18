@@ -2,8 +2,7 @@
 import mongoose, { Document, Model, model, Schema } from 'mongoose';
 interface IScene extends Document {
     name: string;
-    enterTime?: Date;
-    leaveTime?: Date;
+    date?: Date;
     duration?: string;
 }
 
@@ -17,15 +16,13 @@ const sceneSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    enterTime: {
-        type: Date
-    },
-    leaveTime: {
-        type: Date
-    },
     duration: {
         type: String
-    }
+    },
+    date: {
+        type: Date,
+        default: Date.now
+      },
 });
 const userKPISchema = new mongoose.Schema<IUserKPI>({
     telegramId: {
