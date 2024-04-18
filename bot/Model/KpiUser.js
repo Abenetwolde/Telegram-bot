@@ -11,15 +11,20 @@ const userKPISchema = new mongoose.Schema({
             type: String,
             required: true
         },
-        enterTime: {
-            type: Date
-        },
-        leaveTime: {
-            type: Date
-        },
+
+        // enterTime: {
+        //     type: Date
+        // },
+        // leaveTime: {
+        //     type: Date
+        // },
         duration: {
             type: String
-        }
+        },
+        date: {
+            type: Date,
+            default: Date.now
+          },
     }]
 });
 

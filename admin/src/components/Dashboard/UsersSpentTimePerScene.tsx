@@ -38,8 +38,34 @@ const options =merge(BaseOptionChart(), {
       },
     },
   },
+  dataLabels: {
+    enabled: true,
+    textAnchor: 'start',
+    style: {
+      colors: ['#fff']
+    },
+    formatter: function (val, opt) {
+      return  opt.w.globals.labels[opt.dataPointIndex] + ":  " + `${Number(val).toFixed(2)} minute`
+    },
+    offsetX: 0,
+    dropShadow: {
+      enabled: true
+    }
+  },
+  stroke: {
+    width: 1,
+    colors: ['#fff']
+  },
   plotOptions: {
-    bar: { horizontal: true, barHeight: '28%', borderRadius: 2 },
+    bar: {
+      barHeight: '100%',
+      borderRadius:0,
+      distributed: true,
+      horizontal: true,
+      dataLabels: {
+        position: 'bottom'
+      },
+    }
   },
   xaxis: {
     categories: label,
