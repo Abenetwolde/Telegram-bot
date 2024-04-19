@@ -5,6 +5,7 @@ const { getUserOrders, cancelOrder } = require("../Database/orderController");
 const { ReturnDocument } = require("mongodb");
 const UserKPI = require("../Model/KpiUser");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
+const { updateClicks } = require("../Utils/calculateClicks");
 const myOrderScene = new Scenes.BaseScene("myOrderScene");
 
 myOrderScene.enter(async (ctx) => {
@@ -167,7 +168,8 @@ myOrderScene.action(/cancel_order:(.+)/, async (ctx) => {
     } else {
         await ctx.answerCbQuery("Failed to cancel the order.");
     }
-
+  
+    await updateClicks(ctx,"order","order")
 });
 
 // Handle user's confirmation
@@ -188,6 +190,7 @@ myOrderScene.action(/confirm_cancel:(.+)/, async (ctx) => {
         } else { 
             await ctx.answerCbQuery("Failed to cancel the order.");
         }
+        await updateClicks(ctx,"order","order")
     } catch (error) {
         console.log(error);
     }
@@ -204,7 +207,7 @@ myOrderScene.action('reject_cancel', async (ctx) => {
   } catch (error) {
     console.log("erorr", error);
   }
-    
+  await updateClicks(ctx,"order","order")
 });
 myOrderScene.hears("My Order History", async (ctx) => {
     if (ctx.session.cleanUpState) {
@@ -271,6 +274,7 @@ myOrderScene.hears("My Order History", async (ctx) => {
 
         // await ctx.reply("To go back to home, press 🏠 Home", Markup.keyboard([Markup.button.callback("🏠 Home", "home")]).resize());
     }
+    await updateClicks(ctx,"order","order")
 });
 myOrderScene.hears("🏠 Home", async (ctx) => {
     await ctx.scene.enter("homeScene");
@@ -278,11 +282,11 @@ myOrderScene.hears("🏠 Home", async (ctx) => {
 });
 myOrderScene.hears("My Order", async (ctx) => {
     await ctx.scene.reenter();
-
+    await updateClicks(ctx,"order","order")
 });
 myOrderScene.action("Back", async (ctx) => {
     await ctx.scene.reenter();
-
+    await updateClicks(ctx,"order","order")
 });
 myOrderScene.leave(async (ctx) => {
     try {

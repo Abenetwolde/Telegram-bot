@@ -12,6 +12,8 @@ const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
 const { match } = require("telegraf-i18next");
 const KpiProducts = require("../Model/KpiProduct");
+const { updateClicks } = require("../Utils/calculateClicks");
+const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 // const apiUrl = 'https://backend-vg1d.onrender.com';
 const productSceneTest = new Scenes.BaseScene('product');
 productSceneTest.enter(async (ctx) => {
@@ -65,12 +67,15 @@ productSceneTest.action('Previous', async (ctx) => {
     if (ctx.session.currentPage > 0) {
         ctx.session.currentPage--;
         await sendPage(ctx);
+
+        await updateClicks(ctx,"product","product")
     }
 });
 productSceneTest.action('Next', async (ctx) => {
     if ((ctx.session.currentPage) * pageSize < ctx.session.totalNumberProducts) {
         ctx.session.currentPage++;
         await sendPage(ctx);
+        await updateClicks(ctx,"product","product")
     }
 });
 
@@ -78,6 +83,7 @@ productSceneTest.hears(match('cart'), async (ctx) => {
 
     
     await ctx.scene.enter('cart');
+    await updateClicks(ctx,"product","product")
 });
 productSceneTest.action('Home', async (ctx) => {
     try {
@@ -105,6 +111,7 @@ productSceneTest.action('Home', async (ctx) => {
         await ctx.reply(error)
 
     }
+    await updateClicks(ctx,"product","product")
     ctx.session.shouldContinueSending = false
 
 });
@@ -131,6 +138,7 @@ productSceneTest.hears(match('Home'), async (ctx) => {
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
         await ctx.scene.enter('homeScene');
+        await updateClicks(ctx,"product","product")
     } catch (error) {
         await ctx.reply(error)
 
@@ -173,6 +181,7 @@ productSceneTest.action('Checkout', async (ctx) => {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
     await ctx.scene.enter('cart');
+    await updateClicks(ctx,"product","product")
 
 });
 productSceneTest.action(/size_(.+)_([^_]+)/, async (ctx) => {
@@ -222,63 +231,7 @@ productSceneTest.action(/next_(.+)/, async(ctx) => {
         // return
     }
    await sendProduct(ctx, productId, product[0]);
-   const userId = ctx.from.id
-   let clickCount = await KpiProducts.findOne({
-    product: productId,
-     
-   });
-   console.log("clickCount", clickCount);
-   if (!clickCount) {
-       try {
-           createclickCount = new KpiProducts({
-               product: productId,
-               clicks: [{
-                   // date: today,
-                   count: 1,
-                   userId: String(userId)
-               }]
-           });
-           await createclickCount.save()
-           console.log("clickCount1", clickCount);
-       } catch (error) {
-           console.log("error", error)
-       }
- 
-
-   } else {
-       const today = new Date();
-       today.setHours(0, 0, 0, 0); // Set to the beginning of the day
-       const tomorrow = new Date(today);
-       tomorrow.setDate(tomorrow.getDate() + 1);
-      
-       let clickCount1 = await KpiProducts.findOne({
-           product: productId,   clicks: {
-               $elemMatch: { 
-                 userId: userId, 
-                  date: { $gte: today, $lt: tomorrow } // Filter clicks for today
-                } 
-             }
-       });
-       console.log("clickCount......of>>perdate", clickCount1)
-       // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
-       // const lastDate = new Date(lastClick.date);
-
-       if (clickCount1!==null) {
-           clickCount1.clicks[0].count++;
-       } else {
-           let list = await KpiProducts.findOne({
-               product: productId
-           });
-          await list.clicks.push({
-               date: today,
-                count: 1,
-               userId: String(userId) 
-           }); 
-           await list.save()
-           console.log("clickCount......of>>perdate", list)
-       }
-       await clickCount1.save()
-    }
+   await updateClicks(ctx,"product",productId)
 });
 
 // When the user clicks on a "Previous" inline button, update the current image productId for that product and send an updated message using the sendProduct function
@@ -300,63 +253,7 @@ productSceneTest.action(/previous_(.+)/, async(ctx) => {
 
     sendProduct(ctx, productId, product[0]);
 
-    const userId = ctx.from.id
-    let clickCount = await KpiProducts.findOne({
-     product: productId,
-      
-    });
-    console.log("clickCount", clickCount);
-    if (!clickCount) {
-        try {
-            createclickCount = new KpiProducts({
-                product: productId,
-                clicks: [{
-                    // date: today,
-                    count: 1,
-                    userId: String(userId)
-                }]
-            });
-            await createclickCount.save()
-            console.log("clickCount1", clickCount);
-        } catch (error) {
-            console.log("error", error)
-        }
-  
- 
-    } else {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to the beginning of the day
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-       
-        let clickCount1 = await KpiProducts.findOne({
-            product: productId,   clicks: {
-                $elemMatch: { 
-                  userId: userId, 
-                   date: { $gte: today, $lt: tomorrow } // Filter clicks for today
-                 } 
-              }
-        });
-
-        // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
-        // const lastDate = new Date(lastClick.date);
- 
-        if (clickCount1!==null) {
-            clickCount1.clicks[0].count++;
-        } else {
-            let list = await KpiProducts.findOne({
-                product: productId
-            });
-           await list.clicks.push({
-                date: today,
-                 count: 1,
-                userId: String(userId) 
-            }); 
-            await list.save()
-         
-        }
-        await clickCount1.save()
-     }
+    await updateClicks(ctx,"product",productId)
 });
 
 productSceneTest.action(/viewMore_(.+)/,async (ctx) => {
@@ -373,57 +270,7 @@ productSceneTest.action(/viewMore_(.+)/,async (ctx) => {
       
     });
     console.log("clickCount", clickCount);
-    if (!clickCount) {
-        try {
-            createclickCount = new KpiProducts({
-                product: productId,
-                clicks: [{
-                    // date: today,
-                    count: 1,
-                    userId: String(userId)
-                }]
-            });
-            await createclickCount.save()
-            console.log("clickCount1", clickCount);
-        } catch (error) {
-            console.log("error", error)
-        }
-  
- 
-    } else {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to the beginning of the day
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-       
-        let clickCount1 = await KpiProducts.findOne({
-            product: productId,   clicks: {
-                $elemMatch: { 
-                  userId: userId, 
-                   date: { $gte: today, $lt: tomorrow } // Filter clicks for today
-                 } 
-              }
-        });
-       
-        // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
-        // const lastDate = new Date(lastClick.date);
- 
-        if (clickCount1!==null) {
-            clickCount1.clicks[0].count++;
-        } else {
-            let list = await KpiProducts.findOne({
-                product: productId
-            });
-           await list.clicks.push({
-                date: today,
-                 count: 1,
-                userId: String(userId) 
-            }); 
-            await list.save()
-          
-        }
-        await clickCount1.save()
-     }
+    await updateClicks(ctx,"product",productId)
 });
 
 productSceneTest.action(/viewLess_(.+)/, async(ctx) => {
@@ -439,58 +286,7 @@ productSceneTest.action(/viewLess_(.+)/, async(ctx) => {
      product: productId,
       
     });
-    console.log("clickCount", clickCount);
-    if (!clickCount) {
-        try {
-            createclickCount = new KpiProducts({
-                product: productId,
-                clicks: [{
-                    // date: today,
-                    count: 1,
-                    userId: String(userId)
-                }]
-            });
-            await createclickCount.save()
-            console.log("clickCount1", clickCount);
-        } catch (error) {
-            console.log("error", error)
-        }
-  
- 
-    } else {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to the beginning of the day
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-       
-        let clickCount1 = await KpiProducts.findOne({
-            product: productId,   clicks: {
-                $elemMatch: { 
-                  userId: userId, 
-                   date: { $gte: today, $lt: tomorrow } // Filter clicks for today
-                 } 
-              }
-        });
-      
-        // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
-        // const lastDate = new Date(lastClick.date);
- 
-        if (clickCount1!==null) {
-            clickCount1.clicks[0].count++;
-        } else {
-            let list = await KpiProducts.findOne({
-                product: productId
-            });
-           await list.clicks.push({
-                date: today,
-                 count: 1,
-                userId: String(userId) 
-            }); 
-            await list.save()
-          
-        }
-        await clickCount1.save()
-     }
+    await updateClicks(ctx,"product",productId)
 });
 
 productSceneTest.action(/buy_(.+)/, async (ctx) => {
@@ -571,6 +367,7 @@ productSceneTest.action(/buy_(.+)/, async (ctx) => {
         console.error('Error handling buy action:', error);
         await ctx.answerCbQuery('Failed to add the product to your cart.');
     }
+    await updateClicks(ctx,"product",productId)
 });
 productSceneTest.action(/addQuantity_(.+)/, async (ctx) => {
     const productId = ctx.match[1];
@@ -592,62 +389,7 @@ console.log("productArg", productArg)
         // Send the product information to the user
         sendProduct(ctx, productId, productArg);
         // const userId = ctx.from.id
-        let clickCount = await KpiProducts.findOne({
-         product: productId,
-          
-        });
-        console.log("clickCount", clickCount);
-        if (!clickCount) {
-            try {
-                createclickCount = new KpiProducts({
-                    product: productId,
-                    clicks: [{
-                        // date: today,
-                        count: 1,
-                        userId: String(userId)
-                    }]
-                });
-                await createclickCount.save()
-                console.log("clickCount1", clickCount);
-            } catch (error) {
-                console.log("error", error)
-            }
-      
-     
-        } else {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set to the beginning of the day
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-           
-            let clickCount1 = await KpiProducts.findOne({
-                product: productId,   clicks: {
-                    $elemMatch: { 
-                      userId: userId, 
-                       date: { $gte: today, $lt: tomorrow } // Filter clicks for today
-                     } 
-                  }
-            });
-            console.log("clickCount......of>>perdate", clickCount1)
-            // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
-            // const lastDate = new Date(lastClick.date);
-     
-            if (clickCount1!==null) {
-                clickCount1.clicks[0].count++;
-            } else {
-                let list = await KpiProducts.findOne({
-                    product: productId
-                });
-               await list.clicks.push({
-                    date: today,
-                     count: 1,
-                    userId: String(userId) 
-                }); 
-                await list.save()
-                console.log("clickCount......of>>perdate", list)
-            }
-            await clickCount1.save()
-         }
+        await updateClicks(ctx,"product",productId)
         // Send a confirmation message
         await ctx.answerCbQuery(`You have added ${quantity} of product ${productArg.name} to your cart.`);
     } catch (error) {
@@ -676,76 +418,7 @@ productSceneTest.action(/removeQuantity_(.+)/, async (ctx) => {
         // console.log("removed item...",productArg)
         sendProduct(ctx, productId, productArg);
         await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
-        // const userId = ctx.from.id;
-        // const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
-
-        // // Parse the returned JSON string to access the data
-        // const { product, quantity,cartId } = JSON.parse(updatedCartItem);
-        // const productArg = { ...product, quantity };
-        // if (productArg.quantity === 0) {
-        //     await ctx.answerCbQuery(`You have removed ${productArg.name} of product from your cart.`);
-        //     await removeItemFromCart(cartId,productId)
-        //     sendProduct(ctx, productId, productArg);
-        //     await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
-        //     return;
-        // }
-        const userId = ctx.from.id
-        let clickCount = await KpiProducts.findOne({
-         product: productId,
-          
-        });
-        console.log("clickCount", clickCount);
-        if (!clickCount) {
-            try {
-                createclickCount = new KpiProducts({
-                    product: productId,
-                    clicks: [{
-                        // date: today,
-                        count: 1,
-                        userId: String(userId)
-                    }]
-                });
-                await createclickCount.save()
-                console.log("clickCount1", clickCount);
-            } catch (error) {
-                console.log("error", error)
-            }
-      
-     
-        } else {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set to the beginning of the day
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-           
-            let clickCount1 = await KpiProducts.findOne({
-                product: productId,   clicks: {
-                    $elemMatch: { 
-                      userId: userId, 
-                       date: { $gte: today, $lt: tomorrow } // Filter clicks for today
-                     } 
-                  }
-            });
-            console.log("clickCount......of>>perdate", clickCount1)
-            // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
-            // const lastDate = new Date(lastClick.date);
-     
-            if (clickCount1!==null) {
-                clickCount1.clicks[0].count++;
-            } else {
-                let list = await KpiProducts.findOne({
-                    product: productId
-                });
-               await list.clicks.push({
-                    date: today,
-                     count: 1,
-                    userId: String(userId) 
-                }); 
-                await list.save()
-                console.log("clickCount......of>>perdate", list)
-            }
-            await clickCount1.save()
-         }
+        await updateClicks(ctx,"product",productId)
         // // console.log("removed item...",productArg)
         // sendProduct(ctx, productId, productArg);
         // await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
@@ -767,6 +440,7 @@ productSceneTest.action(/remove_(.+)/, async (ctx) => {
             await removeItemFromCart(userId, productId)
         }
         sendProduct(ctx, productId, productArg);
+        await updateClicks(ctx,"product",productId)
         await ctx.answerCbQuery(`You have removed ${productArg.quantity} of product ${productArg.name} from your cart.`);
     } catch (error) {
         console.error('Error handling removeQuantity action:', error);
@@ -884,42 +558,9 @@ productSceneTest.leave(async (ctx) => {
         const enterTime = ctx.scene.state.enterTime;
         const durationMs = new Date(leaveTime - enterTime);
         // Convert milliseconds to minutes
-        const durationMinutes = Math.floor(durationMs / 60000);
+
     
-        // Check if the duration exceeds 5 minutes
-        if (durationMinutes <= 5) {
-            // If the duration is less than or equal to 5 minutes, save the information to the database
-            // Convert milliseconds to hours, minutes, and seconds
-            const hours = Math.floor(durationMs / 3600000);
-            const minutes = Math.floor((durationMs % 3600000) / 60000);
-            const seconds = Math.floor((durationMs % 60000) / 1000);
-            const durationFormatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    
-            // Check if the user already exists in the database
-            let existingUserKPI = await UserKPI.findOne({ telegramId: ctx.from.id });
-            if (existingUserKPI) {
-                // If the user exists, update the scene details
-                existingUserKPI.scene.push({
-                    name: 'ProductScene',
-                    enterTime: enterTime,
-                    leaveTime: leaveTime,
-                    duration: durationFormatted
-                });
-                await existingUserKPI.save();
-            } else {
-                // If the user doesn't exist, create a new UserKPI document
-                const newUserKPI = new UserKPI({
-                    telegramId: ctx.from.id,
-                    scene: [{
-                        name: 'ProductScene',
-                        enterTime: enterTime,
-                        leaveTime: leaveTime,
-                        duration: durationFormatted
-                    }]
-                });
-                await newUserKPI.save();
-            }
-        }
+  await updateSceneDuration(ctx, durationMs, 'Product_Scene');
     } catch (error) {
         console.error('Error saving UserKPI in homeScene.leave:', error);
     }

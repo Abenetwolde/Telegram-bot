@@ -2,6 +2,7 @@ const { Scenes, Markup, session } = require("telegraf")
 const FeedBack =require ("../Model/feedback")
 const UserKPI = require("../Model/KpiUser");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
+const { updateClicks } = require("../Utils/calculateClicks");
 const feedback = new Scenes.BaseScene("feedback")
 let isedit = false
 feedback.enter(async (ctx) => {
@@ -35,6 +36,8 @@ ctx.session.userfeedback=ctx.message.text;
 });
 feedback.action("❌ Cancel", async (ctx) => {
     await ctx.scene.enter("homeScene")
+
+    await updateClicks(ctx,"feedback","feedback")
 })
 
 feedback.action("confirm", async (ctx) => {
@@ -52,6 +55,7 @@ feedback.action("confirm", async (ctx) => {
     if(result){
     ctx.session.userfeedback=""
     const feedbackmessage = await ctx.replyWithHTML(`Your Feedback has been sent!seccessfuly `)
+    await updateClicks(ctx,"feedback","feedback")
     await ctx.scene.leave()
     }
 

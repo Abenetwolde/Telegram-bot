@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
-
+const Schema = mongoose.Schema;
 const userKPISchema = new mongoose.Schema({
-    telegramId: {
-        type: String,
+    telegramid: {
+        type: Number,
         required: true,
         unique: true
     },
+    user: { type: Schema.Types.ObjectId, ref: 'User' } ,
     scene: [{
         name: {
             type: String,

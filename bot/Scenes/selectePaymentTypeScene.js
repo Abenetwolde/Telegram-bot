@@ -7,6 +7,7 @@ const { sendProdcutSummary } = require("../Templeat/summary")
 const selectePaymentType = new Scenes.BaseScene("selectePaymentType")
 const UserKPI=require("../Model/KpiUser");
 const { i18next, t } = require("telegraf-i18next")
+const { updateClicks } = require("../Utils/calculateClicks")
 /**
  * Upon entering, scene contains:
  * 1. Voucher applied from cart scene (i.e. ctx.scene.state.voucher)
@@ -43,6 +44,7 @@ selectePaymentType.action("online", async (ctx) => {
     }
     // await sendProdcutSummary(ctx)
     await ctx.scene.enter("addressOnline");
+    await updateClicks(ctx,"selectePaymentType","selectePaymentType")
 });
 selectePaymentType.action("cash", async (ctx) => {
     // ctx.session.paymentType="Chash"
@@ -52,6 +54,7 @@ selectePaymentType.action("cash", async (ctx) => {
         paymentType: 'Cash'
     }
     await ctx.scene.enter("informationCash");
+    await updateClicks(ctx,"selectePaymentType","selectePaymentType")
     // await sendProdcutSummary(ctx)
     // await ctx.reply("your order is seccessfully............ here is your order number #23784 ")
     // await ctx.scene.leave()
@@ -61,6 +64,8 @@ selectePaymentType.action("cash", async (ctx) => {
 selectePaymentType.action("Home", async (ctx) => {
 
     await ctx.scene.enter("homeScene");
+       
+    await updateClicks(ctx,"selectePaymentType","selectePaymentType")
   
 });
 selectePaymentType.leave(async (ctx) => {

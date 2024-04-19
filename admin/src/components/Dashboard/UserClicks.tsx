@@ -5,16 +5,13 @@ import api from '../../services/api';
 import { Box, Typography } from '@mui/material';
 
 const UserClicks = ({filter}:any) => {
-  const [chartData, setChartData] = useState({
-    totalClicks: 0,
-    clicksByDate: []
-  });
+  const [chartData, setChartData] = useState([]);
 console.log("....................", filter);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await api.get(`kpi/get-user-clicks?interval=${filter}`);
-        setChartData(response.data);
+        setChartData(response.data?.clicksByDate);
         console.log(response.data)
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -23,12 +20,18 @@ console.log("....................", filter);
 
     fetchData();
   }, [filter]);
-console.log(chartData)
+const xAxis=chartData?.map(data => data?.clicksByDate?.map((d)=>d?.date))
+const yAxis=chartData?.map(data => data?.clicksByDate?.map((d)=>d?.totalProductClicks))
+console.log(xAxis[0])
   return (
     <div>
-        <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-end', alignItems: 'center' }}>
-             {chartData?.totalClicks!==0?<Typography  > Total Clicks: {chartData?.totalClicks&&chartData?.totalClicks.toFixed(2)} Clicks {filter}</Typography>:<Typography>There isnt any Click {filter}</Typography>} 
-              </Box>
+              <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-end', alignItems: 'center' }}>
+        {chartData.length > 0 ? (
+          <Typography>Total Clicks: {chartData[0]?.totalClicks && chartData[0]?.totalClicks.toFixed(2)} Clicks {filter}</Typography>
+        ) : (
+          <Typography>There aren't any Clicks {filter}</Typography>
+        )}
+      </Box>
       {/* <div id="chart"> */}
         <ReactApexChart
           options={{
@@ -56,12 +59,12 @@ console.log(chartData)
               },
             },
             xaxis: {
-              categories: chartData?.clicksByDate?.map(data => data.date),
+              categories: xAxis[0],
             }
           }}
           series={[{
             name: 'Total Clicks',
-            data: chartData?.clicksByDate?.map(data => data.totalClicks)
+            data: yAxis[0],
           }]}
           type="line"
           height={"100%"}

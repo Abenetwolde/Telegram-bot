@@ -441,7 +441,7 @@ mongoClient.connect()
               console.log("response.data", response)
 
               await ctx.reply(response.token)
-
+              ctx.session.userid = response.userid.toString();
               ctx.session.token = response.token;
             }
             catch (error) {
@@ -472,6 +472,7 @@ mongoClient.connect()
 
 
               ctx.session.token = response.token;
+              ctx.session.userid = response.userid.toString();
             }
             catch (error) {
               if (error.message == 'User already exists!') {

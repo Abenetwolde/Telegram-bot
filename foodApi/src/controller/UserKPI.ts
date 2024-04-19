@@ -4,6 +4,7 @@ import UserKPI from '../model/UserKpi';
 import KpiProducts from '../model/KpiProduct';
 import KpiCategorys from '../model/KpiCategory';
 import User from '../model/user.model';
+import clickKpi from '../model/UserClicks';
 
 
 export const GetUSerSpentTime = async (req: Request, res: Response) => {
@@ -315,45 +316,53 @@ export const totalNumberofClicks = async (req: Request, res: Response) => {
                 break;
 
         }
-        let totalProductClicksResult = [];
-        let totalCategoryClicksResult = [];
+        let totalProductClicksResult:any = null;
+    
 
         if (interval === "perWeek" || interval === "perMonth") {
-            totalProductClicksResult = await KpiProducts.aggregate([
+             totalProductClicksResult = await clickKpi.aggregate(
+
+                [
+                { $unwind: '$clicks' },
                 {
                     $match: {
                         'clicks.date': { $gte: startDate, $lte: endDate }
                     }
                 },
-                {
-                    $unwind: '$clicks'
-                },
+              
                 {
                     $group: {
                         _id: { $dateToString: { format: "%Y-%m-%d", date: "$clicks.date" } },
                         totalProductClicks: { $sum: '$clicks.count' }
                     }
-                }
-            ]);
-
-            totalCategoryClicksResult = await KpiCategorys.aggregate([
-                {
-                    $match: {
-                        'clicks.date': { $gte: startDate, $lte: endDate }
-                    }
                 },
                 {
-                    $unwind: '$clicks'
+                    $sort: {
+                        "_id": 1 // Sort the dates in ascending order
+                    }
                 },
                 {
                     $group: {
-                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$clicks.date" } },
-                        totalCategoryClicks: { $sum: '$clicks.count' }
+                        _id: null,
+                        totalClicks: { $sum: '$totalProductClicks' }, // Sum of totalProductClicks
+                        clicksByDate: { $push: { date: '$_id', totalProductClicks: '$totalProductClicks' } }
+                    }
+                },
+        
+                {
+                    $project: {
+                        _id: 0, // Exclude the _id field
+                        totalClicks: 1,
+                        clicksByDate: 1
                     }
                 }
-            ]);
+                
+            ]
+            )
+
+       
         } else if (interval === "perYear") {
-            totalProductClicksResult = await KpiProducts.aggregate([
+            totalProductClicksResult = await clickKpi.aggregate([
                 {
                     $match: {
                         'clicks.date': { $gte: startDate, $lte: endDate }
@@ -367,50 +376,35 @@ export const totalNumberofClicks = async (req: Request, res: Response) => {
                         _id: { $dateToString: { format: "%Y-%m", date: "$clicks.date" } },
                         totalProductClicks: { $sum: '$clicks.count' }
                     }
-                }
-            ]);
-
-            totalCategoryClicksResult = await KpiCategorys.aggregate([
-                {
-                    $match: {
-                        'clicks.date': { $gte: startDate, $lte: endDate }
-                    }
                 },
                 {
-                    $unwind: '$clicks'
+                    $sort: {
+                        "_id": 1 // Sort the dates in ascending order
+                    }
                 },
                 {
                     $group: {
-                        _id: { $dateToString: { format: "%Y-%m", date: "$clicks.date" } },
-                        totalCategoryClicks: { $sum: '$clicks.count' }
+                        _id: null,
+                        totalClicks: { $sum: '$totalProductClicks' }, // Sum of totalProductClicks
+                        clicksByDate: { $push: { date: '$_id', totalProductClicks: '$totalProductClicks' } }
+                    }
+                },
+             
+                {
+                    $project: {
+                        _id: 0, // Exclude the _id field
+                        totalClicks: 1,
+                        clicksByDate: 1
                     }
                 }
             ]);
+
+        
         }
 
-        // Combine the results for KpiProduct and KpiCategory
-        const combinedResults: any = {};
-        totalProductClicksResult.forEach(result => {
-            combinedResults[result._id] = (combinedResults[result._id] || 0) + result.totalProductClicks;
-        });
-        totalCategoryClicksResult.forEach(result => {
-            combinedResults[result._id] = (combinedResults[result._id] || 0) + result.totalCategoryClicks;
-        });
-
-        // Calculate the sum of total clicks
-        const sum: any = Object.values(combinedResults).reduce((acc: any, val) => acc + val, 0);
-        const sortedDates = Object.keys(combinedResults).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-
-        // Create an array of objects containing sorted dates and total clicks
-        const sortedResults = sortedDates.map(date => ({
-            date,
-            totalClicks: combinedResults[date]
-        }));
-
-        // Send the combined JSON response
         res.json({
-            totalClicks: sum,
-            clicksByDate: sortedResults
+            // totalClicks: sum,
+            clicksByDate: totalProductClicksResult
         });
 
     } catch (error) {
@@ -555,7 +549,7 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
             {
                 $group: {
                     _id: {
-                        telegramId: '$telegramId',
+                        telegramid: '$telegramid',
                         sceneName: '$scene.name'
                     },
                     totalDuration: {
@@ -571,8 +565,8 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
             },
             {
                 $group: {
-                    _id: '$_id.telegramId', // Group by telegramId
-                    totalSpentTime: { $sum: '$totalDuration' }, // Total spent time by each user
+                    _id: '$_id.telegramid', // Group by telegramId
+                    totalSpentTimeInSeconds: { $sum: '$totalDuration' },// Total spent time by each user
                     scenes: {
                         $push: {
                             sceneName: '$_id.sceneName',
@@ -582,16 +576,44 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
                 }
             },
             {
-                $lookup: {
-                    from: 'User', // Collection to join
-                    localField: '_id', // Field from the input documents
-                    foreignField: 'telegramid', // Field from the documents of the "from" collection
-                    as: 'userData' // Output array field
+                $addFields: {
+                    totalSpentTimeInMinutes: { $divide: ['$totalSpentTimeInSeconds', 60] } // Convert total duration to minutes
                 }
             },
-            { $unwind: '$userData' } // Unwind the user data array
+            {
+                $unset: 'totalSpentTimeInSeconds' // Remove the totalSpentTimeInSeconds field
+            },
+            {
+                $sort: {
+                    totalSpentTimeInMinutes: -1 // Sort in ascending order
+                }
+            }
+            // {
+            //     $lookup: {
+            //         from: 'User', // Collection to join
+            //         localField: '_id', // Field from the input documents (UserKPI collection)
+            //         foreignField: '_id', // Field from the documents of the "from" collection (User collection)
+            //         as: 'userData' // Output array field
+            //     }
+            // },
+            // {
+            //     $unwind: {
+            //         path: '$scene',
+            //         preserveNullAndEmptyArrays: true // Preserve documents with empty or missing scene arrays
+            //     }
+            // } // Unwind the user data array
         ]);
-         res.json({timeSpentPerScene:results});
+        const mappedResults = await Promise.all(results.map(async (result: any) => {
+            // Find user information
+            const user = await User.findOne({ telegramid: result._id }).select('telegramid first_name username');;
+
+            return {
+                ...result,
+                user
+            };
+        }));
+
+        res.json({ timeSpentPerScene: mappedResults });
      
 
 

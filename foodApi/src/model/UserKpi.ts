@@ -7,8 +7,9 @@ interface IScene extends Document {
 }
 
 interface IUserKPI extends Document {
-    telegramId: string;
+    telegramid: Number;
     scene: IScene[];
+    user: any; // FIXME: add User type
 }
 
 const sceneSchema = new mongoose.Schema({
@@ -25,12 +26,13 @@ const sceneSchema = new mongoose.Schema({
       },
 });
 const userKPISchema = new mongoose.Schema<IUserKPI>({
-    telegramId: {
-        type: String,
+    telegramid: {
+        type: Number,
         required: true,
         unique: true
     },
-    scene: [sceneSchema]
+    scene: [sceneSchema],
+    user: { type: Schema.Types.ObjectId, ref: 'User' } 
 });
 
 const UserKPI: Model<IUserKPI> = mongoose.model('UserKPI', userKPISchema);

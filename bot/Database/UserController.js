@@ -12,7 +12,7 @@ async function createUser(data) {
     let user = await Users.findOne({ telegramid: data.telegramid });
 
     if (user) {
-      return { token: user.token, message: 'User already registered.' };
+      return { token: user.token,  userid: user._id,message: 'User already registered.' };
     } else {
       const token = jwt.sign(
         { userId: data.telegramid },

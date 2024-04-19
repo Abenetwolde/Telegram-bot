@@ -10,6 +10,7 @@ const UserKPI = require("../Model/KpiUser");
 const User = require("../Model/user");
 const KpiCategorys = require("../Model/KpiCategory");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
+const { updateClicks } = require("../Utils/calculateClicks");
 homeScene.enter(async (ctx) => {
     try {
         if (ctx.session.cleanUpState) {
@@ -107,79 +108,74 @@ homeScene.action(/category_(.+)/, async (ctx) => {
 
 
     const userId = ctx.from.id.toString()
-    let clickCount = await KpiCategorys.findOne({
-        category: categoryId,  
-      
-    });
-    console.log("clickCount", clickCount);
-    if (!clickCount) {
-        try {
-            createclickCount = await new KpiCategorys({
-                category: categoryId,
-                clicks: [{
-                    // date: today,
-                    count: 1,
-                    userId: String(userId)
-                }]
-            });
-            await createclickCount.save()
-            // console.log("clickCount1", clickCount);
-        } catch (error) {
-            console.log("error", error)
-        }
+
+await updateClicks(ctx,"category",categoryId)
+    // if (!clickCount) {
+    //     try {
+    //         createclickCount = await new KpiCategorys({
+    //             category: categoryId,
+    //             clicks: [{
+    //                 // date: today,
+    //                 count: 1,
+    //                 userId: String(userId)
+    //             }]
+    //         });
+    //         await createclickCount.save()
+    //         // console.log("clickCount1", clickCount);
+    //     } catch (error) {
+    //         console.log("error", error)
+    //     }
 
 
-    } else {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to the beginning of the day
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        let clickCount1 = await KpiCategorys.findOne({
-            category: categoryId,   clicks: {
-                $elemMatch: { 
-                  userId: userId, 
-                   date: { $gte: today, $lt: tomorrow } // Filter clicks for today
-                 } 
-              }
-        });
-        console.log("userId.............", userId);
-        console.log("clickCount......of>>perdate", clickCount1)
-        // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
-        // const lastDate = new Date(lastClick.date);
+    // } else {
+    //     const today = new Date();
+    //     today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+    //     const tomorrow = new Date(today);
+    //     tomorrow.setDate(tomorrow.getDate() + 1);
+    //     let clickCount1 = await KpiCategorys.findOne({
+    //         category: categoryId,   clicks: {
+    //             $elemMatch: { 
+    //               userId: userId, 
+    //                date: { $gte: today, $lt: tomorrow } // Filter clicks for today
+    //              } 
+    //           }
+    //     });
 
-        if (clickCount1!==null) {
-            const todayClick = clickCount1.clicks.find(click => {
-                // Ensure the date comparison is in UTC
-                const clickDate = new Date(click.date);
-                return click.userId === userId && clickDate >= today && clickDate < tomorrow;
-            });
+
+    //     if (clickCount1!==null) {
+    //         const todayClick = clickCount1.clicks.find(click => {
+    //             // Ensure the date comparison is in UTC
+    //             const clickDate = new Date(click.date);
+    //             return click.userId === userId && clickDate >= today && clickDate < tomorrow;
+    //         });
         
-            if (todayClick) {
-                todayClick.count++;
-                await clickCount1.save();
-                console.log("Count incremented successfully.");
-            } else {
-                console.log("No click found for today.");
-            }
-            // await clickCount1.clicks[0].count++;
+    //         if (todayClick) {
+    //             todayClick.count++;
+    //             await clickCount1.save();
+    //             console.log("Count incremented successfully.");
+    //         } else {
+    //             console.log("No click found for today.");
+    //         }
+    //         // await clickCount1.clicks[0].count++;
             
-        } else {
-            let list = await KpiCategorys.findOne({
-                category: categoryId
-            });
+    //     } else {
+    //         let list = await KpiCategorys.findOne({
+    //             category: categoryId
+    //         });
   
-             list.clicks.push({
-                 count: 1,
-                userId: String(userId)
-            });
-            await list.save()
-            console.log("clickCount......of>>perdate", list)
-        }
-        // await clickCount1.save()
+    //          list.clicks.push({
+    //              count: 1,
+    //             userId: String(userId)
+    //         });
+    //         await list.save()
+    //         console.log("clickCount......of>>perdate", list)
+    //     }
+    //     // await clickCount1.save()
 
 
         
-    }
+    // }
+
     // await clickCount.save()
     // ctx.scene.enter('product',  { category: categoryId });
     await ctx.scene.enter('product', { category: { id: categoryId, name: categoryName, icon: categoryIcon } });
@@ -187,22 +183,27 @@ homeScene.action(/category_(.+)/, async (ctx) => {
 }); 
 homeScene.hears(match('Search'), async (ctx) => {
     await ctx.scene.enter("searchProduct")
+    await updateClicks(ctx,"home_scene","home_scene")
 })
 
 homeScene.hears(match('cart'), async (ctx) => {
     await ctx.scene.enter("cart")
+    await updateClicks(ctx,"home_scene","home_scene")
 })
 homeScene.hears(match('order'), async (ctx) => {
     await ctx.scene.enter("myOrderScene")
+    await updateClicks(ctx,"home_scene","home_scene")
 })
 homeScene.hears(match('contactus'), async (ctx) => {
     await ctx.reply('📥 Contact me \n ✍️ Support: @abman',)
 })
 homeScene.hears(match('feedback'), async (ctx) => {
     await ctx.scene.enter("feedback")
+    await updateClicks(ctx,"home_scene","home_scene")
 })
 homeScene.hears(match('aboutus'), async (ctx) => {
     await ctx.scene.enter("aboutus")
+    await updateClicks(ctx,"home_scene","home_scene")
 })
 const bot = new Telegraf("6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM", {
     timeout: Infinity
@@ -234,6 +235,7 @@ homeScene.hears(match('invite'), async (ctx) => {
             Markup.button.url('Invite', 't.me/share/url?url=' + encode(text + `👥 የእርስዎ ሪፈራል ሊንክ(referal link): ${inviteLink}`)),
         ]));
     });
+    await updateClicks(ctx,"home_scene","invite")
 })
 homeScene.hears('Admin 📊', async (ctx) => {
     await ctx.scene.enter("adminBaseScene")
@@ -253,6 +255,7 @@ homeScene.hears(match('Language'), async (ctx) => {
         Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
     ]))
     ctx.session.languageMessageId = message.message_id;
+    await updateClicks(ctx,"home_scene","home_scene")
 })
 homeScene.leave(async (ctx) => {
     try {

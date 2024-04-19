@@ -2,6 +2,7 @@ const { Scenes, Markup } = require("telegraf")
 
 const UserKPI = require("../Model/KpiUser");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
+const { updateClicks } = require("../Utils/calculateClicks");
 const aboutUs = new Scenes.BaseScene("aboutus")
 aboutUs.enter(async (ctx) => {
     const enterTime = new Date();
@@ -33,6 +34,8 @@ aboutUs.enter(async (ctx) => {
 
 aboutUs.action("Back", async (ctx) => {
     await ctx.scene.enter("homeScene")
+  
+    await updateClicks(ctx,"aboutus","aboutus")
 }
 
 )

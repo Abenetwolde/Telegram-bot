@@ -5,6 +5,7 @@ const User = require('../Model/user');
 const UserKPI=require("../Model/KpiUser");
 const { t, match } = require('telegraf-i18next');
 const { updateSceneDuration } = require('../Utils/calculateTimeSpent');
+const { updateClicks } = require('../Utils/calculateClicks');
 const channelHandeler = new Scenes.BaseScene('channelHandeler');
 
 // Add a keyboard to the admin scene
@@ -53,7 +54,7 @@ channelHandeler.action(/set_lang:(.+)/, async (ctx) => {
     }
    await updateUserLanguage(ctx.from.id, ctx.session.locale);
 
- 
+   await updateClicks(ctx,"channel","channel")
     const productId = await ctx.session.productID;
     const response = await getSingleProduct(productId);
     const product = JSON.stringify(response)

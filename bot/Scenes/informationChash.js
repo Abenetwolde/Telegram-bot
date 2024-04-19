@@ -1,6 +1,7 @@
 const { Scenes, Markup } = require("telegraf");
 const UserKPI=require("../Model/KpiUser");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
+const { updateClicks } = require("../Utils/calculateClicks");
 const informationCash = new Scenes.WizardScene(
 
   "informationCash",
@@ -65,6 +66,10 @@ const informationCash = new Scenes.WizardScene(
       };
     }
     try {
+    
+      await updateClicks(ctx,"infromationcash","infromationcash")
+          
+      await updateClicks(ctx,"infromationcash","infromationcash")
       // Calculate the duration when leaving the scene
       const leaveTime = new Date();
       const enterTime = ctx.scene.state.enterTime;

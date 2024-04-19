@@ -7,6 +7,7 @@ const { t, match } = require('telegraf-i18next');
 const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
+const { updateClicks } = require("../Utils/calculateClicks");
 const noteScene = new Scenes.BaseScene("NOTE_SCENE")
 noteScene.enter(async (ctx) => {
     const enterTime = new Date();
@@ -42,6 +43,8 @@ noteScene.action("yes", async (ctx) => {
         },
     });
     ctx.session.cleanUpState.push({ id: note3message.message_id, type: 'note' });
+  
+    await updateClicks(ctx,"note","note")
 });
 
 
@@ -96,7 +99,8 @@ noteScene.action("Skip", async (ctx) => {
     })
     ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' })
 
-  
+    
+    await updateClicks(ctx,"note","note")
 });
 // Listener to clear message after scene ends
 noteScene.on("message", async (ctx) => {
@@ -123,7 +127,8 @@ noteScene.on("message", async (ctx) => {
         // ctx.session.isWaiting.status = false;
         ctx.session.cleanUpState.push({ id: note4message.message_id, type: 'note' });
     }
-
+  
+    await updateClicks(ctx,"note","note")
     // }
 });
 noteScene.action("edit", async (ctx) => {
@@ -147,6 +152,8 @@ noteScene.action("edit", async (ctx) => {
     // ctx.session.isWaiting = {
     //     status: false,
     // };
+      
+    await updateClicks(ctx,"note","note")
 }
 );
 noteScene.on("message", async (ctx) => {
@@ -223,6 +230,8 @@ noteScene.action('confirm', async (ctx) => {
         ]),
     })
     ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' }) 
+      
+    await updateClicks(ctx,"note","note")
 });
 noteScene.action("make_order", async (ctx) => {
     const userId = ctx.from.id;
@@ -260,12 +269,16 @@ noteScene.action("make_order", async (ctx) => {
  
     }
     ctx.session.orderInformation=await []
+      
+    await updateClicks(ctx,"note","note")
     // 
 });
 
 
 noteScene.action("showOrder",async(ctx)=>{
     await ctx.scene.enter("myOrderScene")
+      
+    await updateClicks(ctx,"note","note")
 })
 //cart
 
@@ -313,6 +326,8 @@ noteScene.action(/cancel_cart:(.+)/, async (ctx) => {
     } else {
         await ctx.answerCbQuery("Failed to cancel the order.");
     }
+      
+    await updateClicks(ctx,"note","note")
   
 });
 noteScene.action(/yes_cart:(.+)/, async (ctx) => {
@@ -338,22 +353,30 @@ noteScene.action(/yes_cart:(.+)/, async (ctx) => {
         await ctx.answerCbQuery("Failed to cancel the cart.");
     }
     ctx.session.orderInformation=await []
+      
+    await updateClicks(ctx,"note","note")
     // await ctx.scene.leave()
 });
 noteScene.action("Home",async=async(ctx)=>{
     await ctx.scene.enter("homeScene")
+      
+    await updateClicks(ctx,"note","note")
 })
 // Handle user's rejection
 noteScene.action('reject_cancel_cart', async (ctx) => {
   
     await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
     await ctx.scene.enter("cart")
+      
+    await updateClicks(ctx,"note","note")
 
 });
 noteScene.action("updateorder", async (ctx) => {
   
     await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
     await ctx.scene.enter("selectePaymentType")
+      
+    await updateClicks(ctx,"note","note")
 
 })
 noteScene.leave(async (ctx) => {

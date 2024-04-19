@@ -39,7 +39,7 @@ module.exports = {
             const durationMinutes = Math.floor(durationMs / 60000);
             // Convert milliseconds to minutes
             // const durationMinutes = Math.floor(durationMs / 60000);
-    const telegramId=ctx.from.id
+    const telegramid=ctx.from.id
             // Check if the duration exceeds 5 minutes
             if (durationMinutes <= 5) {
                 // Convert milliseconds to hours, minutes, and seconds
@@ -49,7 +49,7 @@ module.exports = {
                 const durationFormatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     
                 // Check if the user already exists in the database
-                let existingUserKPI = await UserKPI.findOne({ telegramId });
+                let existingUserKPI = await UserKPI.findOne({ telegramid });
     
                 if (existingUserKPI) {
                     // If the user exists, find the scene for the same day
@@ -82,7 +82,8 @@ module.exports = {
                 } else {
                     // If the user doesn't exist, create a new UserKPI document
                     const newUserKPI = new UserKPI({
-                        telegramId,
+                        telegramid,
+                       user: ctx.session.userid,
                         scene: [{
                             name: sceneName,
                             date: new Date(),

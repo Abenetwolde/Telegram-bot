@@ -13,6 +13,7 @@ const paymentScene = new Scenes.BaseScene("paymentScene")
 const UserKPI=require("../Model/KpiUser");
 const { match } = require("telegraf-i18next");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
+const { updateClicks } = require("../Utils/calculateClicks");
 
 paymentScene.enter(async (ctx) => {
     const enterTime = new Date();
@@ -60,11 +61,15 @@ paymentScene.action("chapa", async (ctx) => {
     console.log("chapa")
     // Initiate payment process with Chapa payment gateway
     await initiatePayment(ctx, "chapa");
+   
+    await updateClicks(ctx,"payment","payment")
 });
 
 paymentScene.action("strapi", async (ctx) => {
     // Initiate payment process with Strapi payment gateway
     await initiatePayment(ctx, "strapi");
+       
+    await updateClicks(ctx,"payment","payment")
 });
 async function initiatePayment(ctx, gateway) {
     // Your existing code to calculate total cost, create invoice, etc.
@@ -197,15 +202,20 @@ const updatedOrder=await updateOrder(orderupdate)
 paymentScene.hears(match("Home"), async (ctx) => {
 
       await  ctx.scene.enter("homeScene")
- 
+    
+      await updateClicks(ctx,"payment","payment")
 })
 paymentScene.on("message", async (ctx) => {
     if (ctx.message.text === "/start") {
         ctx.scene.enter("homeScene")
+           
+    await updateClicks(ctx,"payment","payment")
     }
 })
 paymentScene.action("showOrder",async(ctx)=>{
     await ctx.scene.enter("myOrderScene")
+       
+    await updateClicks(ctx,"payment","payment")
 })
 paymentScene.leave(async (ctx) => {
     console.log("Cleaning payment scene")

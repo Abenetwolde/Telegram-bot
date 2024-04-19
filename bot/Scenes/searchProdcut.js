@@ -21,6 +21,7 @@ cloudinary.config({
 });
 const ffmpeg = require('ffmpeg-static');
 const { spawn } = require('child_process');
+const { updateClicks } = require("../Utils/calculateClicks");
 
 async function generateThumbnail(videoUrl) {
   return new Promise((resolve, reject) => {
@@ -160,6 +161,7 @@ const results = await Promise.all(products?.products.map(async (product) => {
       // next_offset: nextOffset !== null ? nextOffset.toString() : '',
 
     });
+    await updateClicks(ctx,"search","search")
   } catch (error) {
     console.error('Error fetching product data:', error);
   }

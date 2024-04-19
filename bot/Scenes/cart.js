@@ -8,6 +8,7 @@ const UserKPI=require("../Model/KpiUser");
 const { t, match } = require('telegraf-i18next');
 const telegrafI18next = require("telegraf-i18next");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
+const { updateClicks } = require("../Utils/calculateClicks");
 cart.enter(async (ctx) => {
   const enterTime = new Date();
 
@@ -54,6 +55,7 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
       await sendProdcutSummary(ctx,cart);
     }
 
+
     if (quantity=== 0) {
        await removeItemFromCart(cartId,productId)
 
@@ -71,6 +73,8 @@ cart.action(/(removeQuantity)_(.+)/, async (ctx) => {
 
       // Send the updated product summary
       await sendProdcutSummary(ctx,cart);
+      await updateClicks(ctx,"product",productId)
+
       return;
     }
     // const updatedCartItem = await updateCartItemQuantity(userId, productId, -1);
@@ -127,21 +131,26 @@ cart.action(/(addQuantity)_(.+)/, async (ctx) => {
 
     await sendCartProduct(ctx, productId, cartItem);
     await sendProdcutSummary(ctx,cart)
+    await updateClicks(ctx,"product",productId)
 });
 
 
 cart.action("Home", async (ctx) => {
   // await new Promise(resolve => setTimeout(resolve, 1000));
   await ctx.scene.enter("homeScene")
+  await updateClicks(ctx,"cart","cart")
+
 });
 cart.hears(match('Home'), async (ctx) => {
   // await new Promise(resolve => setTimeout(resolve, 1000));
  
   await ctx.scene.enter('homeScene');
+  await updateClicks(ctx,"cart","cart")
 
 });
 cart.action("proceedToCheckout", async (ctx) => {
   await ctx.scene.enter("selectePaymentType")
+  await updateClicks(ctx,"cart","cart")
 });
 
 
