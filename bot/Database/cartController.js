@@ -64,13 +64,7 @@ async function updateCartItemQuantity(userId, productId, quantity) {
           { user: userId, 'items.product': productId },
           { $inc: { 'items.$.quantity': quantity } },
           { new: true }
-      ).populate({
-        path: 'items.product',
-        populate: {
-          path: 'category',
-          model: 'Category', // replace with your actual Category model name
-        },
-      });;
+      )
 
       if (!cart) {
           // If the item is not in the cart, add it
@@ -139,13 +133,6 @@ console.log("cart", cart.items[0].product)
     // Decrease quantity by 1
 await cart.items[productIndex].quantity--;
    const updatecart= cart.items[productIndex]
-   const smt= JSON.stringify({
-    cartId:  cart._id,
-      product: updatecart.product,
-      quantity: updatecart.quantity,
-      cartItem:updatecart
-  });
-   console.log("Update cart.......",smt)
 
     // Save the updated cart
     await cart.save();
@@ -163,7 +150,7 @@ await cart.items[productIndex].quantity--;
 
   
 async function removeItemFromCart(cartId,productId) {
-  console.log("cartId",cartId)
+
     try {
       const cart = await Cart.findByIdAndUpdate(
         cartId,
@@ -174,13 +161,7 @@ async function removeItemFromCart(cartId,productId) {
         throw new Error('Cart not found.');
       }
   
-      // // Remove the item from the cart based on the productId
-      // cart.items = cart.items.filter(item => !item.product.equals(productId));
-  
-      // Save the updated cart
-      // await cart.save();
-
-  
+ 
       return cart;
     } catch (error) {
       console.error('Error removing item from cart:', error);

@@ -22,6 +22,7 @@ cloudinary.config({
 const ffmpeg = require('ffmpeg-static');
 const { spawn } = require('child_process');
 const { updateClicks } = require("../Utils/calculateClicks");
+const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 
 async function generateThumbnail(videoUrl) {
   return new Promise((resolve, reject) => {
@@ -209,6 +210,7 @@ searchProduct.leave(async (ctx) => {
     const enterTime = ctx.scene.state.enterTime;
     const durationMs = new Date(leaveTime - enterTime);
     // Convert milliseconds to minutes
+
 await updateSceneDuration(ctx, durationMs, "Search_Scene")
 
 } catch (error) {

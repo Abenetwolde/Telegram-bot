@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const connectDatabase = require('../config/database');
 
 async function createUser(data) {
-  console.log("reach register user................", data.telegramid)
 
 
   try {
@@ -19,7 +18,7 @@ async function createUser(data) {
         process.env.JWT_TOKEN_SECRET_KEY || "hfjkdhjkhsjdkghjkd",
         { expiresIn: "7d" }
       );
-      console.log("user................", token)
+
       user = await new Users({
         telegramid: data.telegramid,
         first_name: data.first_name,
@@ -29,7 +28,7 @@ async function createUser(data) {
         language:data.language,
         token: token,
       });
-      console.log("user................", user)
+    
       user = await user.save();
 
       return { success: true, user };
@@ -38,7 +37,7 @@ async function createUser(data) {
     throw new Error(error.message);
   }
 }
-async function getAllUser(telegramId, language) {
+async function getAllUser() {
   try {
     const user = await Users.find({}).sort({createdAt:-1});
 

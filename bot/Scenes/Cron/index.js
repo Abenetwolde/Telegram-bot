@@ -2,7 +2,7 @@ const axios = require('axios');
 const sharp = require('sharp');
 const Product = require('../../Model/product');
 
-async function cronSendProductToChannel( productId, product, isCart) {
+async function cronSendProductToChannel(productId, product, isCart) {
     try {
         const formatTelegramMessage = (product) => {
             const { name, description, images, price, available, warranty, category, highlights } = product;
@@ -49,21 +49,21 @@ ${formattedButton}
             // const imageBuffer = await sharp(response.data)
             //     .resize(200, 200)
             //     .toBuffer();
-console.log(images)
+            console.log(images)
             const messageData = {
                 chat_id: channelId,
-                photo:  image,
+                photo: image,
                 caption: caption,
                 // parse_mode: 'Markdown',
                 reply_markup: JSON.stringify(paginationKeyboard),
             };
-try {
-    const sentMessage = await axios.post(`https://api.telegram.org/bot6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM/sendPhoto`, messageData);
-    await Product.findByIdAndUpdate(product._id, { channelMessageId: sentMessage.message_id }); 
-} catch (error) {
-    console.log(error)
-}
-         
+            try {
+                const sentMessage = await axios.post(`https://api.telegram.org/bot6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM/sendPhoto`, messageData);
+                await Product.findByIdAndUpdate(product._id, { channelMessageId: sentMessage.message_id });
+            } catch (error) {
+                console.log(error)
+            }
+
         } else if (images.length > 1) {
             const messageData = {
                 chat_id: channelId,
@@ -72,7 +72,7 @@ try {
             };
 
             const sentMessage = await axios.post(`https://api.telegram.org/bot6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM/sendMediaGroup`, messageData);
-            
+
             await Product.findByIdAndUpdate(product._id, { channelMessageId: sentMessage.message_id });
         } else if (product?.video?.videoUrl) {
             const messageData = {

@@ -174,13 +174,6 @@ mongoClient.connect()
 
 
 
-    bot.use((ctx, next) => {
-      const start = new Date();
-      return next(ctx).then(() => {
-        const ms = new Date() - start;
-        console.log('Response time: %sms', ms);
-      });
-    })
     bot.use(async (ctx, next) => {
       // Save user start time to the context
       ctx.session.startTime = new Date().getTime();

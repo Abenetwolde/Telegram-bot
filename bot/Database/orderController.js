@@ -16,10 +16,9 @@ exports.createOrder = async (userId, orderInformation, cartItems) => {
       throw new Error('Incomplete order information.');
     }
 
-    console.log("cart Items:", cartItems);
     const totalPrice = await calculateTotalPrice(cartItems);
     let randomNumber = Math.floor(Math.random() * 90000) + 10000;
-    console.log('Random Number', randomNumber);
+
 
     // Create a new order document in the database without population
     const order = await Order.create({
@@ -30,12 +29,12 @@ exports.createOrder = async (userId, orderInformation, cartItems) => {
         quantity: cartItem.quantity,
       })),
       totalPrice,
-      paymentType: orderInformation.paymentType,
+      paymentType: orderInformation?.paymentType||null,
       orderfromtelegram: true,
       shippingInfo: {
-        location: orderInformation.location,
-        note: orderInformation.note,
-        phoneNo: orderInformation.phoneNo
+        location: orderInformation.location||null,
+        note: orderInformation.note||null,
+        phoneNo: orderInformation.phoneNo||null
       }
     });
 
@@ -66,7 +65,7 @@ exports.getAllOrder=async()=> {
    
       return { success: true, orders: order };
     } else {
-      return { success: false, message: 'User not found' };
+      return { success: false, message: 'Order is not found' };
     }
   } catch (error) {
     throw new Error(error.message);
@@ -113,9 +112,9 @@ exports.updateOrder = async (data) => {
       throw new Error('Order not found.');
     }
 
-    order.shippingInfo.phoneNo = data.phoneNo;
-    order.paymentStatus=data.paymentStatus
-    order.orderStatus=data.orderStatus
+    order.shippingInfo.phoneNo = data?.phoneNo||null;
+    order.paymentStatus=data?.paymentStatus||null
+    order.orderStatus=data?.orderStatus||null
     await order.save();
 
     return JSON.parse(JSON.stringify(order)) ;
@@ -185,7 +184,3 @@ exports.cancelOrder = async (orderId, userId) => {
 }
 };
 
-// Helper function to calculate total price based on order items
-// function calculateTotalPrice(orderItems) {
-//   return orderItems.reduce((total, item) => total + (item.quantity * item.product.price), 0);
-// }

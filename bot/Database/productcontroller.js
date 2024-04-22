@@ -2,8 +2,7 @@ const Product = require('../Model/product');
 
 async function getAllProducts(data) {
  try { 
-    // category, sortBy, page = 1, pageSize = 3 
-    console.log("hit the prodcut api",data)
+
     let filter = {};
     if (data?.category) {
         filter = { category: data.category };
@@ -31,7 +30,7 @@ async function getAllProducts(data) {
 
     // Parse the page and pageSize query parameters
     const page = parseInt(data?.page) || null;
-    console.log("current page from sesstion...............",page)
+   
     const pageSize = parseInt(data?.pageSize) || null;
     
     // Calculate the number of products to skip
@@ -40,8 +39,7 @@ async function getAllProducts(data) {
     // Find the products for the current page
     const products = await Product.find(filter).populate("category").skip(skip).limit(pageSize)/* .sort(sortQuery); */
     
-    // Count the total number of products
-    // const total = await Product.countDocuments(filter);
+
      const count = await Product.countDocuments(filter);
      const totalPages = Math.ceil(count / pageSize);
     return {
@@ -56,7 +54,7 @@ async function getAllProducts(data) {
   }
 }
 async function searchProducts(searchTerm) {
-  console.log("serarchTerm",searchTerm)
+
   try {
  
     // Construct the filter based on the search term

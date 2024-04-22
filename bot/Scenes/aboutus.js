@@ -1,5 +1,5 @@
 const { Scenes, Markup } = require("telegraf")
-
+const { performance } = require('perf_hooks');
 const UserKPI = require("../Model/KpiUser");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 const { updateClicks } = require("../Utils/calculateClicks");
@@ -45,6 +45,7 @@ aboutUs.action("Back", async (ctx) => {
 
 aboutUs.leave(async (ctx) => {
     try {
+        performance.mark('start-leave');
         if (ctx.session.cleanUpState) {
 
             for (const message of ctx.session.cleanUpState) {
@@ -69,6 +70,10 @@ aboutUs.leave(async (ctx) => {
         const durationMs = new Date(leaveTime - enterTime);
         // Convert milliseconds to minutes
         await updateSceneDuration(ctx, durationMs,"AboutMe_Scene")
+        performance.mark('end-leave');
+        performance.measure('leave-time', 'start-leave', 'end-leave');
+        const measurement = performance.getEntriesByName('leave-time')[0];
+        console.log(`Execution time for aboutUs.leave: ${measurement.duration} milliseconds`);
     } catch (error) {
         console.error('Error saving UserKPI in homeScene.leave:', error);
     }

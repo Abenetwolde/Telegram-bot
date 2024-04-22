@@ -1,7 +1,6 @@
 const Payment = require("../Model/payment");
 
 exports.createPayment=async(paymentData) =>{
-console.log("paymentData.invoice_id..........",paymentData.invoice_id)
     try {
         const payment = new Payment({
             user: paymentData.user,
