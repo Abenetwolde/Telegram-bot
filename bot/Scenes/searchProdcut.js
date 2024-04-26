@@ -75,6 +75,8 @@ searchProduct.enter(async (ctx) => {
 });
 // Handle inline queries within the scene
 searchProduct.on('inline_query', async (ctx) => {
+ 
+  await updateClicks(ctx,"search_scene","search_scene")
   console.log("inline_query")
   let input = ctx.inlineQuery.query
   if (!input) {
@@ -162,7 +164,7 @@ const results = await Promise.all(products?.products.map(async (product) => {
       // next_offset: nextOffset !== null ? nextOffset.toString() : '',
 
     });
-    await updateClicks(ctx,"search","search")
+    
   } catch (error) {
     console.error('Error fetching product data:', error);
   }

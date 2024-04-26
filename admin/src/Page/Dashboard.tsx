@@ -306,9 +306,11 @@ const Dashboard = () => {
                 )}
               </Box>
             </Box>
-            <FormControl >
+            <FormControl         size="small">
+      
               {/* <InputLabel id="filter-label">Filter</InputLabel> */}
               <Select
+              
                 labelId="filter-label"
                 id="filter"
                 value={filter}

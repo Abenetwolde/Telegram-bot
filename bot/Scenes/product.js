@@ -305,62 +305,7 @@ productSceneTest.action(/buy_(.+)/, async (ctx) => {
         // Send the product information to the user
         sendProduct(ctx, productId, cartArg);
         // const userId = ctx.from.id
-        let clickCount = await KpiProducts.findOne({
-         product: productId,
-          
-        });
-        console.log("clickCount", clickCount);
-        if (!clickCount) {
-            try {
-                createclickCount = new KpiProducts({
-                    product: productId,
-                    clicks: [{
-                        // date: today,
-                        count: 1,
-                        userId: String(userId)
-                    }]
-                });
-                await createclickCount.save()
-                console.log("clickCount1", clickCount);
-            } catch (error) {
-                console.log("error", error)
-            }
-      
-     
-        } else {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set to the beginning of the day
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-           
-            let clickCount1 = await KpiProducts.findOne({
-                product: productId,   clicks: {
-                    $elemMatch: { 
-                      userId: userId, 
-                       date: { $gte: today, $lt: tomorrow } // Filter clicks for today
-                     } 
-                  }
-            });
-        
-            // const lastClick = clickCount.clicks[clickCount.clicks.length - 1];
-            // const lastDate = new Date(lastClick.date);
-     
-            if (clickCount1!==null) {
-                clickCount1.clicks[0].count++;
-            } else {
-                let list = await KpiProducts.findOne({
-                    product: productId
-                });
-               await list.clicks.push({
-                    date: today,
-                     count: 1,
-                    userId: String(userId) 
-                }); 
-                await list.save()
-              
-            }
-            await clickCount1.save()
-         }
+   
         // Send a confirmation message
         //   await ctx.answerCbQuery(`You have added ${cartItem.quantity} of product ${cartItem.product.name} to your cart.`);
     } catch (error) {

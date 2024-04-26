@@ -259,6 +259,9 @@ export const updateOrderById = async (req: Request, res: Response) => {
            case "completed"
            :message = '\n\nYour order has been completed.\n\nPlease check your profile for more details.' 
            break;
+           case "delivered"
+           :message = '\n\nYour order has been delivered.\n\nPlease check your profile for more details.' 
+           break;
            case "cancelled":
             message=  "\n\nSorry, Your order has been cancelled."
             break;

@@ -48,8 +48,8 @@ const buttonsLimit = {
   limit: 1,
   onLimitExceeded: (ctx, next) => {
     if ('callback_query' in ctx.update)
-    ctx.answerCbQuery('You`ve pressed buttons too oftern, wait.', true)
-      .catch((err) => sendError(err, ctx))
+      ctx.answerCbQuery('You`ve pressed buttons too oftern, wait.', true)
+        .catch((err) => sendError(err, ctx))
   },
   keyGenerator: (ctx) => {
     return ctx.callbackQuery ? true : false
@@ -101,34 +101,29 @@ mongoClient.connect()
 
 
     bot.use(session({ store, getSessionKey: (ctx) => ctx.from?.id.toString(), }));
-    cron.schedule('*/30 * * * *', async () => {
+    cron.schedule('*/300 * * * *', async () => {
       try {
-        // const ctx = bot.context; 
-        // console.log("The time is up");
-        // // console.log(ctx)
-        // // await ctx.scene.enter("adminBaseScene")
-        // let lastProcessedIndex = /* ctx.session?.lastProcessedIndex || */ 0;
-        // console.log("Last processed index:", lastProcessedIndex);
+
         let lastProcessedIndex = /* ctx.session?.lastProcessedIndex || */ 0;
         const productsData = {
           page: 1,
           pageSize: 10,
         };
-    
+
         const productsResult = await getAllProducts();
         const { products } = productsResult;
 
-    
+
         // Define exponential backoff parameters
         let delay = 1000; // Initial delay (1 second)
         let success = false;
-    
+
         while (!success) {
           try {
             // Attempt to send products to channel from the last processed index
             for (let i = lastProcessedIndex; i < products.length; i++) {
               const product = products[i];
-              await cronSendProductToChannel( product._id, product);
+              await cronSendProductToChannel(product._id, product);
               lastProcessedIndex = i;
               if (lastProcessedIndex >= products.length) {
                 console.log('All products have been posted to the channel.');
@@ -148,10 +143,10 @@ mongoClient.connect()
             }
           }
         }
-    
+
         // Store the last processed index in the session
         ctx.session.lastProcessedIndex = lastProcessedIndex;
-    
+
       } catch (error) {
         console.error("Error:", error);
         // Handle any uncaught errors
@@ -286,8 +281,8 @@ mongoClient.connect()
 
 
     bot.start(async (ctx) => {
-      
-      console.log("ctx.from.............", ctx.from)
+
+
       console.log("ctx.session.locale", ctx.session.locale)
       const startCommand = ctx.message.text.split(' ');
       if (startCommand.length === 2 && startCommand[1].startsWith('chat_')) {
@@ -371,6 +366,7 @@ mongoClient.connect()
                   { new: true, upsert: true }// Increment invitedUsers by 1
                 );
               }
+              ctx.session.userid = user._id.toString();
               // Generate lottery numbers (if applicable)
               const invitedUsersCount = inviter.lotteryNumbers.invitedUsers || 0;
               console.log(invitedUsersCount);
@@ -379,11 +375,12 @@ mongoClient.connect()
                 await inviter.lotteryNumbers.number.push(lotteryNumber);
                 await ctx.telegram.sendMessage(user.invitedBy, `Congratulations! You've earned a lottery number: ${lotteryNumber}`);
               }
-
+              // ctx.session.userid = user.userid.toString();
               await user.save()
               ctx.reply(`this is your telegram id ${telegramid}`)
 
               await inviter.save()
+
             }
           } else {
             ctx.reply("sorry the user is already invited ")
@@ -393,6 +390,7 @@ mongoClient.connect()
 
 
           await user.save()
+          await ctx.scene.enter('homeScene');
         }
 
       } else {
@@ -460,12 +458,12 @@ mongoClient.connect()
                 language: ctx.session.locale
               });
               console.log("response.data", response)
-
+              ctx.session.userid = response.userid.toString();
               await ctx.reply(response.token)
 
 
               ctx.session.token = response.token;
-              ctx.session.userid = response.userid.toString();
+
             }
             catch (error) {
               if (error.message == 'User already exists!') {
@@ -595,8 +593,8 @@ mongoClient.connect()
       if (!isMember) {
         ctx.reply(
           "subscribe our telegram channel first",
-    
-    
+
+
         )
       }
       else {
@@ -606,7 +604,7 @@ mongoClient.connect()
     async function sendError(err, ctx) {
       const errorCode = err.response && err.response.error_code;
       let errorMessage = '';
-    
+
       switch (errorCode) {
         case 400:
           errorMessage = 'Bad Request: The request was not understood or lacked required parameters.';
@@ -634,7 +632,7 @@ mongoClient.connect()
         if (err.code === 400) {
           return setTimeout(() => {
             ctx.answerCbQuery()
-           ctx.scene.enter("homeScene")
+            ctx.scene.enter("homeScene")
           }, 500)
         } else if (err.code === 429) {
           return ctx.reply(
@@ -643,16 +641,16 @@ mongoClient.connect()
           )
         }
         const adminChatId = '2126443079'
-        bot.telegram.sendMessage(adminChatId, '[' + ctx.from.first_name + '](tg://user?id=' + ctx.from.id + ') has got an error.\nError text: ' + errorMessage, {parse_mode: 'markdown'})
+        bot.telegram.sendMessage(adminChatId, '[' + ctx.from.first_name + '](tg://user?id=' + ctx.from.id + ') has got an error.\nError text: ' + errorMessage, { parse_mode: 'markdown' })
       } else {
         bot.telegram.sendMessage(adminChatId, 'There`s an error:' + err.toString())
       }
     }
-    
+
     bot.catch((err) => {
       sendError(err)
     })
-    
+
     process.on('uncaughtException', (err) => {
       sendError(err)
     })
@@ -725,21 +723,21 @@ bot.telegram.setMyCommands([
 
 bot.command('mariya', async (ctx) => {
   const userId = ctx.message.from.id
-  const orderid=1
+  const orderid = 1
   try {
     const orderMessage = await ctx.replyWithPhoto(
       { url: "https://gagadget.com/media/cache/db/a4/dba452f0af5bbf105934a103c578a5b9.jpg" },
-       { 
-          parse_mode: 'HTML' ,
-          caption:"caption",
-     
-          
-      ...Markup.inlineKeyboard([
-      
+      {
+        parse_mode: 'HTML',
+        caption: "caption",
+
+
+        ...Markup.inlineKeyboard([
+
           [Markup.button.callback("Cancel Order", `cancel_order:${orderid}`)]
-      ]),
-  }
-  );
+        ]),
+      }
+    );
     // const res = await bot.telegram.sendMessage("355514342", 'Hey Maria, How are you?This is Lelasew, my Telegram is accidentally banned(idk what happen) you can reach me now at @abnetw see you!')
     console.log("res...........", res)
   } catch (err) {

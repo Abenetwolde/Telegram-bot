@@ -19,30 +19,30 @@ channelHandeler.enter(async(ctx) => {
       Markup.button.callback('🇪🇹 አማርኛ', 'set_lang:am')
     ]))
     ctx.session.languageMessageId = message.message_id;
-    let existingUser = await User.findOne({ telegramid: ctx.from.id });
-    if (!existingUser) {
-         
-        // If the user doesn't exist, create a new user document
-        newuser = await User.create({
-          telegramid: ctx.from.id,
-          first_name: ctx.from.first_name,
-          last_name: ctx.from.last_name,
-          username: ctx.from.username || null,
-          is_bot: ctx.from.is_bot || false,
-            from: 'CHANNEL' // Set initial status
-        });
-        ctx.session.token = await newuser?.token;
-
-    } /* else {
-        // If the user exists, update their information
-        existingUser.first_name = ctx.from.id;
-        existingUser.last_name = ctx.from.first_name;
-        existingUser.username = username;
-        await existingUser.save();
-    } */
+    try {
+      let existingUser = await User.findOne({ telegramid: ctx.from.id });
+      if (!existingUser) {
+           
+          // If the user doesn't exist, create a new user document
+          newuser = await User.create({
+            telegramid: ctx.from.id,
+            first_name: ctx.from.first_name,
+            last_name: ctx.from.last_name,
+            username: ctx.from.username || null,
+            is_bot: ctx.from.is_bot || false,
+              from: 'CHANNEL' // Set initial status
+          });
+          console.log("New User Created",newuser);
+          ctx.session.token = await newuser?.token;
+          ctx.session.userid = await newuser._id.toString();
+      } 
+    } catch (error) {
+      
+    }
 });
 
 channelHandeler.action(/set_lang:(.+)/, async (ctx) => {
+
     if (!ctx.session) {
       ctx.session = {}; // Initialize session if not exists
     }
@@ -68,15 +68,15 @@ channelHandeler.action(/set_lang:(.+)/, async (ctx) => {
         console.error('Product not found.');
         // Handle the case when the product is not found
       }
-      try {
+    //   try {
   
-        const leaveTime = new Date();
-        const enterTime = ctx.scene.state.enterTime;
-        const durationMs = new Date(leaveTime - enterTime);
+    //     const leaveTime = new Date();
+    //     const enterTime = ctx.scene.state.enterTime;
+    //     const durationMs = new Date(leaveTime - enterTime);
 
-        await updateSceneDuration(ctx, durationMs, "ChannelHandler_Scene")
-    } catch (error) {
-        console.error('Error saving UserKPI in homeScene.leave:', error);
-    }
+    //     await updateSceneDuration(ctx, durationMs, "ChannelHandler_Scene")
+    // } catch (error) {
+    //     console.error('Error saving UserKPI in homeScene.leave:', error);
+    // }
   });
 module.exports = channelHandeler;
