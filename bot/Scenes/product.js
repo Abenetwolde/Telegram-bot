@@ -330,8 +330,7 @@ productSceneTest.action(/addQuantity_(.+)/, async (ctx) => {
         // Fetch product data
         // const productData = await Product.findById(product._id).populate('category');
         const productArg = { ...product, quantity };
-console.log("productArg", productArg)
-        // Send the product information to the user
+console.log("productArg", productArg)        // Send the product information to the user
         sendProduct(ctx, productId, productArg);
         // const userId = ctx.from.id
         await updateClicks(ctx,"product",productId)

@@ -74,7 +74,7 @@ interface Order extends Document {
     orderStatus: {
       type: String,
       enum: ['pending', 'completed',"cancelled","delivered"],
-      default: 'pending',
+       default: 'pending',
     },
     orderfromtelegram: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },

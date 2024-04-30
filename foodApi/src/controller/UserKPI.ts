@@ -803,105 +803,105 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
 
         }
         
-        const results = await Order.aggregate([
-            // Match orders with status "delivered"
-            { $match: { orderStatus: "delivered" } },
-            // Group by user and count total orders
-            {
-                $group: {
-                    _id: "$user",
-                    totalDeliveredOrders: { $sum: 1 }
-                }
-            },
-            { $sort: { totalDeliveredOrders: -1 } }
-        ]);
-        const result2 = await clickKpi.aggregate([
-            { $unwind: '$clicks' },
-            // Match orders with status "delivered"
-            // { $match: { orderStatus: "delivered" } },
-            // Group by user and count total orders
-            {
-                $group: {
-                    _id: "$user",
-                    totalClicks: { $sum: '$clicks.count' },
-                }
-            },
-            { $sort: { totalClicks: -1 } }
-        ]);
-
-
-        // const results = await clickKpi.aggregate([
-        //     { $unwind: '$clicks' },
-        //     { $match: { 'clicks.date': { $gte: startDate, $lte: endDate } } },
-        //     {
-        //         $lookup: {
-        //             from: 'users', // Use the name of your user collection
-        //             localField: 'user',
-        //             foreignField: '_id',
-        //             as: 'userInfo',
-        //         },
-        //     }, // Filter based on the calculated start and end dates
+        // const results = await Order.aggregate([
+        //     // Match orders with status "delivered"
+        //     { $match: { orderStatus: "delivered" } },
+        //     // Group by user and count total orders
         //     {
         //         $group: {
-        //             _id: {
-        //                 telegramid: '$telegramid',
-        //                 sceneName: '$clicks.name'
-        //             },
-        //             totalClicks: { $sum: '$clicks.count' },
-        //             userInfo: { $first: '$userInfo' }, // Preserve user information
-        //         },
-        //     },
-        //     {
-        //         $group: {
-        //             _id: '$_id.telegramid',
-
-        //             userClicks: {
-        //                 $push: {
-        //                     sceneName: '$_id.sceneName',
-        //                     totalClicks: '$totalClicks',
-        //                 },
-        //             },
-        //             totalClicks: { $sum: '$totalClicks' },
-        //             userInfo: { $first: '$userInfo' }, // Preserve user information
-        //         },
-        //     },
-        //     {
-        //         $project: {
-        //             _id: 0, // Exclude _id field
-        //             telegramid: '$_id', // Project name field
-        //             userinformationperScene: '$userClicks', // Rename userClicks to user
-        //             totalClicks: 1,
-        //             userInfo: '$userInfo', // Preserve user information
-        //         },
-
-        //     },
-        //     {
-        //         $project: {
-        //             _id: 0, // Exclude _id field
-        //             telegramid: 1, // Project name field
-        //             userinformationperScene: 1, // Rename userClicks to user
-        //             totalClicks: 1,
-        //             userInfo: { $arrayElemAt: ['$userInfo', 0] },
-        //         },
-
-        //     },
-        //     {
-        //         $project: {
-        //             _id: 0, // Exclude _id field
-        //             telegramid: 1, // Project name field
-        //             userinformationperScene: 1, // Rename userClicks to user
-        //             totalClicks: 1,
-        //             userInformation: { _id: '$userInfo._id', telegramid: '$userInfo.telegramid', username: '$userInfo.username', first_name: '$userInfo.first_name' },
-        //         },
-
-        //     },
-        //     {
-        //         $sort: {
-        //             totalClicks: -1 // Sort in ascending order
+        //             _id: "$user",
+        //             totalDeliveredOrders: { $sum: 1 }
         //         }
-        //     }
-
+        //     },
+        //     { $sort: { totalDeliveredOrders: -1 } }
         // ]);
+        // const result2 = await clickKpi.aggregate([
+        //     { $unwind: '$clicks' },
+        //     // Match orders with status "delivered"
+        //     // { $match: { orderStatus: "delivered" } },
+        //     // Group by user and count total orders
+        //     {
+        //         $group: {
+        //             _id: "$user",
+        //             totalClicks: { $sum: '$clicks.count' },
+        //         }
+        //     },
+        //     { $sort: { totalClicks: -1 } }
+        // ]);
+
+
+        const results = await clickKpi.aggregate([
+            { $unwind: '$clicks' },
+            { $match: { 'clicks.date': { $gte: startDate, $lte: endDate } } },
+            {
+                $lookup: {
+                    from: 'users', // Use the name of your user collection
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'userInfo',
+                },
+            }, // Filter based on the calculated start and end dates
+            {
+                $group: {
+                    _id: {
+                        telegramid: '$telegramid',
+                        sceneName: '$clicks.name'
+                    },
+                    totalClicks: { $sum: '$clicks.count' },
+                    userInfo: { $first: '$userInfo' }, // Preserve user information
+                },
+            },
+            {
+                $group: {
+                    _id: '$_id.telegramid',
+
+                    userClicks: {
+                        $push: {
+                            sceneName: '$_id.sceneName',
+                            totalClicks: '$totalClicks',
+                        },
+                    },
+                    totalClicks: { $sum: '$totalClicks' },
+                    userInfo: { $first: '$userInfo' }, // Preserve user information
+                },
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude _id field
+                    telegramid: '$_id', // Project name field
+                    userinformationperScene: '$userClicks', // Rename userClicks to user
+                    totalClicks: 1,
+                    userInfo: '$userInfo', // Preserve user information
+                },
+
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude _id field
+                    telegramid: 1, // Project name field
+                    userinformationperScene: 1, // Rename userClicks to user
+                    totalClicks: 1,
+                    userInfo: { $arrayElemAt: ['$userInfo', 0] },
+                },
+
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude _id field
+                    telegramid: 1, // Project name field
+                    userinformationperScene: 1, // Rename userClicks to user
+                    totalClicks: 1,
+                    userInformation: { _id: '$userInfo._id', telegramid: '$userInfo.telegramid', username: '$userInfo.username', first_name: '$userInfo.first_name' },
+                },
+
+            },
+            {
+                $sort: {
+                    totalClicks: -1 // Sort in ascending order
+                }
+            }
+
+        ]);
         
         const mappedResults = await Promise.all(results.map(async (result: any) => {
             // Find user information
@@ -914,8 +914,8 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
         }));
 
         res.json({ timeSpentPerScene: results,
-            userClick: result2,
-
+            // userClick: result2,
+// 
          });
 
 

@@ -9,7 +9,7 @@ async function createCart(userId, productId, quantity) {
       $addToSet: {
         items: { product: productId, quantity: quantity }
       }
-    };
+     };
     const options = {
        upsert: true, // Create new cart if it doesn't exist
       new: true, // Return the updated cart
@@ -64,7 +64,13 @@ async function updateCartItemQuantity(userId, productId, quantity) {
           { user: userId, 'items.product': productId },
           { $inc: { 'items.$.quantity': quantity } },
           { new: true }
-      )
+      ).populate({
+        path: 'items.product',
+        populate: {
+          path: 'category',
+          model: 'Category', // replace with your actual Category model name
+        },
+      })
 
       if (!cart) {
           // If the item is not in the cart, add it

@@ -35,7 +35,7 @@ module.exports = {
         if (ctx.session?.viewMore&&!ctx.session?.viewMore[productId] && caption?.length > 100) {
             caption = caption.substring(0, 100) + '...';
         }
-        const image = await cart?.product?.images[0]?.imageUrl;
+        const image  = await cart?.product?.images[0]?.imageUrl;
         console.log("cart image looks like in the cart.................",image)
         if (ctx.session.cleanUpState && ctx.session.cleanUpState.find(message => message?.type === 'cart' && message?.productId === productId)) {
             const messageId = ctx.session.cleanUpState.find(message => message?.type === 'cart' && message?.productId === productId).id;

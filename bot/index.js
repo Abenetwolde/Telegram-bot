@@ -101,57 +101,57 @@ mongoClient.connect()
 
 
     bot.use(session({ store, getSessionKey: (ctx) => ctx.from?.id.toString(), }));
-    cron.schedule('*/300 * * * *', async () => {
-      try {
+    // cron.schedule('*/300 * * * *', async () => {
+    //   try {
 
-        let lastProcessedIndex = /* ctx.session?.lastProcessedIndex || */ 0;
-        const productsData = {
-          page: 1,
-          pageSize: 10,
-        };
+    //     let lastProcessedIndex = /* ctx.session?.lastProcessedIndex || */ 0;
+    //     const productsData = {
+    //       page: 1,
+    //       pageSize: 10,
+    //     };
 
-        const productsResult = await getAllProducts();
-        const { products } = productsResult;
+    //     const productsResult = await getAllProducts();
+    //     const { products } = productsResult;
 
 
-        // Define exponential backoff parameters
-        let delay = 1000; // Initial delay (1 second)
-        let success = false;
+    //     // Define exponential backoff parameters
+    //     let delay = 1000; // Initial delay (1 second)
+    //     let success = false;
 
-        while (!success) {
-          try {
-            // Attempt to send products to channel from the last processed index
-            for (let i = lastProcessedIndex; i < products.length; i++) {
-              const product = products[i];
-              await cronSendProductToChannel(product._id, product);
-              lastProcessedIndex = i;
-              if (lastProcessedIndex >= products.length) {
-                console.log('All products have been posted to the channel.');
-                break; // Exit the loop if all products have been processed
-              }
-            }
-            success = true; // Mark success if products are sent without errors
-          } catch (error) {
-            if (error.code === 429) {
-              // If rate limit exceeded, wait for the specified delay and then retry
-              await new Promise(resolve => setTimeout(resolve, delay));
-              delay *= 2; // Double the delay for exponential backoff
-            } else {
-              // Handle other errors
-              console.error("Error:", error);
-              throw error; // Throw the error to stop the cron job
-            }
-          }
-        }
+    //     while (!success) {
+    //       try {
+    //         // Attempt to send products to channel from the last processed index
+    //         for (let i = lastProcessedIndex; i < products.length; i++) {
+    //           const product = products[i];
+    //           await cronSendProductToChannel(product._id, product);
+    //           lastProcessedIndex = i;
+    //           if (lastProcessedIndex >= products.length) {
+    //             console.log('All products have been posted to the channel.');
+    //             break; // Exit the loop if all products have been processed
+    //           }
+    //         }
+    //         success = true; // Mark success if products are sent without errors
+    //       } catch (error) {
+    //         if (error.code === 429) {
+    //           // If rate limit exceeded, wait for the specified delay and then retry
+    //           await new Promise(resolve => setTimeout(resolve, delay));
+    //           delay *= 2; // Double the delay for exponential backoff
+    //         } else {
+    //           // Handle other errors
+    //           console.error("Error:", error);
+    //           throw error; // Throw the error to stop the cron job
+    //         }
+    //       }
+    //     }
 
-        // Store the last processed index in the session
-        ctx.session.lastProcessedIndex = lastProcessedIndex;
+    //     // Store the last processed index in the session
+    //     ctx.session.lastProcessedIndex = lastProcessedIndex;
 
-      } catch (error) {
-        console.error("Error:", error);
-        // Handle any uncaught errors
-      }
-    });
+    //   } catch (error) {
+    //     console.error("Error:", error);
+    //     // Handle any uncaught errors
+    //   }
+    // });
 
     bot.use((ctx, next) => {
       // if (!ctx.session) {
@@ -174,7 +174,7 @@ mongoClient.connect()
       ctx.session.startTime = new Date().getTime();
       // Continue with the next middleware
       await next();
-    });
+    }); 
     const calculateDuration = (startTime, endTime) => {
       return new Date(endTime) - new Date(startTime);
     };
@@ -432,7 +432,7 @@ mongoClient.connect()
               console.log("response.data", response)
 
               await ctx.reply(response.token)
-              ctx.session.userid = response.userid.toString();
+              ctx.session.userid = response.user._id.toString();
               ctx.session.token = response.token;
             }
             catch (error) {
@@ -458,7 +458,7 @@ mongoClient.connect()
                 language: ctx.session.locale
               });
               console.log("response.data", response)
-              ctx.session.userid = response.userid.toString();
+              ctx.session.userid = response.user._id.toString();
               await ctx.reply(response.token)
 
 
@@ -1030,7 +1030,7 @@ process.once("SIGINT", () => bot.stop("SIGINT"))
 process.once("SIGTERM", () => bot.stop("SIGTERM"))
 
 
-//  http.createServer(bot.webhookCallback('/my-secret-path')).listen(3000);
+  // http.createServer(/* bot.webhookCallback('/my-secret-path') */).listen(3000);
 
 // module.exports = async (req, res) => {
 //   try {
