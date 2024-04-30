@@ -830,79 +830,59 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
         // ]);
 
 
-        const results = await clickKpi.aggregate([
-            { $unwind: '$clicks' },
-            { $match: { 'clicks.date': { $gte: startDate, $lte: endDate } } },
+        const results:any = await UserKPI.aggregate([
+            {
+                $unwind: '$scene'
+            },
+            {
+                $match: {
+                    'scene.date': { $gte: startDate, $lte: endDate } // Filter based on the calculated start and end dates
+                }
+            },
+            {
+                $group: {
+                    _id: '$user', // Group by user ID to calculate total spending time per user
+                    totalDuration: {
+                        $sum: {
+                            $add: [
+                                { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 0] } }, 3600] }, // Convert hours to seconds
+                                { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 1] } }, 60] }, // Convert minutes to seconds
+                                { $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 2] } } // Extract seconds
+                            ]
+                        }
+                    },
+                    maxDuration: { $max: '$totalDuration' } 
+                }
+            },
             {
                 $lookup: {
-                    from: 'users', // Use the name of your user collection
-                    localField: 'user',
+                    from: 'users', // Assuming the users collection name
+                    localField: '_id',
                     foreignField: '_id',
-                    as: 'userInfo',
-                },
-            }, // Filter based on the calculated start and end dates
+                    as: 'user'
+                }
+            },
             {
-                $group: {
-                    _id: {
-                        telegramid: '$telegramid',
-                        sceneName: '$clicks.name'
+                $unwind: '$user'
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude the default MongoDB _id field from the output
+                    user: {
+                        telegramid: '$user.telegramid',
+                        first_name: '$user.first_name',
+                        last_name: '$user.username'
                     },
-                    totalClicks: { $sum: '$clicks.count' },
-                    userInfo: { $first: '$userInfo' }, // Preserve user information
-                },
-            },
-            {
-                $group: {
-                    _id: '$_id.telegramid',
-
-                    userClicks: {
-                        $push: {
-                            sceneName: '$_id.sceneName',
-                            totalClicks: '$totalClicks',
-                        },
-                    },
-                    totalClicks: { $sum: '$totalClicks' },
-                    userInfo: { $first: '$userInfo' }, // Preserve user information
-                },
-            },
-            {
-                $project: {
-                    _id: 0, // Exclude _id field
-                    telegramid: '$_id', // Project name field
-                    userinformationperScene: '$userClicks', // Rename userClicks to user
-                    totalClicks: 1,
-                    userInfo: '$userInfo', // Preserve user information
-                },
-
-            },
-            {
-                $project: {
-                    _id: 0, // Exclude _id field
-                    telegramid: 1, // Project name field
-                    userinformationperScene: 1, // Rename userClicks to user
-                    totalClicks: 1,
-                    userInfo: { $arrayElemAt: ['$userInfo', 0] },
-                },
-
-            },
-            {
-                $project: {
-                    _id: 0, // Exclude _id field
-                    telegramid: 1, // Project name field
-                    userinformationperScene: 1, // Rename userClicks to user
-                    totalClicks: 1,
-                    userInformation: { _id: '$userInfo._id', telegramid: '$userInfo.telegramid', username: '$userInfo.username', first_name: '$userInfo.first_name' },
-                },
-
-            },
-            {
-                $sort: {
-                    totalClicks: -1 // Sort in ascending order
+                    totalDurationInMinutes: { $divide: ['$totalDuration', 60] },
+                    maximumspenttime: { $divide: ['$maxDuration', 60] } // Add the maximum spending time in minutes field
                 }
             }
-
         ]);
+        const maxTotalDuration = results?.totalDurationInMinutes?.reduce((max:any, item:any) => {
+            return Math.max(max, item.totalDurationInMinutes);
+        }, 0);
         
+        console.log("Maximum totalDurationInMinutes value:", maxTotalDuration);
         const mappedResults = await Promise.all(results.map(async (result: any) => {
             // Find user information
             const user = await User.findOne({ telegramid: result.telegramid }).select('telegramid first_name username');;

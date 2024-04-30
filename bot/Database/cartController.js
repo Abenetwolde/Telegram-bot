@@ -179,7 +179,7 @@ async function removeItemFromCart(cartId,productId) {
       try {
         const cart = await Cart.findByIdAndDelete(
           cartId,
-        );
+        ); 
         if (!cart) {
           throw new Error('Cart not found.');
         }

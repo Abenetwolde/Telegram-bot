@@ -17,7 +17,7 @@ module.exports = {
             }
             const productId = product._id;
 
-            const cartItem = cart.items.find((item) => item.product._id.toString() === productId);
+            const cartItem = cart.items.find((item) => item.product?._id.toString() === productId);
 
             if (cartItem) {
                 product.quantity = cartItem.quantity;
