@@ -133,9 +133,7 @@ export const GetUSerSpentTime = async (req: Request, res: Response) => {
             return res.status(404).json({ userTime: [], totalDurationInMinutes: 0 });
         }
         res.json({ userTime: results, totalDurationInMinutes });
-        // res.json({ userTime: results });
-        // console.log(JSON.stringify(results[0].totalUserTime[0].totalDurationInMinutes));
-        // res.json({ userTime: results[0]?.userTime, totalUserTime: results[0]?.totalUserTime[0]?.totalDurationInMinutes })
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error!' });
@@ -269,7 +267,7 @@ export const spendTimePerScene = async (req: Request, res: Response) => {
             }
         ]);
 
-        res.json(results);
+        // res.json(results);
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error!' });
@@ -591,7 +589,7 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
                     totalSpentTimeInMinutes: -1 // Sort in ascending order
                 }
             }
-     
+
         ]);
         const mappedResults = await Promise.all(results.map(async (result: any) => {
             // Find user information
@@ -763,7 +761,9 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
     console.log("getUsersPerformance")
     try {
         const { interval = 'perMonth' } = req.query;
-
+        let usertimedata: any = []
+        let userclickdata: any = []
+        let userorderdata: any = []
         // Get the current date
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0);
@@ -802,43 +802,16 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
                 break;
 
         }
-        
-        // const results = await Order.aggregate([
-        //     // Match orders with status "delivered"
-        //     { $match: { orderStatus: "delivered" } },
-        //     // Group by user and count total orders
-        //     {
-        //         $group: {
-        //             _id: "$user",
-        //             totalDeliveredOrders: { $sum: 1 }
-        //         }
-        //     },
-        //     { $sort: { totalDeliveredOrders: -1 } }
-        // ]);
-        // const result2 = await clickKpi.aggregate([
-        //     { $unwind: '$clicks' },
-        //     // Match orders with status "delivered"
-        //     // { $match: { orderStatus: "delivered" } },
-        //     // Group by user and count total orders
-        //     {
-        //         $group: {
-        //             _id: "$user",
-        //             totalClicks: { $sum: '$clicks.count' },
-        //         }
-        //     },
-        //     { $sort: { totalClicks: -1 } }
-        // ]);
 
-
-        const results:any = await UserKPI.aggregate([
+        const results: any = await UserKPI.aggregate([
             {
                 $unwind: '$scene'
             },
-            {
-                $match: {
-                    'scene.date': { $gte: startDate, $lte: endDate } // Filter based on the calculated start and end dates
-                }
-            },
+            // {
+            //     $match: {
+            //         'scene.date': { $gte: startDate, $lte: endDate } // Filter based on the calculated start and end dates
+            //     }
+            // },
             {
                 $group: {
                     _id: '$user', // Group by user ID to calculate total spending time per user
@@ -851,7 +824,7 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
                             ]
                         }
                     },
-                    maxDuration: { $max: '$totalDuration' } 
+                    maxDuration: { $max: '$totalDuration' }
                 }
             },
             {
@@ -878,25 +851,111 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
                 }
             }
         ]);
-        const maxTotalDuration = results?.totalDurationInMinutes?.reduce((max:any, item:any) => {
-            return Math.max(max, item.totalDurationInMinutes);
-        }, 0);
+        const durations: any = await results?.map((scene: any) => scene.totalDurationInMinutes);
+        // console.log(durations)
+        const maxTotalDuration = Math.max(...durations);
+        // console.log("Maximum totalDurationInMinutes value:", maxTotalDuration);
+        let maxTime: any
+        usertimedata = [{ userdata: results, maxTime: maxTotalDuration }];
+
+        const resultsclick: any = await clickKpi.aggregate([
+            { $unwind: '$clicks' },
+            // {
+            //     $match: {
+            //         'clicks.date': { $gte: startDate, $lte: endDate }
+            //     }
+            // },
+
+            {
+                $group: {
+                    _id: '$user',
+                    totalProductClicks: { $sum: '$clicks.count' }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users', // Assuming the users collection name
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude the default MongoDB _id field from the output
+                    user: {
+                        telegramid: '$user.telegramid',
+                        first_name: '$user.first_name',
+                        last_name: '$user.username'
+                    },
+                    totalProductClicks: 1
+
+                }
+            },
+
+        ]);
+        // console.log(results)
+        const userclicks: any = await resultsclick?.map((scene: any) => scene.totalProductClicks);
+        // console.log(durations)
+        const maxclick = Math.max(...userclicks);
+
+        userclickdata = [{ userdata: resultsclick, maxClick: maxclick }];
+
+        const orderStatistics = await Order.aggregate([
+            {
+                $match: {
+                    orderStatus: { $in: ['pending','completed', 'cancelled', 'delivered'] }
+                }
+            },
+            {
+                $group: {
+                    _id: '$user',
+                    totalOrders: { $sum: 1 },
+                    // maxOrderNumber: { $max: '$orderNumber' }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $project: {
+                    _id: 0,
+                    user: {
+                        telegramid: '$user.telegramid',
+                        first_name: '$user.first_name',
+                        last_name: '$user.last_name'
+                    },
+                    totalOrders: 1,
+                    // maxOrderNumber: 1
+                }
+            }
+        ]);
         
-        console.log("Maximum totalDurationInMinutes value:", maxTotalDuration);
-        const mappedResults = await Promise.all(results.map(async (result: any) => {
-            // Find user information
-            const user = await User.findOne({ telegramid: result.telegramid }).select('telegramid first_name username');;
 
-            return {
-                ...result,
-                user
-            };
-        }));
+        // console.log(results)
+        const orderData: any = await orderStatistics?.map((scene: any) => scene.totalOrders);
+        // console.log(durations)
+        const maxOrder= Math.max(...orderData);
 
-        res.json({ timeSpentPerScene: results,
+        userorderdata = [{ userdata: orderData, maxOrder: maxOrder }];
+
+        res.json({
+            usertimedata: userorderdata,
+
             // userClick: result2,
-// 
-         });
+            // 
+        });
 
 
 

@@ -4,7 +4,7 @@ async function getAllCategories() {
   try {
  
     const categoriesData = await Category.find()
- 
+   
     return {
       categories: categoriesData,
     };
