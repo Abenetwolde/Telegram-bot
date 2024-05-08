@@ -28,7 +28,11 @@ cart.enter(async (ctx) => {
   
   if (cart) {
     for (const item of cart?.items) {
-      const cartMessageInfo = await sendCartProduct(ctx, item.product._id.toString(), item)
+      if (!item.product) {
+        console.warn('Skipping item with null product:', item);
+        continue;
+      }
+      const cartMessageInfo = await sendCartProduct(ctx, item?.product?._id.toString(), item)
    
       ctx.session.cleanUpState.push(cartMessageInfo)
     }
@@ -163,7 +167,7 @@ cart.leave(async (ctx) => {
           console.log("reach cart leave scene")
           try {
             await ctx.telegram.deleteMessage(ctx.chat.id, message?.id);
-          } catch (error) {
+            } catch (error) {
             console.log("error occoring", error)
           }
 

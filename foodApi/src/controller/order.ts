@@ -265,6 +265,9 @@ export const updateOrderById = async (req: Request, res: Response) => {
            case "cancelled":
             message=  "\n\nSorry, Your order has been cancelled."
             break;
+            case "pending":
+                message=  "\n\nSorry, Your order has been pending."
+                break;
            default:break;
           }
           // const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${user.telegramid}&text=${encodeURIComponent(message)}`;

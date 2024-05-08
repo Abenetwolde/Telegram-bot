@@ -9,7 +9,7 @@ async function calculateTotalPrice(cartItems) {
   }
   return totalPrice;
 }
-exports.createOrder = async (userId, orderInformation, cartItems) => {
+exports.createOrder = async (userid, userId, orderInformation, cartItems) => {
   try {
     // Validate order information
     if (!userId || !orderInformation  || !cartItems || !cartItems.items || cartItems.items.length === 0) {
@@ -19,9 +19,9 @@ exports.createOrder = async (userId, orderInformation, cartItems) => {
     const totalPrice = await calculateTotalPrice(cartItems);
     let randomNumber = Math.floor(Math.random() * 90000) + 10000;
 
-
     // Create a new order document in the database without population
     const order = await Order.create({
+      user:userid,
       orderNumber: randomNumber,
       telegramid: userId,
       orderItems: cartItems.items.map(cartItem => ({

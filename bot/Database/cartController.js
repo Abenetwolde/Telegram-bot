@@ -30,7 +30,7 @@ async function createCart(userId, productId, quantity) {
       },
     });;
 
-    return populatedCart.items.find((item) => item.product._id.toString() === productId);
+    return  populatedCart.items.find(async (item) => item?.product?._id.toString() === productId);
   } catch (error) {
     console.error('Error creating cart:', error);
     throw new Error('Failed to create cart.');

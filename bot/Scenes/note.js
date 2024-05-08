@@ -235,12 +235,15 @@ noteScene.action('confirm', async (ctx) => {
 });
 noteScene.action("make_order", async (ctx) => {
     const userId = ctx.from.id;
+    const userid = ctx.session.userid;
     const cartItems = await getCart(userId);
 
     const orderInformation = ctx.session.orderInformation || {};
 
     if (ctx.session.orderInformation.paymentType && ctx.session.orderInformation.paymentType.toLowerCase() === 'online') {
-        const order = await createOrder(userId, orderInformation, cartItems);
+
+       try {
+        const order = await createOrder(userid, userId, orderInformation, cartItems);
         const orderJson = JSON.stringify(order);
         const orderJsonParse = JSON.parse(orderJson);
         
@@ -249,22 +252,31 @@ noteScene.action("make_order", async (ctx) => {
             totalPrice: orderJsonParse.totalPrice,
             orderItems: orderJsonParse.orderItems,
             orderId: orderJsonParse._id.toString(),
-        });
+        }); 
+       } catch (error) {
+        ctx.answerCbQuery(`Error Occured`);
+        console.log(error);
+       }
         //  await ctx.scene.leave()
     } else {
- 
-        const order = await createOrder(userId, orderInformation, cartItems);
-        const orderJson = JSON.stringify(order);
-        const orderJsonParse = JSON.parse(orderJson);
+ try {
+    const order = await createOrder(userid,userId, orderInformation, cartItems);
+    const orderJson = JSON.stringify(order);
+    const orderJsonParse = JSON.parse(orderJson);
 
 
-      const message=  await ctx.replyWithHTML(`Thank you for your order!\nPayment received for Order ID: <u>${orderJsonParse.orderNumber}</u>\n.Total Amount: <u>${order.totalPrice}</u> ETB\nThe product will be delivered to you soon.`,Markup.inlineKeyboard([
-        Markup.button.callback(
-          `View Your Order`,"showOrder")
-      ]));
-      await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
+  const message=  await ctx.replyWithHTML(`Thank you for your order!\nPayment received for Order ID: <u>${orderJsonParse.orderNumber}</u>\n.Total Amount: <u>${order.totalPrice}</u> ETB\nThe product will be delivered to you soon.`,Markup.inlineKeyboard([
+    Markup.button.callback(
+      `View Your Order`,"showOrder")
+  ]));
+  await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
 
-        ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' })
+    ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' }) 
+ } catch (error) {
+    ctx.answerCbQuery(`Error Occured`);
+     console.log(error);
+ }
+
         //   await ctx.reply(`Order created successfully! Order ID: ${order._id}\n ${ctx.session.isWaiting.note}`);
  
     }

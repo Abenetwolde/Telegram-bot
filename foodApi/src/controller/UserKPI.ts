@@ -267,7 +267,7 @@ export const spendTimePerScene = async (req: Request, res: Response) => {
             }
         ]);
 
-        // res.json(results);
+         res.json(results);
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error!' });
@@ -934,7 +934,7 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
                     user: {
                         telegramid: '$user.telegramid',
                         first_name: '$user.first_name',
-                        last_name: '$user.last_name'
+                        username: '$user.username'
                     },
                     totalOrders: 1,
                     // maxOrderNumber: 1
@@ -943,7 +943,7 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
         ]);
         
 
-        // console.log(results)
+        console.log("orderStatistics", orderStatistics)
         const orderData: any = await orderStatistics?.map((scene: any) => scene.totalOrders);
         // console.log(durations)
         const maxOrder= Math.max(...orderData);

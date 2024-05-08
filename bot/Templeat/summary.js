@@ -22,6 +22,7 @@ module.exports = {
         // const cartProducts = await getCart(userId);
         // console.log("cartProducts", cartProducts)
         cartItem?.items?.forEach((product, productId) => {
+
             if (product.quantity > 0) {
                 // console.log(ctx.session.quantity[product._id], product._id)//filter the product quantity is greater than o
                 summary += `🛒 ${product.product.name}: ${product.quantity} x ${product.product.price} ETB = ${product.quantity * product.product.price} ETB\n`;
@@ -42,7 +43,7 @@ module.exports = {
         //     datePick=deliveryDate
         //     // orderItems.push({"deliveryDate": deliveryDate})
         // }
-
+ 
         if (usernote) {
             summary += `📔 Note for seller: ${usernote}\n`
           
