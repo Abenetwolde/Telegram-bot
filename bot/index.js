@@ -174,7 +174,7 @@ mongoClient.connect()
       ctx.session.startTime = new Date().getTime();
       // Continue with the next middleware
       await next();
-    }); 
+    });
     const calculateDuration = (startTime, endTime) => {
       return new Date(endTime) - new Date(startTime);
     };
@@ -428,12 +428,14 @@ mongoClient.connect()
                 is_bot: ctx.from.is_bot || false,
                 language: ctx.session.locale
               });
+              if (response) {
+                console.log("response.data", response)
 
-              console.log("response.data", response)
+           
+                ctx.session.userid = response.user._id.toString();
+                ctx.session.token = response.token;
+              }
 
-              await ctx.reply(response.token)
-              ctx.session.userid = response.user._id.toString();
-              ctx.session.token = response.token;
             }
             catch (error) {
               if (error.message == 'User already exists!') {
@@ -1030,7 +1032,7 @@ process.once("SIGINT", () => bot.stop("SIGINT"))
 process.once("SIGTERM", () => bot.stop("SIGTERM"))
 
 
-  // http.createServer(/* bot.webhookCallback('/my-secret-path') */).listen(3000);
+// http.createServer(/* bot.webhookCallback('/my-secret-path') */).listen(3000);
 
 // module.exports = async (req, res) => {
 //   try {

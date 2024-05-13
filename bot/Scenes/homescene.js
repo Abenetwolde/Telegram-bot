@@ -11,6 +11,8 @@ const User = require("../Model/user");
 const KpiCategorys = require("../Model/KpiCategory");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 const { updateClicks } = require("../Utils/calculateClicks");
+const { createUser } = require("../Database/UserController");
+const { checkUserToken } = require("../Utils/checkUserToken");
 homeScene.enter(async (ctx) => {
     try {
         if (ctx.session.cleanUpState) {
@@ -22,6 +24,36 @@ homeScene.enter(async (ctx) => {
             });
         }
         await ctx.sendChatAction('typing');
+
+        const userToken = await checkUserToken(`${ctx.from.id}`, ctx)
+          console.log("userToken", userToken)
+
+          if (userToken == null) {
+            try {
+         
+              const response = await createUser({
+                telegramid: ctx.from.id,
+                first_name: ctx.from.first_name,
+                last_name: ctx.from.last_name,
+                username: ctx.from.username || null,
+                is_bot: ctx.from.is_bot || false,
+                language: ctx.session.locale
+              });
+              if (response) {
+                console.log("response.data", response)
+                ctx.session.userid = response.user._id.toString();
+                ctx.session.token = response.token;
+              }
+
+            }
+        
+        catch (error) {
+          if (error.message == 'User already exists!') {
+            await ctx.reply("User already exists! ")
+          }
+          console.log(error.response)
+        }
+      }
         const enterTime = new Date();
 
         ctx.scene.state.enterTime = enterTime;

@@ -402,3 +402,257 @@ export const getOrderCount = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+export const getOrderbyCancelandComplated = async (req: Request, res: Response) => {
+    interface OrderSummary {
+        status: string;
+        count: number;
+        time: Date;
+    }
+    try {
+        // Parse the start and end dates from the request query
+    
+        
+        const { interval = 'perMonth' } = req.query;
+
+        // Get the current date
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        switch (interval) {
+            case 'perDay':
+                const selectedDate = new Date();
+                startDate = new Date(selectedDate);
+                startDate.setUTCHours(0, 0, 0, 0);
+                endDate = new Date(selectedDate);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perWeek':
+                // Calculate the start of the current week (Sunday)
+                startDate = new Date(currentDate);
+                startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
+                startDate.setUTCHours(0, 0, 0, 0);
+                // Calculate the end of the current week (Saturday)
+                endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 6); // Move to Saturday
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perMonth':
+                // Calculate the start and end of the current month
+                startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perYear':
+                // Calculate the start and end of the current year
+                startDate = new Date(currentDate.getFullYear(), 0, 1);
+                endDate = new Date(currentDate.getFullYear(), 11, 31);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+
+        }
+        let result: any[] = []
+        let pipeline
+        // Construct the aggregation pipeline
+
+        // Execute the aggregation pipeline
+        if (interval === "perWeek" || interval === "perMonth") {
+            result = await Order.aggregate<OrderSummary>([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { status: '$orderStatus', createdAt: '$createdAt' },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        status: '$_id.status',
+                        createdAt: {
+                            $dateToString: { format: "%Y-%m-%d", date: "$_id.createdAt" }
+                        },
+                        count: 1
+                    }
+                }
+            ]);
+    
+        }else if(interval=="perYear"){
+            result = await Order.aggregate<OrderSummary>([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { status: '$orderStatus', createdAt: '$createdAt' },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        status: '$_id.status',
+                        createdAt: {
+                            $dateToString: { format: "%Y-%m", date: "$_id.createdAt" }
+                        },
+                        count: 1
+                    }
+                }
+            ]);
+        }
+       
+        // Separate completed and cancelled orders
+        const completedOrders = result.filter(item => item.status === 'completed');
+        const cancelledOrders = result.filter(item => item.status === 'cancelled');
+
+        // Send the summary as JSON response
+        res.json({ completedOrders, cancelledOrders });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+export const getOrderbyCancelandComplatedPendingandDeliver = async (req: Request, res: Response) => {
+    interface OrderSummary {
+        status: string;
+        count: number;
+        time: Date;
+    }
+    try {
+        // Parse the start and end dates from the request query
+    
+        
+        const { interval = 'perMonth' } = req.query;
+
+        // Get the current date
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        switch (interval) {
+            case 'perDay':
+                const selectedDate = new Date();
+                startDate = new Date(selectedDate);
+                startDate.setUTCHours(0, 0, 0, 0);
+                endDate = new Date(selectedDate);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perWeek':
+                // Calculate the start of the current week (Sunday)
+                startDate = new Date(currentDate);
+                startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
+                startDate.setUTCHours(0, 0, 0, 0);
+                // Calculate the end of the current week (Saturday)
+                endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 6); // Move to Saturday
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perMonth':
+                // Calculate the start and end of the current month
+                startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perYear':
+                // Calculate the start and end of the current year
+                startDate = new Date(currentDate.getFullYear(), 0, 1);
+                endDate = new Date(currentDate.getFullYear(), 11, 31);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+
+        }
+        let result: any[] = []
+        let pipeline
+        // Construct the aggregation pipeline
+
+        // Execute the aggregation pipeline
+        if (interval === "perWeek" || interval === "perMonth") {
+            result = await Order.aggregate<OrderSummary>([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { status: '$orderStatus', createdAt: '$createdAt' },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        status: '$_id.status',
+                        createdAt: {
+                            $dateToString: { format: "%Y-%m-%d", date: "$_id.createdAt" }
+                        },
+                        count: 1
+                    }
+                }
+            ]);
+    
+        }else if(interval=="perYear"){
+            result = await Order.aggregate<OrderSummary>([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { status: '$orderStatus', createdAt: '$createdAt' },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        status: '$_id.status',
+                        createdAt: {
+                            $dateToString: { format: "%Y-%m", date: "$_id.createdAt" }
+                        },
+                        count: 1
+                    }
+                },
+                {
+                    $sort: { createdAt: -
+                        1 as any} //-1 for
+                }
+            ]);
+        }
+       
+        // Separate completed and cancelled orders
+        const completedOrders = result.filter(item => item.status === 'completed');
+        const cancelledOrders = result.filter(item => item.status === 'cancelled');
+        const pendingOrders = result.filter(item => item.status === 'pending');
+        const deliveredOrders = result.filter(item => item.status === 'delivered');
+
+        // Send the summary as JSON response
+        res.json({ completedOrders, cancelledOrders });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+

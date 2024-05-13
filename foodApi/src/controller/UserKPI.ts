@@ -807,11 +807,11 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
             {
                 $unwind: '$scene'
             },
-            // {
-            //     $match: {
-            //         'scene.date': { $gte: startDate, $lte: endDate } // Filter based on the calculated start and end dates
-            //     }
-            // },
+            {
+                $match: {
+                    'scene.date': { $gte: startDate, $lte: endDate } // Filter based on the calculated start and end dates
+                }
+            },
             {
                 $group: {
                     _id: '$user', // Group by user ID to calculate total spending time per user
@@ -943,25 +943,108 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
         ]);
         
 
-        console.log("orderStatistics", orderStatistics)
         const orderData: any = await orderStatistics?.map((scene: any) => scene.totalOrders);
         // console.log(durations)
         const maxOrder= Math.max(...orderData);
 
-        userorderdata = [{ userdata: orderData, maxOrder: maxOrder }];
+        userorderdata = [{ userdata: orderStatistics, maxOrder: maxOrder }];
+let userperfromanceData:any=[]
 
-        res.json({
-            usertimedata: userorderdata,
-
-            // userClick: result2,
-            // 
-        });
+try {
 
 
+usertimedata.forEach((userTimeDataItem: any) => {
+    // Iterate through each user data item in userdata array
+    userTimeDataItem.userdata?.forEach((userDataItem: any) => {
+        const user = userDataItem.user;
+        const timeSpent = userDataItem.totalDurationInMinutes || 0; // If no data, set to 0
+        // Find corresponding click data for the user
+        const userClickData = userclickdata[0].userdata.find((item: any) => item.user.telegramid === user.telegramid);
+        const totalClicks = userClickData ? userClickData.totalProductClicks : 0; // If no data, set to 0
+
+        // Find corresponding order data for the user
+        const userOrderData = userorderdata[0].userdata.find((item: any) => item.user.telegramid === user.telegramid);
+        const totalOrders = userOrderData ? userOrderData.totalOrders : 0; // If no data, set to 0
+
+        userperfromanceData.push({ user, timeSpent, totalClicks, totalOrders });
+    });
+});
+
+
+    // Your existing code here...
+    const weights = {
+        timeSpent: 0.4,
+        totalClicks: 0.3,
+        totalOrders: 0.3,
+      };
+      
+
+      // Calculate normalized metrics and overall score for each user
+      const usersWithScores:any = userperfromanceData.map((user:any) => {
+        // Normalize metrics
+        const normalizedTimeSpent = user.timeSpent / maxTotalDuration;
+        const normalizedTotalClicks = user.totalClicks / maxclick;
+        const normalizedTotalOrders = user.totalOrders / maxOrder;
+      
+        // Calculate overall score
+        const overallScore =
+          normalizedTimeSpent * weights.timeSpent +
+          normalizedTotalClicks * weights.totalClicks +
+          normalizedTotalOrders * weights.totalOrders;
+      
+        return {
+          user: user,
+          timeSpent: user.timeSpent,
+          totalClicks: user.totalClicks,
+          totalOrders: user.totalOrders,
+          overallScore: overallScore.toFixed(2), // Round to 2 decimal places
+        };
+      });
+      usersWithScores.sort((a: any, b: any) => {
+        return b.overallScore - a.overallScore;
+    });
+      res.json({
+        usersWithScores
+
+        // userClick: result2,
+        // 
+    });
+} catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error!' });
+}
+
+
+     
 
 
 
 
+
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error!' });
+    }
+};
+export const getUsersLotterandInvitedUserData = async (req: Request, res: Response) => {
+    console.log("getUsersLotterandInvitedUserData user kpi ")
+    try {
+        const usersWithLotteryNumbers = await User.find({
+            $and: [
+                { $or: [
+                    { 'lotteryNumbers.number': { $exists: true } },
+                    { 'lotteryNumbers.invitedUsers': { $exists: true } }
+                ] },
+                { 'lotteryNumbers.invitedUsers': { $gt: 0 } }
+            ]
+        }).select("telegramid first_name username lotteryNumbers");
+
+        // Send the users with lotteryNumbers information as JSON response
+        res.json(usersWithLotteryNumbers);
+ 
+        
 
     } catch (error) {
         console.error(error);

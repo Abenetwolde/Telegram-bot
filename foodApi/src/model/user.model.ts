@@ -49,6 +49,18 @@ export interface IUser extends Document {
     enum: ['BOT', 'CHANNEL', 'INVITATION'],
     required: [true, 'status is required'],
   }, 
+  lotteryNumbers: {
+    number: {
+      type: any,
+      default:null,
+      required: true,
+    },
+    invitedUsers: {
+      type: Number,
+      default:0
+      // required: true,
+    },
+  },
   createdAt:Date
 }
 
@@ -101,6 +113,18 @@ const userSchema = new Schema<IUser>({
     type: String,
     default: LanguageEnum.EN,
     enum: Object.values(LanguageEnum),
+  },
+  lotteryNumbers: {
+    number: {
+      type: Array,
+      default:null,
+      required: true,
+    },
+    invitedUsers: {
+      type: Number,
+      default:0
+      // required: true,
+    },
   },
   createdAt: { type: Date, default: Date.now },
 });
