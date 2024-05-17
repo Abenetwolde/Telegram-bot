@@ -83,7 +83,7 @@ export const getOrders = async (req: Request, res: Response) => {
                 model: 'Product'
             })
             .populate('payment')
-          
+
             .skip(skip)
             .limit(pageSize)
             .sort({ createdAt: -1 });
@@ -93,16 +93,16 @@ export const getOrders = async (req: Request, res: Response) => {
 
         // Calculate the total number of pages
         const totalPages = Math.ceil(count / pageSize);
-   
-    
-    // Fetch user details for each order
-    const ordersWithUserDetails = await Promise.all(orders.map(async (order) => {
-        const user = await User.findOne({telegramid:order.telegramid});
-        return { ...order.toObject(), user };
-    }));
+
+
+        // Fetch user details for each order
+        const ordersWithUserDetails = await Promise.all(orders.map(async (order) => {
+            const user = await User.findOne({ telegramid: order.telegramid });
+            return { ...order.toObject(), user };
+        }));
         res.status(200).json({
             success: true,
-            orders:ordersWithUserDetails,
+            orders: ordersWithUserDetails,
             count,
             page,
             pageSize,
@@ -113,109 +113,109 @@ export const getOrders = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: 'Server error!' });
     }
 };
-export const getOrdersPerDay = async(req: Request, res: Response) => {
+export const getOrdersPerDay = async (req: Request, res: Response) => {
     console.log("get all order per day")
     try {
-      // Get the current date
-      const currentDate = new Date();
-  
-      // Get the start of the current date (midnight)
-      const startDate = new Date(currentDate.setHours(0, 0, 0, 0));
-  
-      // Get the end of the current date (11:59:59 PM)
-      const endDate = new Date(currentDate.setHours(23, 59, 59, 999));
-   console.log(`startdate{${startDate}} enddate  ${endDate}`)
-      // Query the database to find all orders created between startDate and endDate
-      const orderCounts = await Order.aggregate([
-        // {
-        //   $match: {
-        //     createdAt: { $gte: startDate, $lte: endDate }
-        //   }
-        // },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-            count: { $sum: 1 }
-          }
-        }
-      ]).sort({_id: 1});
-  
-      // Send the response containing the number of orders per day
-      res.json(orderCounts);
+        // Get the current date
+        const currentDate = new Date();
+
+        // Get the start of the current date (midnight)
+        const startDate = new Date(currentDate.setHours(0, 0, 0, 0));
+
+        // Get the end of the current date (11:59:59 PM)
+        const endDate = new Date(currentDate.setHours(23, 59, 59, 999));
+        console.log(`startdate{${startDate}} enddate  ${endDate}`)
+        // Query the database to find all orders created between startDate and endDate
+        const orderCounts = await Order.aggregate([
+            // {
+            //   $match: {
+            //     createdAt: { $gte: startDate, $lte: endDate }
+            //   }
+            // },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            }
+        ]).sort({ _id: 1 });
+
+        // Send the response containing the number of orders per day
+        res.json(orderCounts);
     } catch (error) {
-      // Handle errors
-      console.error('Error fetching orders per day:', error);
-      res.status(500).json({ message: 'Internal server error' });
+        // Handle errors
+        console.error('Error fetching orders per day:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-  };
-  export const getCancelledOrdersPerDay = async (req: Request, res: Response) => {
+};
+export const getCancelledOrdersPerDay = async (req: Request, res: Response) => {
     try {
-      // Get the current date
-      const currentDate = new Date();
-  
-      // Get the start of the current date (midnight)
-      const startDate = new Date(currentDate.setHours(0, 0, 0, 0));
-  
-      // Get the end of the current date (11:59:59 PM)
-      const endDate = new Date(currentDate.setHours(23, 59, 59, 999));
-  
-      // Query the database to find all cancelled orders created between startDate and endDate
-      const cancelledOrderCounts = await Order.aggregate([
-        {
-          $match: {
-            // createdAt: { $gte: startDate, $lte: endDate },
-            orderStatus: 'cancelled' // Filter cancelled orders
-          }
-        },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-            count: { $sum: 1 }
-          }
-        }
-      ]).sort({_id: 1});
-  
-      // Send the response containing the number of cancelled orders per day
-      res.json(cancelledOrderCounts);
+        // Get the current date
+        const currentDate = new Date();
+
+        // Get the start of the current date (midnight)
+        const startDate = new Date(currentDate.setHours(0, 0, 0, 0));
+
+        // Get the end of the current date (11:59:59 PM)
+        const endDate = new Date(currentDate.setHours(23, 59, 59, 999));
+
+        // Query the database to find all cancelled orders created between startDate and endDate
+        const cancelledOrderCounts = await Order.aggregate([
+            {
+                $match: {
+                    // createdAt: { $gte: startDate, $lte: endDate },
+                    orderStatus: 'cancelled' // Filter cancelled orders
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            }
+        ]).sort({ _id: 1 });
+
+        // Send the response containing the number of cancelled orders per day
+        res.json(cancelledOrderCounts);
     } catch (error) {
-      // Handle errors
-      console.error('Error fetching cancelled orders per day:', error);
-      res.status(500).json({ message: 'Internal server error' });
+        // Handle errors
+        console.error('Error fetching cancelled orders per day:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-  };
-  export const getOrderFoodPerDay = async (req: Request, res: Response) => {
+};
+export const getOrderFoodPerDay = async (req: Request, res: Response) => {
     console.log("reach getOrderFoodPerDay")
     try {
         // Aggregate orders by product ID and count the occurrences
         const aggregatedOrders = await Order.aggregate([
-          {
-            $unwind: '$orderItems', // Split array into separate documents
-          },
-          {
-            $lookup: { // Join with the Product collection to get product details
-              from: 'products',
-              localField: 'orderItems.product',
-              foreignField: '_id',
-              as: 'product',
+            {
+                $unwind: '$orderItems', // Split array into separate documents
             },
-          },
-          {
-            $unwind: '$product', // Unwind the product array
-          },
-          {
-            $group: { // Group by product name and count occurrences
-              _id: '$product.name',
-              count: { $sum: 1 },
+            {
+                $lookup: { // Join with the Product collection to get product details
+                    from: 'products',
+                    localField: 'orderItems.product',
+                    foreignField: '_id',
+                    as: 'product',
+                },
             },
-          },
+            {
+                $unwind: '$product', // Unwind the product array
+            },
+            {
+                $group: { // Group by product name and count occurrences
+                    _id: '$product.name',
+                    count: { $sum: 1 },
+                },
+            },
         ]);
-    
+
         res.json(aggregatedOrders);
-      } catch (error) {
+    } catch (error) {
         console.error('Error aggregating orders:', error);
         res.status(500).json({ error: 'Internal server error' });
-      }
-  };
+    }
+};
 export const getOrderById = async (req: Request, res: Response) => {
     try {
         const orderId = req.params.orderId;
@@ -237,7 +237,7 @@ export const updateOrderById = async (req: Request, res: Response) => {
         const orderId = req.params.orderId;
         const updatedOrder = await Order.findByIdAndUpdate(
             orderId,
-            
+
             { ...req.body },
             { new: true }
         ).populate({
@@ -249,40 +249,40 @@ export const updateOrderById = async (req: Request, res: Response) => {
         if (!updatedOrder) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
-        const user = await User.findOne({telegramid:updatedOrder.telegramid});;
+        const user = await User.findOne({ telegramid: updatedOrder.telegramid });;
 
         if (user) {
-          // If the user is found, send them a message on Telegram
-          let message = '';
-          const status=req.body.orderStatus
-          switch(status){
-           case "completed"
-           :message = '\n\nYour order has been completed.\n\nPlease check your profile for more details.' 
-           break;
-           case "delivered"
-           :message = '\n\nYour order has been delivered.\n\nPlease check your profile for more details.' 
-           break;
-           case "cancelled":
-            message=  "\n\nSorry, Your order has been cancelled."
-            break;
-            case "pending":
-                message=  "\n\nSorry, Your order has been pending."
-                break;
-           default:break;
-          }
-          // const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${user.telegramid}&text=${encodeURIComponent(message)}`;
-          const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${user.telegramid}&text=${encodeURIComponent(message)}`;
-    
-          // Send the HTTP request
-          const response = await axios.post(url);
-    
-          if (response.status !== 200) {
-            console.error('Failed to send message on Telegram:', response.data);
-          }
+            // If the user is found, send them a message on Telegram
+            let message = '';
+            const status = req.body.orderStatus
+            switch (status) {
+                case "completed"
+                    : message = '\n\nYour order has been completed.\n\nPlease check your profile for more details.'
+                    break;
+                case "delivered"
+                    : message = '\n\nYour order has been delivered.\n\nPlease check your profile for more details.'
+                    break;
+                case "cancelled":
+                    message = "\n\nSorry, Your order has been cancelled."
+                    break;
+                case "pending":
+                    message = "\n\nSorry, Your order has been pending."
+                    break;
+                default: break;
+            }
+            // const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${user.telegramid}&text=${encodeURIComponent(message)}`;
+            const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${user.telegramid}&text=${encodeURIComponent(message)}`;
+
+            // Send the HTTP request
+            const response = await axios.post(url);
+
+            if (response.status !== 200) {
+                console.error('Failed to send message on Telegram:', response.data);
+            }
         }
-        const ordersWithUserDetails =await User.findOne({telegramid:updatedOrder.telegramid});
-          const updateorder= { ...updatedOrder.toObject(),user: ordersWithUserDetails };
-            
+        const ordersWithUserDetails = await User.findOne({ telegramid: updatedOrder.telegramid });
+        const updateorder = { ...updatedOrder.toObject(), user: ordersWithUserDetails };
+
         res.status(200).json({ success: true, order: updateorder });
     } catch (error) {
         console.error(error);
@@ -410,8 +410,8 @@ export const getOrderbyCancelandComplated = async (req: Request, res: Response) 
     }
     try {
         // Parse the start and end dates from the request query
-    
-        
+
+
         const { interval = 'perMonth' } = req.query;
 
         // Get the current date
@@ -469,23 +469,36 @@ export const getOrderbyCancelandComplated = async (req: Request, res: Response) 
                 },
                 {
                     $group: {
-                        _id: { status: '$orderStatus', createdAt: '$createdAt' },
+                        _id: { status: '$orderStatus', createdAt: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } },
                         count: { $sum: 1 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id.createdAt',
+                        orders: {
+                            $push: {
+                                status: '$_id.status',
+                                count: '$count'
+                            }
+                        }
                     }
                 },
                 {
                     $project: {
                         _id: 0,
-                        status: '$_id.status',
-                        createdAt: {
-                            $dateToString: { format: "%Y-%m-%d", date: "$_id.createdAt" }
-                        },
-                        count: 1
+                        createdAt: '$_id',
+                        orders: 1
+                    }
+                },
+                {
+                    $sort: {
+                        createdAt: 1
                     }
                 }
             ]);
-    
-        }else if(interval=="perYear"){
+
+        } else if (interval == "perYear") {
             result = await Order.aggregate<OrderSummary>([
                 {
                     $match: {
@@ -497,35 +510,48 @@ export const getOrderbyCancelandComplated = async (req: Request, res: Response) 
                 },
                 {
                     $group: {
-                        _id: { status: '$orderStatus', createdAt: '$createdAt' },
+                        _id: { status: '$orderStatus', createdAt: { $dateToString: { format: "%Y-%m", date: "$createdAt" } } },
                         count: { $sum: 1 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id.createdAt',
+                        orders: {
+                            $push: {
+                                status: '$_id.status',
+                                count: '$count'
+                            }
+                        }
                     }
                 },
                 {
                     $project: {
                         _id: 0,
-                        status: '$_id.status',
-                        createdAt: {
-                            $dateToString: { format: "%Y-%m", date: "$_id.createdAt" }
-                        },
-                        count: 1
+                        createdAt: '$_id',
+                        orders: 1
+                    }
+                },
+                {
+                    $sort: {
+                        createdAt: 1
                     }
                 }
             ]);
         }
-       
+
         // Separate completed and cancelled orders
         const completedOrders = result.filter(item => item.status === 'completed');
         const cancelledOrders = result.filter(item => item.status === 'cancelled');
 
         // Send the summary as JSON response
-        res.json({ completedOrders, cancelledOrders });
+        res.json({ result });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
-export const getOrderbyCancelandComplatedPendingandDeliver = async (req: Request, res: Response) => {
+export const getOrderbyCashandOnline = async (req: Request, res: Response) => {
     interface OrderSummary {
         status: string;
         count: number;
@@ -533,8 +559,8 @@ export const getOrderbyCancelandComplatedPendingandDeliver = async (req: Request
     }
     try {
         // Parse the start and end dates from the request query
-    
-        
+
+
         const { interval = 'perMonth' } = req.query;
 
         // Get the current date
@@ -592,23 +618,36 @@ export const getOrderbyCancelandComplatedPendingandDeliver = async (req: Request
                 },
                 {
                     $group: {
-                        _id: { status: '$orderStatus', createdAt: '$createdAt' },
+                        _id: { status: '$paymentType', createdAt: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } },
                         count: { $sum: 1 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id.createdAt',
+                        orders: {
+                            $push: {
+                                status: '$_id.status',
+                                count: '$count'
+                            }
+                        }
                     }
                 },
                 {
                     $project: {
                         _id: 0,
-                        status: '$_id.status',
-                        createdAt: {
-                            $dateToString: { format: "%Y-%m-%d", date: "$_id.createdAt" }
-                        },
-                        count: 1
+                        createdAt: '$_id',
+                        orders: 1
+                    }
+                },
+                {
+                    $sort: {
+                        createdAt: 1
                     }
                 }
             ]);
-    
-        }else if(interval=="perYear"){
+
+        } else if (interval == "perYear") {
             result = await Order.aggregate<OrderSummary>([
                 {
                     $match: {
@@ -620,39 +659,386 @@ export const getOrderbyCancelandComplatedPendingandDeliver = async (req: Request
                 },
                 {
                     $group: {
-                        _id: { status: '$orderStatus', createdAt: '$createdAt' },
+                        _id: { status: '$paymentType', createdAt: { $dateToString: { format: "%Y-%m", date: "$createdAt" } } },
                         count: { $sum: 1 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id.createdAt',
+                        orders: {
+                            $push: {
+                                status: '$_id.status',
+                                count: '$count'
+                            }
+                        }
                     }
                 },
                 {
                     $project: {
                         _id: 0,
-                        status: '$_id.status',
-                        createdAt: {
-                            $dateToString: { format: "%Y-%m", date: "$_id.createdAt" }
-                        },
-                        count: 1
+                        createdAt: '$_id',
+                        orders: 1
                     }
                 },
                 {
-                    $sort: { createdAt: -
-                        1 as any} //-1 for
+                    $sort: {
+                        createdAt: 1
+                    }
                 }
             ]);
         }
-       
+
         // Separate completed and cancelled orders
         const completedOrders = result.filter(item => item.status === 'completed');
         const cancelledOrders = result.filter(item => item.status === 'cancelled');
-        const pendingOrders = result.filter(item => item.status === 'pending');
-        const deliveredOrders = result.filter(item => item.status === 'delivered');
 
         // Send the summary as JSON response
-        res.json({ completedOrders, cancelledOrders });
+        res.json({ result });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
 
+export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
+    interface OrderSummary {
+        status: string;
+        count: number;
+        time: Date;
+    }
+    try {
+        // Parse the start and end dates from the request query
 
+
+        const { interval = 'perMonth' } = req.query;
+
+        // Get the current date
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        switch (interval) {
+            case 'perDay':
+                const selectedDate = new Date();
+                startDate = new Date(selectedDate);
+                startDate.setUTCHours(0, 0, 0, 0);
+                endDate = new Date(selectedDate);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perWeek':
+                // Calculate the start of the current week (Sunday)
+                startDate = new Date(currentDate);
+                startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
+                startDate.setUTCHours(0, 0, 0, 0);
+                // Calculate the end of the current week (Saturday)
+                endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 6); // Move to Saturday
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perMonth':
+                // Calculate the start and end of the current month
+                startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perYear':
+                // Calculate the start and end of the current year
+                startDate = new Date(currentDate.getFullYear(), 0, 1);
+                endDate = new Date(currentDate.getFullYear(), 11, 31);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+
+        }
+        let result: any[] = []
+        let pipeline
+        // Construct the aggregation pipeline
+
+        // Execute the aggregation pipeline
+        if (interval === "perWeek" || interval === "perMonth") {
+            result = await Order.aggregate<OrderSummary>([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
+                {
+                    $group: {
+                        _id: '$orderItems.product',
+                        productName: { $first: '$orderItems.product' },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $sort: { count: -1 }
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                {
+                    $unwind: '$product'
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        productName: '$product.name',
+                        count: 1
+                    }
+                },
+                // {
+                //     $project: {
+                //         _id: 0,
+                //         productName: '$product.name',
+                //         count: 1
+                //     }
+                // }
+            ]);
+
+        } else if (interval == "perYear") {
+            result = await Order.aggregate<OrderSummary>([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
+                {
+                    $group: {
+                        _id: '$orderItems.product',
+                        // productName: { $first: '$orderItems.product' },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $sort: { count: -1 }
+                },
+                {
+                    $lookup: {
+                        from: 'Product',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                {
+                    $unwind: '$product'
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        productName: '$product.name',
+                        count: 1
+                    }
+                },
+           
+            ]);
+        }
+
+        // Separate completed and cancelled orders
+        const completedOrders = result.filter(item => item.status === 'completed');
+        const cancelledOrders = result.filter(item => item.status === 'cancelled');
+
+        // Send the summary as JSON response
+        res.json({ result });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
+    interface OrderSummary {
+        status: string;
+        count: number;
+        time: Date;
+    }
+    try {
+        // Parse the start and end dates from the request query
+
+
+        const { interval = 'perMonth' } = req.query;
+
+        // Get the current date
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        switch (interval) {
+            case 'perDay':
+                const selectedDate = new Date();
+                startDate = new Date(selectedDate);
+                startDate.setUTCHours(0, 0, 0, 0);
+                endDate = new Date(selectedDate);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perWeek':
+                // Calculate the start of the current week (Sunday)
+                startDate = new Date(currentDate);
+                startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
+                startDate.setUTCHours(0, 0, 0, 0);
+                // Calculate the end of the current week (Saturday)
+                endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 6); // Move to Saturday
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perMonth':
+                // Calculate the start and end of the current month
+                startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+            case 'perYear':
+                // Calculate the start and end of the current year
+                startDate = new Date(currentDate.getFullYear(), 0, 1);
+                endDate = new Date(currentDate.getFullYear(), 11, 31);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
+
+        }
+        let result: any[] = []
+        let pipeline
+        // Construct the aggregation pipeline
+
+        // Execute the aggregation pipeline
+        if (interval === "perWeek" || interval === "perMonth") {
+            result = await Order.aggregate<OrderSummary>([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
+                {
+                    $group: {
+                        _id: '$orderItems.product',
+                        productName: { $first: '$orderItems.product' },
+                        count: { $sum: 1 }
+                    }
+                },
+           
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                {
+                    $unwind: '$product'
+                },
+                  {
+                    $project: {
+                        _id: '$product.category',
+                        count: 1,
+                    }
+                },
+          
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'category'
+                    }
+                },
+                {
+                    $unwind: '$category'
+                },
+                
+                {
+                    $project: {
+                        _id: 0,
+                        categoryName: '$category.name',
+                        count: 1
+                    }
+                },
+                {
+                    $sort: { count: -1 }
+                },
+            
+                
+            ]);
+
+        } else if (interval == "perYear") {
+            result = await Order.aggregate<OrderSummary>([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
+                {
+                    $group: {
+                        _id: '$orderItems.product',
+                        // productName: { $first: '$orderItems.product' },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $sort: { count: -1 }
+                },
+                {
+                    $lookup: {
+                        from: 'Product',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                {
+                    $unwind: '$product'
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        productName: '$product.name',
+                        count: 1
+                    }
+                },
+           
+            ]);
+        }
+
+
+let aggregatedCounts:any = {};
+result.forEach((item) => {
+    const { count, categoryName } = item;
+
+    // If the category exists in the object, add the count
+    if (aggregatedCounts[categoryName]) {
+        aggregatedCounts[categoryName] += count;
+    } else {
+        // Otherwise, initialize the count
+        aggregatedCounts[categoryName] = count;
+    }
+})
+const dataArray = Object.entries(aggregatedCounts).map(([categoryName, count]) => ({ categoryName, count }));
+
+// Sort the array by count in ascending order
+dataArray.sort((a:any, b:any) => b.count - a.count);    // Send the summary as JSON response
+        res.json({ categorycount:dataArray });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};

@@ -46,7 +46,7 @@ app.use('/api/kpi', useKpi);
 connectToDatabase()
   
 app.listen(7000, () => {
-  console.log('Server running on http://localhost:8080/');
+  console.log('Server running on http://localhost:7000/');
 });
  
  

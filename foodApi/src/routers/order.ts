@@ -15,7 +15,10 @@ import {
   getOrdersPerDay,
   getCancelledOrdersPerDay,
   getOrderFoodPerDay,
- getOrderbyCancelandComplated
+ getOrderbyCancelandComplated,
+ getOrderbyCashandOnline,
+ getOrderMostOrderProduct,
+ getOrderMostOrdeCategory
 } from '../controller/order'; // Import order controllers
 import multer from 'multer';
 import path from 'path';
@@ -70,5 +73,7 @@ router.route('/getordersbytotalamountrange').get(getOrdersByTotalAmountRange);
 // GET /api/orders/count
 router.route('/getordercount').get(getOrderCount);
 router.route('/getorderby-cancel-and-complated').get(getOrderbyCancelandComplated);
-
+router.route('/getorderby-cash-and-online').get(getOrderbyCashandOnline);
+router.route('/get-order-most-order-product').get(getOrderMostOrderProduct);
+router.route('/get-order-most-order-category').get(getOrderMostOrdeCategory);
 export default router;
