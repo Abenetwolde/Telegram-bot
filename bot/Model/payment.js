@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema
 const paymentSchema = new mongoose.Schema({
     telegramid: {
-        type: Number,  // Use mongoose.Schema.Types.Number to specify a number type
+        type: mongoose.Schema.ObjectId,
         ref: "Users",
+        required: true
         // required: true
     }, 
     order: {
@@ -28,8 +29,12 @@ const paymentSchema = new mongoose.Schema({
     },
     paymentType: {
         type: String,
-        enum: ['Cash', 'online'],
+        enum: ['Cash', 'Online'],
       },
+      createdAt: {
+        type: Date,
+        default: Date.now
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Payment", paymentSchema);

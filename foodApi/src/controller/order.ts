@@ -4,6 +4,7 @@ import Order from '../model/order.model';
 import Product from '../model/food.model';
 import User from '../model/user.model';
 import axios from 'axios';
+import Payment from '../model/payment.model';
 const generateUniqueID = () => {
     return Math.floor(1000 + Math.random() * 9000);
 };
@@ -255,6 +256,8 @@ export const updateOrderById = async (req: Request, res: Response) => {
             // If the user is found, send them a message on Telegram
             let message = '';
             const status = req.body.orderStatus
+            const paymentstatus = req.body.paymentStatus
+            console.log("req.bodyr", req.body)
             switch (status) {
                 case "completed"
                     : message = '\n\nYour order has been completed.\n\nPlease check your profile for more details.'
@@ -269,6 +272,26 @@ export const updateOrderById = async (req: Request, res: Response) => {
                     message = "\n\nSorry, Your order has been pending."
                     break;
                 default: break;
+            }
+            if (req.body.paymentType == "Cash" && paymentstatus == "completed") {
+                try {
+                    console.log("this code is impelement", req.body.orderId)
+                    const orderid=req.body.orderId 
+                    const ispaymentexist = await Payment.findOne({ order:orderid })
+                    console.log("ordermpelement", ispaymentexist)
+                    if (!ispaymentexist) {
+                        const payment = new Payment({
+                            telegramid: req.body.user._id,
+                            total_amount: req.body.totalPrice,
+                            paymentType: req.body.paymentType,
+                            order: orderid
+                        });
+                        await payment.save();/*  */
+                    }
+
+                } catch (error) {
+                    console.log(error)
+                }
             }
             // const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${user.telegramid}&text=${encodeURIComponent(message)}`;
             const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${user.telegramid}&text=${encodeURIComponent(message)}`;
@@ -843,7 +866,7 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                         count: 1
                     }
                 },
-           
+
             ]);
         }
 
@@ -931,7 +954,7 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
                         count: { $sum: 1 }
                     }
                 },
-           
+
                 {
                     $lookup: {
                         from: 'products',
@@ -943,13 +966,13 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
                 {
                     $unwind: '$product'
                 },
-                  {
+                {
                     $project: {
                         _id: '$product.category',
                         count: 1,
                     }
                 },
-          
+
                 {
                     $lookup: {
                         from: 'categories',
@@ -961,7 +984,7 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
                 {
                     $unwind: '$category'
                 },
-                
+
                 {
                     $project: {
                         _id: 0,
@@ -972,8 +995,8 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
                 {
                     $sort: { count: -1 }
                 },
-            
-                
+
+
             ]);
 
         } else if (interval == "perYear") {
@@ -1015,28 +1038,28 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
                         count: 1
                     }
                 },
-           
+
             ]);
         }
 
 
-let aggregatedCounts:any = {};
-result.forEach((item) => {
-    const { count, categoryName } = item;
+        let aggregatedCounts: any = {};
+        result.forEach((item) => {
+            const { count, categoryName } = item;
 
-    // If the category exists in the object, add the count
-    if (aggregatedCounts[categoryName]) {
-        aggregatedCounts[categoryName] += count;
-    } else {
-        // Otherwise, initialize the count
-        aggregatedCounts[categoryName] = count;
-    }
-})
-const dataArray = Object.entries(aggregatedCounts).map(([categoryName, count]) => ({ categoryName, count }));
+            // If the category exists in the object, add the count
+            if (aggregatedCounts[categoryName]) {
+                aggregatedCounts[categoryName] += count;
+            } else {
+                // Otherwise, initialize the count
+                aggregatedCounts[categoryName] = count;
+            }
+        })
+        const dataArray = Object.entries(aggregatedCounts).map(([categoryName, count]) => ({ categoryName, count }));
 
-// Sort the array by count in ascending order
-dataArray.sort((a:any, b:any) => b.count - a.count);    // Send the summary as JSON response
-        res.json({ categorycount:dataArray });
+        // Sort the array by count in ascending order
+        dataArray.sort((a: any, b: any) => b.count - a.count);    // Send the summary as JSON response
+        res.json({ categorycount: dataArray });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error' });

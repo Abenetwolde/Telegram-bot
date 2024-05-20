@@ -33,22 +33,28 @@ export const getAllPayments = async (req: Request, res: Response) => {
       const skip = (page - 1) * pageSize;
       
       const payments = await Payment.find(filter)
-        // .populate('user')
-        .populate('order')
+
+        // .populate('order').
+        .populate({
+          path: 'telegramid',
+          select: 'username telegramid first_name last_name', // Include necessary user fields
+        })
+          .populate({
+          path: 'order',
+          select: 'orderStatus -_id', // Include necessary user fields
+        })
+
         .skip(skip)
         .limit(pageSize)
-        .sort(sortQuery);
-        const count = await Payment.countDocuments(filter);
-
+        .sort(sortQuery)
+        
+        const count = await Payment.countDocuments(filter)
         // Calculate the total number of pages
         const totalPages = Math.ceil(count / pageSize);
-        const paymentWithUserDetails = await Promise.all(payments.map(async (pay) => {
-          const user = await User.findOne({telegramid:pay.telegramid});
-          return { ...pay.toObject(), user };
-      }));
+
       res.status(200).json({
         success: true,
-        payments:paymentWithUserDetails,
+        payments:payments,
         count,
         page,
         pageSize,

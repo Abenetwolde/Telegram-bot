@@ -26,6 +26,7 @@ const EditOrder: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedRow
         try {
             // Make an API request to update the order by its ID
             const response = await api.put<UpdateOrdertResponse, any>(`order/updateorderbyid/${editedRow?._id}`, {
+                orderId:editedRow?._id,
                 ...editedRow,
 
             });

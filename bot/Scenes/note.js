@@ -249,7 +249,7 @@ noteScene.action("make_order", async (ctx) => {
         
         await ctx.scene.enter('paymentScene', {
             orderNumber:orderJsonParse.orderNumber,
-            totalPrice: orderJsonParse.totalPrice,
+            totalPrice: orderJsonParse.totalPrice*100,
             orderItems: orderJsonParse.orderItems,
             orderId: orderJsonParse._id.toString(),
         }); 

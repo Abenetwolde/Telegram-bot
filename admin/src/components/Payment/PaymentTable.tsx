@@ -50,10 +50,10 @@ const PaymentTable: React.FC = () => {
         }
     };
     const columns = [
-        { Header: 'UserID', accessor: 'telegramid' },
+        // { Header: 'UserID', accessor: 'telegramid' },
     
         {
-            accessor: 'user',
+            accessor: 'telegramid',
             Header: 'User Name',
             Cell: ({ value }: any) => (
                 <div className="flex items-center">
@@ -66,7 +66,7 @@ const PaymentTable: React.FC = () => {
             ),
         },
         {
-            accessor: 'user',
+            accessor: 'telegramid',
             Header: 'User First Name',
             Cell: ({ value }: any) => (
                 <div className="flex items-center">
@@ -87,7 +87,7 @@ const PaymentTable: React.FC = () => {
             Header: 'TotalAmount',
             Cell: ({ value }: any) => (
                 <div className="flex items-center">
-                    <p>{value/100}</p>
+                    <p>{value/100} ETB</p>
                 </div>
             ),
         },
@@ -112,19 +112,19 @@ const PaymentTable: React.FC = () => {
         },
         {
             accessor: 'order',
-            Header: 'Payment Status',
+            Header: 'Order Status',
             Cell: ({ value }: any) => (
                 <div className={`flex items-center justify-center p-1 rounded-md  ${getStatusColor(value?.paymentStatus)}`}>
-                    {value?.paymentStatus}
+                    {value?.orderStatus}
                 </div>
             ),
         },
         {
-            accessor: 'order',
+            accessor: 'paymentType',
             Header: 'Payment Method',
             Cell: ({ value }: any) => (
                 <div className={`flex items-center justify-center p-1 rounded-md  ${getStatusColorType(value?.paymentType)}`}>
-                    {value?.paymentType}
+                    {value}
                 </div>
             ),
         },

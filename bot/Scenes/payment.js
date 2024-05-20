@@ -137,19 +137,19 @@ paymentScene.on("successful_payment", async (ctx) => {
     const payment = ctx.message.successful_payment
     const invoice = JSON.parse(payment.invoice_payload)
     const paymentData = {
-        user:ctx.from.id,
+        telegramid:ctx.session.userid,
         order: ctx.scene.state.orderId,
         total_amount: ctx.message.successful_payment.total_amount,
         invoice_id: invoice.id,
         telegram_payment_charge_id: ctx.message.successful_payment.telegram_payment_charge_id,
-        paymentType:"online"
+        paymentType:"Online"
       
     }
     const paymentdata=JSON.parse(JSON.stringify(paymentData))
     try {
         const savedPayment = await createPayment(
             paymentdata
-        );
+        ); 
        const orderupdate={
             orderId:ctx.scene.state.orderId,
             phoneNo:payment.order_info.phone_number,

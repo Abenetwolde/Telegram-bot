@@ -36,7 +36,7 @@ const OrderTable: React.FC = () => {
         }
     };
     const columns = [
-        { Header: 'UserID', accessor: 'telegramid' },
+        { Header: 'OrderId', accessor: '_id' },
         {
             accessor: 'orderItems',
             Header: 'Product Name',

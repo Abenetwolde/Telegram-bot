@@ -4,14 +4,15 @@ import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema({
     telegramid: {
-        type: Number,  // Use mongoose.Schema.Types.Number to specify a number type
-        ref: "Users",
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+        required: true
         // required: true
-    },
-order: {
+    }, 
+order: {/*  */
     type: mongoose.Schema.ObjectId,
     ref: "Order",
-    required: true
+    // required: true
 },
 shippingCharge: {
     type: Number,
@@ -22,11 +23,19 @@ total_amount: {
 },
 invoice_id: {
     type: String,
-    required: true
+    required: false
 },
 telegram_payment_charge_id: {
     type: String,
-    required: true
+    required: false
+},
+paymentType: {
+    type: String,
+    enum: ['Cash', 'Online'],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
 },
   // Other payment details...
 });
