@@ -62,7 +62,7 @@ const theme =useTheme()
   };
 
   return (
-    <Card style={{ height: "96px", padding: 10 }} variant="outlined">
+    <Card style={{ height: "120px", padding: 5 }} variant="outlined">
       <div
         style={{
           display: "flex",
@@ -152,7 +152,7 @@ const variants: {
     primaryColor: "#1677FF",
     secondaryColor: "#BAE0FF",
     icon: (
-      <IconWrapper>
+      <IconWrapper color={""}>
         <UsergroupAddOutlined 
           className="md"
           style={{
@@ -169,7 +169,7 @@ const variants: {
     primaryColor: "#52C41A",
     secondaryColor: "#D9F7BE",
     icon: (
-      <IconWrapper >
+      <IconWrapper color={""} >
         <ShoppingOutlined 
           className="md"
           style={{
@@ -186,7 +186,7 @@ const variants: {
     primaryColor: "#FA541C",
     secondaryColor: "#FFD8BF",
     icon: (
-      <IconWrapper>
+      <IconWrapper color={""}>
         <CloseSquareOutlined
           className="md"
           style={{

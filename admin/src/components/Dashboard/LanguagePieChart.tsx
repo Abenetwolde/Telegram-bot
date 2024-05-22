@@ -22,7 +22,7 @@ const LanguagePieChart = ({ data }) => {
     );
   };
   return (
-   <ResponsiveContainer width={"100%"} height={300}>
+   <ResponsiveContainer width={"100%"} height={"80%"}>
     <PieChart>
       <Pie
         data={rearrangedData}
@@ -30,12 +30,10 @@ const LanguagePieChart = ({ data }) => {
         cy="50%"
         label
         innerRadius={60}
-        outerRadius={80}
+        outerRadius={100}
         fill="#8884d8"
         paddingAngle={2}
         dataKey="count"
-        // stroke={null}
-        // strokeWidth={0}
       >
         {rearrangedData.map((entry, index) => (
           <Cell key={`cell-${index}`} style={{ outline: 'none' }} stroke="none" strokeWidth={1} fill={COLORSd[index]} />
@@ -44,7 +42,7 @@ const LanguagePieChart = ({ data }) => {
       <Legend
         verticalAlign="bottom"
         align="center"
-        wrapperStyle={{ paddingTop: '20px' }}
+        wrapperStyle={{ flexGrow: 1 }}
         iconSize={15}
         iconType="square"
         layout="horizontal"
