@@ -29,8 +29,8 @@ const LanguagePieChart = ({ data }) => {
         cx="50%"
         cy="50%"
         label
-        innerRadius={60}
-        outerRadius={100}
+        innerRadius={50}
+        outerRadius={90}
         fill="#8884d8"
         paddingAngle={2}
         dataKey="count"

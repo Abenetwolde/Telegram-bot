@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ReactApexChart from 'react-apexcharts';
 import api from '../../services/api';
-import { Box, Typography } from '@mui/material';
+import { Box, Card, Typography } from '@mui/material';
 
-const UserClicks = ({filter}:any) => {
+const UserClicks = ({ filter }: any) => {
   const [chartData, setChartData] = useState([]);
-console.log("....................", filter);
+  console.log("....................", filter);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -20,19 +20,20 @@ console.log("....................", filter);
 
     fetchData();
   }, [filter]);
-const xAxis=chartData?.map(data => data?.clicksByDate?.map((d)=>d?.date))
-const yAxis=chartData?.map(data => data?.clicksByDate?.map((d)=>d?.totalProductClicks))
-console.log(xAxis[0])
+  const xAxis = chartData?.map(data => data?.clicksByDate?.map((d) => d?.date))
+  const yAxis = chartData?.map(data => data?.clicksByDate?.map((d) => d?.totalProductClicks))
+  console.log(xAxis[0])
   return (
-    <div>
-              <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-end', alignItems: 'center' }}>
+
+    <Box height={300}>
+      <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-end', alignItems: 'center' }}>
         {chartData.length > 0 ? (
           <Typography>Total Clicks: {chartData[0]?.totalClicks && chartData[0]?.totalClicks.toFixed(2)} Clicks {filter}</Typography>
         ) : (
           <Typography>There aren't any Clicks {filter}</Typography>
         )}
       </Box>
-      {/* <div id="chart"> */}
+      <div style={{ height: "100%", flexGrow: 1 }}>
         <ReactApexChart
           options={{
             chart: {
@@ -70,8 +71,10 @@ console.log(xAxis[0])
           height={"100%"}
         />
       </div>
- 
-   
+
+
+
+    </Box>
   );
 };
 

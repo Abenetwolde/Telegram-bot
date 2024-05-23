@@ -46,7 +46,7 @@ const UserSpentTime = () => {
     chart: {
       id: 'area-datetime',
       type: 'area',
-      height: 550,
+      //  height: 550,
       zoom: {
         autoScaleYaxis: true
       }
@@ -83,7 +83,7 @@ const UserSpentTime = () => {
       },
     },
     yaxis: {
-      
+
       labels: {
         formatter: function (val) {
           return val.toFixed(2) + ' minutes'; // Format y-axis labels with two decimal points and append "minutes" suffix
@@ -111,7 +111,7 @@ const UserSpentTime = () => {
     setFilter(event.target.value);
     //  setRange([]);
   };
- 
+
   useEffect(() => {
     console.log("start" + range[0].startDate, "end" + range[0].endDate)
     const fetchData = async () => {
@@ -129,8 +129,8 @@ const UserSpentTime = () => {
           data: data?.userTime?.map(item => [item._id, item.totalDurationInMinutes]),
           totalusertime: data?.totalDurationInMinutes
         }];
-       await setSeries(updatedSeries);
-setTotalSpent(data.totalDurationInMinutes)
+        await setSeries(updatedSeries);
+        setTotalSpent(data.totalDurationInMinutes)
         // setUserCounts(response.data.newUserCounts);
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -163,78 +163,91 @@ setTotalSpent(data.totalDurationInMinutes)
   console.log(totalspent);
   return (
 
-      <div>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, }}>
-
-          <Box sx={{ width: '260px', marginRight: '2px', gap: 5 }} >
-            <Box ref={refOne} sx={{ position: 'relative' }}>
-              <TextField fullWidth
-                value={`${format(range[0].startDate, "MM/dd/yyyy")} to ${format(range[0].endDate, "MM/dd/yyyy")}`}
-                readOnly
-                onClick={() => setOpen((prevOpen) => !prevOpen)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setOpen((prevOpen) => !prevOpen)}>
-                        <DateRangeIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              {/* <p>{totalspent}</p> */}
-              <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-end', alignItems: 'center' }}>
-             {totalspent?<Typography  > Total Time: {totalspent&&totalspent.toFixed(2)} Minutes</Typography>:<Typography>The Users not spent any time</Typography>} 
-              </Box>
-
-              {open && (
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    zIndex: 9999,
-                    top: '100%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    //  maxWidth: '260px', // Adjust the width here
-                    textAlign: 'center',
-                  }}
-                >
-                  <DateRangePicker
-                    onChange={(item) => setRange([item.selection])}
-                    editableDateInputs={true}
-                    moveRangeOnFirstSelection={false}
-                    ranges={range}
-                    // color={"#00000"}
-                    // fixedHeight=true
-                    months={1}
-                    direction="horizontal"
-                    className="calendarElement"
-                  // calendarWidth={200}
-                  />
-                </Box>
-              )}
+    <Card
+      sx={{
+        width: { xs: '100%', lg: '100%' },
+        mb: { xs: 5, lg: 2 },
+        mt: { xs: 5, lg: 2 },
+        height: '100%',
+        borderRadius: '16px',
+        boxShadow: 3,
+        p: 2,
+        textAlign: 'center'
+      }}>
+      <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: 'left' }}>
+        Users Total Time Spent
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, }}>
+        <Box sx={{ width: '260px', marginRight: '2px', gap: 5 }} >
+          <Box ref={refOne} sx={{ position: 'relative' }}>
+            <TextField fullWidth
+              value={`${format(range[0].startDate, "MM/dd/yyyy")} to ${format(range[0].endDate, "MM/dd/yyyy")}`}
+              readOnly
+              onClick={() => setOpen((prevOpen) => !prevOpen)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setOpen((prevOpen) => !prevOpen)}>
+                      <DateRangeIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {/* <p>{totalspent}</p> */}
+            <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", justifyContent: 'flex-center', alignItems: 'center' }}>
+              {totalspent ? <Typography > Total Time: {totalspent && totalspent.toFixed(2)} Minutes</Typography> : <Typography>The Users not spent any time</Typography>}
             </Box>
+
+            {open && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  zIndex: 9999,
+                  top: '100%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  //  maxWidth: '260px', // Adjust the width here
+                  textAlign: 'center',
+                }}
+              >
+                <DateRangePicker
+                  onChange={(item) => setRange([item.selection])}
+                  editableDateInputs={true}
+                  moveRangeOnFirstSelection={false}
+                  ranges={range}
+                  // color={"#00000"}
+                  // fixedHeight=true
+                  months={1}
+                  direction="horizontal"
+                  className="calendarElement"
+                // calendarWidth={200}
+                />
+              </Box>
+            )}
           </Box>
-          <FormControl >
-            {/* <InputLabel id="filter-label">Filter</InputLabel> */}
-            <Select
-              labelId="filter-label"
-              id="filter"
-              value={filter}
-              onChange={handleFilterChange}
-            >
-              <MenuItem value="perDay">Per Day</MenuItem>
-              <MenuItem value="perWeek">Per Week</MenuItem>
-              <MenuItem value="perMonth">Per Month</MenuItem>
-              <MenuItem value="perYear">Per Year</MenuItem>
-            </Select>
-          </FormControl>
         </Box>
-        <div style={{height:"100%", flexGrow:1}}>
-          {series ? <ReactApexChart options={options} series={series} type="area" height={"100%"} /> : <Box><Typography>Loading...</Typography></Box>}
-        </div>
+        <FormControl >
+          {/* <InputLabel id="filter-label">Filter</InputLabel> */}
+          <Select
+            labelId="filter-label"
+            id="filter"
+            value={filter}
+            onChange={handleFilterChange}
+          >
+            <MenuItem value="perDay">Per Day</MenuItem>
+            <MenuItem value="perWeek">Per Week</MenuItem>
+            <MenuItem value="perMonth">Per Month</MenuItem>
+            <MenuItem value="perYear">Per Year</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+      <div style={{ height: "100%", flexGrow: 1 }}>
+        {series ? <ReactApexChart options={options} series={series} type="area" height={"100%"} /> : <Box><Typography>Loading...</Typography></Box>}
       </div>
- 
+
+    </Card>
+
   );
 };
 

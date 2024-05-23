@@ -73,18 +73,8 @@ const options =merge(BaseOptionChart(), {
 });
 
   return (
-    <div>
-        <Box sx={{ mt: 3, mb: 3, flex: 1, width: "100%", height:"400px" ,justifyContent: 'flex-end', alignItems: 'center' }}>
-             {/* {chartData?.totalDurationInMinutes!==0?<Typography  > Total Minute: {chartData?.totalDurationInMinutes&&chartData?.totalDurationInMinutes.toFixed(2)} Clicks {filter}</Typography>:<Typography>There isnt any Click {filter}</Typography>}  */}
-              </Box>
-      {/* <div id="chart"> */}
-        {/* <ReactApexChart
-        options={options} 
-        series={value} type="pie"    width="100%" // Set the width to 100% of the container
-        height="400px"
-  
-        /> */}
-                <ReactApexChart type="bar" series={CHART_DATA} options={options} height={"100%"} />
+    <div style={{ height: "100%", flexGrow: 1 }}>
+<ReactApexChart type="bar" series={CHART_DATA} options={options} height={"100%"} />
       </div>
  
    

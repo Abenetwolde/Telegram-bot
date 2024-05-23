@@ -486,7 +486,7 @@ export const getUsersJoinedByMethodPerTimeInterval = async (req: Request, res: R
             return acc;
         }, {});
 
-
+console.log(formattedResult)
         // Send the combined JSON response
         res.json({
             formattedResult

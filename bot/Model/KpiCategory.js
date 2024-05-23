@@ -12,7 +12,7 @@ const KpiCategory = new mongoose.Schema({
       type: Date,
       default: Date.now
     },
-    count: {
+    count: { 
       type: Number,
       default: 0
     },
