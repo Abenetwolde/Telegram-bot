@@ -6,10 +6,11 @@ import LanguagePieChart from './LanguagePieChart';
 const LanguageDistributionCard = ({ languageData }) => (
   <Card
     sx={{
-      width: { xs: '100%', lg: '100%' },
-     mb: { xs: 5, lg: 2 },
+      flex:1,
+       width:  '100%',
+      mb: { xs: 5, lg: 2 },
       mt: { xs: 5, lg: 2 },
-      height: '100%',
+      height: 'auto',
       borderRadius: '16px',
       boxShadow: 3,
       p: 2,

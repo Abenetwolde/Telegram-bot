@@ -24,6 +24,9 @@ import LanguageDistributionCard from '../components/Dashboard/LanguageDistributi
 import TotalCountCardGrid from '../components/Dashboard/TotalCountCardGrid';
 import UserClicksChart from '../components/Dashboard/UserClicksChart';
 import UserClicksSection from '../components/Dashboard/USerSpentPerScene';
+import UserLottery from '../components/Dashboard/userLottery';
+import UserSpentTimeTable from '../components/Dashboard/userSpentTimeTable';
+import FilterButtonGroup from '../components/FilterButtonGroup';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -66,15 +69,18 @@ const Dashboard = () => {
   const [filterClick, setfilterClick] = useState("perMonth"); // Initialize the state with the default value
   const [filterScene, setfilterScene] = useState("perMonth");
   const [userRegisteringWay, setuserRegisteringWay] = useState([]);
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [datauserspentperscene, setDataTimeSpentPerScene] = useState<any[]>([]);
+  const [loadingdataspenttimescene, setLoadingsetDataTimeSpentPerScene] = useState(true);
+  const [filterUserTimeTable, setFilterUserTimeTable] =  useState('perMonth');
   const handlefilterClickChange = (newFilter) => {
-    setfilterScene(newFilter);
-    console.log("newFilter.........", filterClick)
-    // Update the state with the selected filter value
+    setfilterClick(newFilter);
+
   };
   const handlefilterTimePerScenceClickChange = (newFilter) => {
-    setfilterClick(newFilter);
-    console.log("newFilter.........", filterClick)
-    // Update the state with the selected filter value
+    setfilterScene(newFilter);
+
   };
 
   const refOne = useRef(null)
@@ -159,7 +165,10 @@ const Dashboard = () => {
     setfilterScene(string);
     //  setRange([]);
   };
-
+  const handleFilterUserTimeTable = (string) => {
+    setFilterUserTimeTable(string);
+    //  setRange([]);
+  };
   useEffect(() => {
     console.log("start" + range[0].startDate, "end" + range[0].endDate)
     const fetchData = async () => {
@@ -179,7 +188,7 @@ const Dashboard = () => {
       try {
         const response = await api.get<any, any>('kpi/get-user-joined-by-method');
         setuserRegisteringWay(response?.data?.formattedResult);
-        console.log("user joining ways ",response.data)
+        console.log("user joining ways ", response.data)
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -187,10 +196,10 @@ const Dashboard = () => {
 
     fetchData();
   }, []);
-  console.log(userRegisteringWay,"skdoskfopk user ")
+  console.log(userRegisteringWay, "skdoskfopk user ")
   const userJoiningWay = Object.entries(userRegisteringWay).map(([key, value]) => {
     let name;
-  
+
     // Convert keys to a more readable format if necessary
     switch (key) {
       case 'BOT':
@@ -205,20 +214,45 @@ const Dashboard = () => {
       default:
         name = key;
     }
-  
+
     return {
       name: name,
       value: value
     };
   });
-  
 
-  
+  useEffect(() => {
+    // Fetch data from the API
+    api.get('/kpi/get-users-with-lottery-numbers') // Replace with your actual API endpoint
+      .then(response => {
+        setData(response.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    setLoadingsetDataTimeSpentPerScene(true);
+    // Fetch data from the API
+    api.get(`/kpi/get-user-time-spent-per-scene?interval=${filterUserTimeTable}`) // Replace with your actual API endpoint
+      .then(response => {
+        setDataTimeSpentPerScene(response.data?.timeSpentPerScene);
+        setLoadingsetDataTimeSpentPerScene(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setLoadingsetDataTimeSpentPerScene(false);
+      });
+  }, [filterUserTimeTable]);
+
   console.log(userJoiningWay);
 
 
 
-  const COLORSd = ['#0088FE', '#00C49F',  '#FF8042'];
+  const COLORSd = ['#0088FE', '#00C49F', '#FF8042'];
   return (
     <Box pb={6} mb={6}>
       <TotalCountCardGrid
@@ -234,12 +268,89 @@ const Dashboard = () => {
         newCancelOrderData={newCancelOrderData}
       />
 
-      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
-        <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">
-          <Box height={300} width={"100%"}>
-            <ResponsiveContainer width="100%" height="100%">
 
-              <PieChart width={400} height={400}>
+
+      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
+        <Grid item xs={12} md={6} lg={12} width="100%" textAlign="center">
+
+          <Card
+            sx={{
+              width: '100%',
+              mb: { xs: 5, lg: 2 },
+              mt: { xs: 5, lg: 2 },
+              height: 'auto',
+              borderRadius: '16px',
+              boxShadow: 3,
+              p: 2,
+              textAlign: 'center'
+            }}
+          >
+
+<Grid container  display={'flex'} spacing={2}alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+            <Grid item xs={12} md={5}>
+                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
+                    User Spent Time Per Scene
+                </Typography>
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <FilterButtonGroup handlefilter={handleFilterUserTimeTable} filter={filterUserTimeTable} />
+            </Grid>
+        </Grid>
+
+            <ResponsiveContainer width="100%" height={300}>
+              <UserSpentTimeTable data={datauserspentperscene} loading={loadingdataspenttimescene} />
+            </ResponsiveContainer>
+          </Card>
+
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+
+          <Card
+            sx={{
+              width: '100%',
+              mb: { xs: 5, lg: 2 },
+              mt: { xs: 5, lg: 2 },
+              height: 'auto',
+              borderRadius: '16px',
+              boxShadow: 3,
+              p: 2,
+              textAlign: 'center'
+            }}
+          >
+            <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: 'left' }}>
+              User Lottery Numbers
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <UserLottery data={data} loading={loading} />
+            </ResponsiveContainer>
+          </Card>
+
+        </Grid>
+      </Grid>
+
+
+      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+
+          <Card
+            sx={{
+              width: '100%',
+              mb: { xs: 5, lg: 2 },
+              mt: { xs: 5, lg: 2 },
+              height: 'auto',
+              borderRadius: '16px',
+              boxShadow: 3,
+              p: 2,
+              textAlign: 'center'
+            }}
+          >
+            <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: 'left' }}>
+              User Join From
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+
+              <PieChart >
                 <Pie
                   dataKey="value"
                   isAnimationActive={true}
@@ -266,11 +377,37 @@ const Dashboard = () => {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-          </Box>
+          </Card>
+
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+
+          <Card
+            sx={{
+              width: '100%',
+              mb: { xs: 5, lg: 2 },
+              mt: { xs: 5, lg: 2 },
+              height: 'auto',
+              borderRadius: '16px',
+              boxShadow: 3,
+              p: 2,
+              textAlign: 'center'
+            }}
+          >
+            <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: 'left' }}>
+              User Lottery Numbers
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <UserLottery data={data} loading={loading} />
+            </ResponsiveContainer>
+          </Card>
+
         </Grid>
       </Grid>
-      <Grid container spacing={4} direction={{ xs: 'column', lg: 'row' }} width="100%">
-        <Grid item xs={12} lg={9}>
+
+      <Grid container spacing={3} direction={{ xs: 'column', lg: 'row' }} width="100%">
+        <Grid item xs={12} md={8} lg={8}>
           <UserRegistration
             refOne={refOne}
             range={range}
@@ -287,14 +424,14 @@ const Dashboard = () => {
             CustomTooltip={CustomTooltip}
           />
         </Grid>
-        <Grid item xs={12} md={3} lg={3}>
+        <Grid item xs={12} md={4} lg={4}>
           <LanguageDistributionCard
             languageData={languageData}
           />
         </Grid>
       </Grid>
 
-      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
+      <Grid container display="flex" /* spacing={4} */ flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={2}>
         <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">
           <ResponsiveContainer>
             <UserSpentTime />
@@ -305,11 +442,11 @@ const Dashboard = () => {
       <Grid container spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" mt={5}>
         <UserClicksSection
           filterScene={filterScene}
-          handlefilterScene={handlefilterClickChange}
+          handlefilterScene={handlefilterTimePerScenceClickChange}
         />
       </Grid>
 
-      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
+      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={25}>
         <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">
           <ResponsiveContainer>
             <UserClicksChart
@@ -322,21 +459,6 @@ const Dashboard = () => {
 
 
 
-      {/* <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" gap={3} minWidth="100%" mt={10}>
-        <Box width="100%" textAlign="center">
-          <Typography sx={{ color: 'text.secondary', fontSize: 'subtitle1.fontSize', textAlign: 'left' }}>
-            Users Clicks
-          </Typography>
-          <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button onClick={() => handlefilterScene("perWeek")}>Per Week</Button>
-            <Button onClick={() => handlefilterScene("perMonth")}>Per Month</Button>
-            <Button onClick={() => handlefilterScene("perYear")}>Per Year</Button>
-          </ButtonGroup>
-          <ResponsiveContainer height={300} width="100%">
-            <UsersSpentTimePerScene filter={filterScene} />
-          </ResponsiveContainer>
-        </Box>
-      </Box> */}
     </Box >
   );
 };

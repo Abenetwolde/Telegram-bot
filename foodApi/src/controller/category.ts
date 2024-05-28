@@ -31,12 +31,8 @@ export const createCategory = async (req: Request, res: Response) => {
 export const getAllCategories = async (req: Request, res: Response) => {
   console.log("reach get caregory")
   try {
-    // Define the base filter
+
     let filter: any = {};
-
- 
-
-    // Apply search filter if provided in the query parameters
     if (typeof req.query.search === 'string') {
       filter.name = { $regex: req.query.search, $options: 'i' };
     } 

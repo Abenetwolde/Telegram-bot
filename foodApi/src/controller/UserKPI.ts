@@ -510,12 +510,13 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
         let startDate, endDate;
         switch (interval) {
             case 'perDay':
+                console.log('perday')
                 const selectedDate = new Date();
-                startDate = new Date(selectedDate);
-                startDate.setUTCHours(0, 0, 0, 0);
-                endDate = new Date(selectedDate);
+                startDate = new Date(currentDate);
+                endDate = new Date(currentDate);
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
+              
             case 'perWeek':
                 // Calculate the start of the current week (Sunday)
                 startDate = new Date(currentDate);
@@ -545,7 +546,7 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
 
         const results = await UserKPI.aggregate([
             { $unwind: '$scene' }, // Unwind the scene array
-            // { $match: { 'scene.date': { $gte: startDate, $lte: endDate } } }, // Filter based on the calculated start and end dates
+            { $match: { 'scene.date': { $gte: startDate, $lte: endDate } } }, // Filter based on the calculated start and end dates
             {
                 $group: {
                     _id: {

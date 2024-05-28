@@ -59,6 +59,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
   const renderContent = (
     <Scrollbar
       sx={{
+        background:theme.palette.background.paper,
         height: 1,
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}

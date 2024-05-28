@@ -2,7 +2,8 @@
 import mongoose, { ConnectOptions } from 'mongoose';
 
 const MONGO_URL = 'mongodb+srv://abnet:80110847@cluster0.hpovgrl.mongodb.net/?retryWrites=true&w=majority'; // DB URI
-
+// const MONGO_URL = 'mongodb://localhost:27017/test'; // DB URI
+// mongodb+srv://abnet:80110847@cluster0.hpovgrl.mongodb.net/?retryWrites=true&w=majority
 const mongooseOptions: ConnectOptions = {};
  
 const connectToDatabase = async () => {

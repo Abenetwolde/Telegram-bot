@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 // hooks
 import useSettings from '../../hooks/useSettings';
 import useResponsive from '../../hooks/useResponsive';
@@ -18,7 +18,7 @@ import NavbarHorizontal from './navbar/NavbarHorizontal';
 
 const MainStyle = styled('main', {
   shouldForwardProp: (prop) => prop !== 'collapseClick',
-})(({ collapseClick, theme }) => ({
+})(({ collapseClick, theme }:any) => ({
   flexGrow: 1,
   paddingTop: HEADER.MOBILE_HEIGHT + 24,
   paddingBottom: HEADER.MOBILE_HEIGHT + 24,
@@ -27,7 +27,7 @@ const MainStyle = styled('main', {
     // backgroundColor:theme.palette.background.default,
     paddingLeft: 16,
     backgrounColor: theme.palette.background.default,
-    paddingRight: 16,
+    paddingRight: 10,
     paddingTop: HEADER.DASHBOARD_DESKTOP_HEIGHT + 24,
     paddingBottom: HEADER.DASHBOARD_DESKTOP_HEIGHT + 24,
     width: `calc(100% - ${NAVBAR.DASHBOARD_WIDTH}px)`,
@@ -44,7 +44,7 @@ const MainStyle = styled('main', {
 
 export default function DashboardLayout() {
   const { collapseClick, isCollapse } :any= useCollapseDrawer();
-
+const theme:any= useTheme()
   const { themeLayout } = useSettings();
 
   const isDesktop = useResponsive('up', 'lg');
@@ -87,9 +87,10 @@ export default function DashboardLayout() {
   return (
     <Box
       sx={{
-        
+        background: theme.palette.background.default,
         display: { lg: 'flex' },
         minHeight: { lg: 1 },
+        flexGrow:1
       }}
     >
       <DashboardHeader isCollapse={isCollapse} onOpenSidebar={() => setOpen(true)} />

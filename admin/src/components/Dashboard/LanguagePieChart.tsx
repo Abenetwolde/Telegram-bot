@@ -22,7 +22,7 @@ const LanguagePieChart = ({ data }) => {
     );
   };
   return (
-   <ResponsiveContainer width={"100%"} height={"80%"}>
+   <ResponsiveContainer width={"100%"} height={400}>
     <PieChart>
       <Pie
         data={rearrangedData}
