@@ -8,11 +8,10 @@ import { DateRangePicker } from 'react-date-range';
 import 'react-date-range/dist/styles.css'; // Main style file
 import 'react-date-range/dist/theme/default.css'; // Theme CSS fil
 import api from '../services/api';
-import { DashboardTotalCountCard } from '../components/Dashboard/total-count-card';
 
 
 import { addDays } from 'date-fns'
-import DateRangeIcon from '@mui/icons-material/DateRange';
+
 import { ButtonGroup, Grid, IconButton, InputAdornment, TextField, useTheme } from '@mui/material';
 import { Box, Card, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import LanguagePieChart from '../components/Dashboard/LanguagePieChart';
@@ -27,6 +26,8 @@ import UserClicksSection from '../components/Dashboard/USerSpentPerScene';
 import UserLottery from '../components/Dashboard/userLottery';
 import UserSpentTimeTable from '../components/Dashboard/userSpentTimeTable';
 import FilterButtonGroup from '../components/FilterButtonGroup';
+import UserClickTable from '../components/Dashboard/UserClickTable';
+import UserPerformance from '../components/Dashboard/USerPerformance';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -74,12 +75,29 @@ const Dashboard = () => {
   const [datauserspentperscene, setDataTimeSpentPerScene] = useState<any[]>([]);
   const [loadingdataspenttimescene, setLoadingsetDataTimeSpentPerScene] = useState(true);
   const [filterUserTimeTable, setFilterUserTimeTable] =  useState('perMonth');
+
+  const [datauserclcik, setDataUserClick] = useState<any[]>([]);
+  const [loadingdatauserClick, setLoadinguserClick] = useState(true);
+  const [filterUserClickTable, setFilterUserClickTable] =  useState('perMonth');
+
+  const [userperformance, setDataUserperformance] = useState<any[]>([]);
+  const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
+  const [filterUserPerformanceTable, setFilterUserPerformance] =  useState('perMonth');
+
   const handlefilterClickChange = (newFilter) => {
     setfilterClick(newFilter);
 
   };
   const handlefilterTimePerScenceClickChange = (newFilter) => {
     setfilterScene(newFilter);
+
+  };
+  const handleFilterUserClickTable = (newFilter) => {
+    setFilterUserClickTable(newFilter);
+
+  };
+  const handleFilterUserPerformanceTable = (newFilter) => {
+    setFilterUserPerformance(newFilter);
 
   };
 
@@ -248,8 +266,33 @@ const Dashboard = () => {
       });
   }, [filterUserTimeTable]);
 
-  console.log(userJoiningWay);
+  useEffect(() => {
+    setLoadinguserClick(true);
+    // Fetch data from the API
+    api.get(`/kpi/get-users-total-clicks-per-name?interval=${filterUserClickTable}`) // Replace with your actual API endpoint
+      .then(response => {
+        setDataUserClick(response.data?.clicksPerScene);
+        setLoadinguserClick(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setLoadinguserClick(false);
+      });
+  }, [filterUserClickTable]);
 
+  useEffect(() => {
+    setLoadingUserPerformance(true);
+    // Fetch data from the API
+    api.get(`/kpi/get-users-performance?interval=${filterUserPerformanceTable}`) // Replace with your actual API endpoint
+      .then(response => {
+        setDataUserperformance(response.data?.usersWithScores);
+        setLoadingUserPerformance(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setLoadingUserPerformance(false);
+      });
+  }, [filterUserClickTable]);
 
 
   const COLORSd = ['#0088FE', '#00C49F', '#FF8042'];
@@ -267,7 +310,71 @@ const Dashboard = () => {
         totalCancelOrderCount={totalCancelOrderCount}
         newCancelOrderData={newCancelOrderData}
       />
+      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
 
+          <Card
+            sx={{
+              width: '100%',
+              mb: { xs: 5, lg: 2 },
+              mt: { xs: 5, lg: 2 },
+              height: 'auto',
+              borderRadius: '16px',
+              boxShadow: 3,
+              p: 2,
+              textAlign: 'center'
+            }}
+          >
+
+<Grid container  display={'flex'} spacing={2}alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+            <Grid item xs={12} md={5}>
+                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
+                    User Performance
+                </Typography>
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <FilterButtonGroup handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
+            </Grid>
+        </Grid>
+
+            <ResponsiveContainer width="100%" height={300}>
+              <UserPerformance data={userperformance} loading={loadingUserPerformance} />
+            </ResponsiveContainer>
+          </Card>
+
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={6} width="100%" textAlign="center">
+
+          <Card
+            sx={{
+              width: '100%',
+              mb: { xs: 5, lg: 2 },
+              mt: { xs: 5, lg: 2 },
+              height: 'auto',
+              borderRadius: '16px',
+              boxShadow: 3,
+              p: 2,
+              textAlign: 'center'
+            }}
+          >
+        <Grid container  display={'flex'} spacing={2}alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+            <Grid item xs={12} md={5}>
+                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
+                    User Click Per Scene
+                </Typography>
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <FilterButtonGroup handlefilter={handleFilterUserClickTable} filter={filterUserTimeTable} />
+            </Grid>
+        </Grid>
+            <ResponsiveContainer width="100%" height={300}>
+              <UserClickTable data={datauserclcik} loading={loadingdatauserClick} />
+            </ResponsiveContainer>
+          </Card>
+
+        </Grid>
+      </Grid>
 
 
       <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
@@ -304,7 +411,7 @@ const Dashboard = () => {
 
         </Grid>
 
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">
 
           <Card
             sx={{
@@ -318,11 +425,18 @@ const Dashboard = () => {
               textAlign: 'center'
             }}
           >
-            <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: 'left' }}>
-              User Lottery Numbers
-            </Typography>
+        <Grid container  display={'flex'} spacing={2}alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+            <Grid item xs={12} md={5}>
+                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
+                    User Click Per Scene
+                </Typography>
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <FilterButtonGroup handlefilter={handleFilterUserClickTable} filter={filterUserTimeTable} />
+            </Grid>
+        </Grid>
             <ResponsiveContainer width="100%" height={300}>
-              <UserLottery data={data} loading={loading} />
+              <UserClickTable data={datauserclcik} loading={loadingdatauserClick} />
             </ResponsiveContainer>
           </Card>
 

@@ -14,40 +14,40 @@ interface UserLotteryProps {
     loading: boolean;
   }
   
-  const UserSpentTimeTable: React.FC<UserLotteryProps> = ({ data, loading }) => {
-    const sceneNames:any = Array.from(new Set(data.flatMap(item => item.scenes.map(scene => scene.sceneName))));
+  const UserPerformance: React.FC<UserLotteryProps> = ({ data, loading }) => {
+    // const sceneNames:any = Array.from(new Set(data.flatMap(item => item.userinformationperScene.map(scene => scene.sceneName))));
 
     const columns = [
     
+        // {
+        //   accessor: 'userInformation',
+        //   Header: 'First Name',
+        //   Cell: ({ value }: any) => (
+        //     <div className="flex items-center">
+        //       {value?.first_name}
+        //     </div>
+        //   ),
+        // },
+        // {
+        //     accessor: 'userInformation',
+        //     Header: 'User Name',
+        //     Cell: ({ value }: any) => (
+        //       <div className="flex items-center">
+        //         {value?.username}
+        //       </div>
+        //     ),
+        //   },
+        //   ...sceneNames.map(sceneName => ({
+        //     accessor: sceneName,
+        //     Header: sceneName,
+        //     Cell: ({ value }: any) => value || 0,
+        // })),
         {
-          accessor: 'user',
-          Header: 'First Name',
-          Cell: ({ value }: any) => (
-            <div className="flex items-center">
-              {value?.first_name}
-            </div>
-          ),
-        },
-        {
-            accessor: 'user',
-            Header: 'User Name',
+            accessor: 'overallScore',
+            Header: 'Overall Score',
             Cell: ({ value }: any) => (
               <div className="flex items-center">
-                {value?.username}
-              </div>
-            ),
-          },
-          ...sceneNames.map(sceneName => ({
-            accessor: sceneName,
-            Header: sceneName,
-            Cell: ({ value }: any) =>  `${value.toFixed(2)} min` || 0,
-        })),
-        {
-            accessor: 'totalSpentTimeInMinutes',
-            Header: 'Total',
-            Cell: ({ value }: any) => (
-              <div className="flex items-center">
-                {`${value.toFixed(2)} min`}
+                {value}
               </div>
             ),
           },
@@ -64,9 +64,9 @@ interface UserLotteryProps {
         return value;
     };
 
-    const getSceneDuration = (scenes: any[], sceneName: string) => {
-        const scene = scenes.find(scene => scene.sceneName === sceneName);
-        return scene ? scene.totalDuration : 0;
+    const getSceneDuration = (userinformationperScene: any[], sceneName: string) => {
+        const scene = userinformationperScene.find(scene => scene.sceneName === sceneName);
+        return scene ? scene.totalClicks : 0;
     };
     return (
         <>
@@ -93,10 +93,10 @@ interface UserLotteryProps {
                       <TableRow key={product._id}>
                         {columns.map((column) => (
                             <TableCell key={column.accessor} className="p-2">
-                            {column.accessor === 'user' || column.accessor === 'totalSpentTimeInMinutes' ? (
+                            {column.accessor === 'user'  ? (
                                 column.Cell({ value: product[column.accessor] })
                             ) : (
-                                column.Cell({ value: getSceneDuration(product.scenes, column.accessor) })
+                                column.Cell({ value: getSceneDuration(product.userinformationperScene, column.accessor) })
                             )}
                         </TableCell>
                         ))}
@@ -126,4 +126,4 @@ interface UserLotteryProps {
     );
 };
 
-export default UserSpentTimeTable;
+export default UserPerformance;

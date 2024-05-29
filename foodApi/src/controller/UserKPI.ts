@@ -744,7 +744,7 @@ export const getUserTotalClicksPerName = async (req: Request, res: Response) => 
             };
         }));
 
-        res.json({ timeSpentPerScene: results });
+        res.json({ clicksPerScene: results });
 
 
 
