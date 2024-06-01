@@ -1,128 +1,131 @@
-import React, { useEffect, useState } from 'react';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../app/store';
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
-import { setRowsPerPageAndFetch, setPageAndFetch } from '../../redux/userSlice';
-
-import { MutatingDots } from 'react-loader-spinner';
+import React from 'react';
+import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import LoadingIndicator from '../LoadingIndicator';
 
-interface UserLotteryProps {
+interface UserPerformanceProps {
     data: Array<any>;
     loading: boolean;
-  }
-  
-  const UserPerformance: React.FC<UserLotteryProps> = ({ data, loading }) => {
-    // const sceneNames:any = Array.from(new Set(data.flatMap(item => item.userinformationperScene.map(scene => scene.sceneName))));
+}
 
+const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading }) => {
     const columns = [
-    
-        // {
-        //   accessor: 'userInformation',
-        //   Header: 'First Name',
-        //   Cell: ({ value }: any) => (
-        //     <div className="flex items-center">
-        //       {value?.first_name}
-        //     </div>
-        //   ),
-        // },
-        // {
-        //     accessor: 'userInformation',
-        //     Header: 'User Name',
-        //     Cell: ({ value }: any) => (
-        //       <div className="flex items-center">
-        //         {value?.username}
-        //       </div>
-        //     ),
-        //   },
-        //   ...sceneNames.map(sceneName => ({
-        //     accessor: sceneName,
-        //     Header: sceneName,
-        //     Cell: ({ value }: any) => value || 0,
-        // })),
+    //   {
+    //     accessor: 'user.user.telegramid',
+    //     Header: 'Telegram ID',
+    //     Cell: ({ value }: any) => (
+    //         <div className="flex items-center">
+    //             {value}
+    //         </div>
+    //     ),
+    // },
+      {
+        accessor: 'user',
+        Header: 'First Name',
+        Cell: ({ value }: any) => (
+            <div className="flex items-center">
+                {value?.user?.first_name}
+            </div>
+        ),
+    },
+    {
+      accessor: 'user',
+      Header: 'User Name',
+      Cell: ({ value }: any) => (
+          <div className="flex items-center">
+              {`@${value?.user?.last_name}`}
+          </div>
+      ),
+  },
+        {
+            accessor: 'timeSpent',
+            Header: 'Time Spent',
+            Cell: ({ value }: any) => (
+                <div className="flex items-center">
+                    {`${value.toFixed(2)} min`}
+                </div>
+            ),
+        },
+        {
+            accessor: 'totalClicks',
+            Header: 'Total Clicks',
+            Cell: ({ value }: any) => (
+                <div className="flex items-center">
+                    {value}
+                </div>
+            ),
+        },
+        {
+            accessor: 'totalOrders',
+            Header: 'Total Orders',
+            Cell: ({ value }: any) => (
+                <div className="flex items-center">
+                     {value}
+                </div>
+            ),
+        },
         {
             accessor: 'overallScore',
             Header: 'Overall Score',
             Cell: ({ value }: any) => (
-              <div className="flex items-center">
-                {value}
-              </div>
+                <div className="flex items-center">
+                       {`${value*100}%`}
+                </div>
             ),
-          },
-      ];
+        },
+    ];
 
-    const getProductValue = (product: any, accessor: string) => {
-        const keys = accessor.split('.'); // Split nested keys
-        let value: any = { ...product };
-
-        keys.forEach((key) => {
+    const getNestedValue = (data: any, accessor: string) => {
+        const keys = accessor.split('.');
+        let value = data;
+        keys.forEach(key => {
             value = value[key];
         });
-
         return value;
     };
 
-    const getSceneDuration = (userinformationperScene: any[], sceneName: string) => {
-        const scene = userinformationperScene.find(scene => scene.sceneName === sceneName);
-        return scene ? scene.totalClicks : 0;
-    };
     return (
-        <>
-<div>
-      {
-        !loading ?
-          (
-            <Box mt={1}>
-              <TableContainer component={Paper} className="overflow-auto">
-                <Table sx={{ maxWidth: 1200 }} aria-label="user table" className="border-collapse align-center justify-center mx-auto">
-                  <TableHead>
-                    <TableRow>
-                      {columns.map((column) => (
-                        <TableCell key={column.accessor} className={`p-2 !text-md`}>
-                          {column.Header}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-
-             
-                  <TableBody>
-                    {data?.length? data.map((product, index) => (
-                      <TableRow key={product._id}>
-                        {columns.map((column) => (
-                            <TableCell key={column.accessor} className="p-2">
-                            {column.accessor === 'user'  ? (
-                                column.Cell({ value: product[column.accessor] })
-                            ) : (
-                                column.Cell({ value: getSceneDuration(product.userinformationperScene, column.accessor) })
-                            )}
-                        </TableCell>
-                        ))}
-                      </TableRow>
-                    )):
-                    <TableRow>
-                    
-                    <TableCell colSpan={columns.length} className="p-2" align="center">
-                No data  
-                    </TableCell>
-                   
-                  </TableRow>
-                    }
-                  </TableBody>:
-          </Table>
-              </TableContainer>
-            </Box>
-
-          ) :
-
-          (
-            <LoadingIndicator/>
-          )
-      }
-    </div>
-        </>
+        <div>
+            {
+                !loading ?
+                    (
+                        <Box mt={1}>
+                            <TableContainer component={Paper} className="overflow-auto">
+                                <Table sx={{ maxWidth: 1200 }} aria-label="user table" className="border-collapse align-center justify-center mx-auto">
+                                    <TableHead>
+                                        <TableRow>
+                                            {columns.map((column) => (
+                                                <TableCell key={column.accessor} className={`p-2 !text-md`}>
+                                                    {column.Header}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {data?.length ? data.map((item, index) => (
+                                            <TableRow key={index}>
+                                                {columns.map((column) => (
+                                                    <TableCell key={column.accessor} className="p-2">
+                                                        {column.Cell({ value: getNestedValue(item, column.accessor) })}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        )) :
+                                            <TableRow>
+                                                <TableCell colSpan={columns.length} className="p-2" align="center">
+                                                    No data
+                                                </TableCell>
+                                            </TableRow>
+                                        }
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Box>
+                    ) :
+                    (
+                        <LoadingIndicator />
+                    )
+            }
+        </div>
     );
 };
 

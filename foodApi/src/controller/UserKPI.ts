@@ -415,7 +415,7 @@ export const totalNumberofClicks = async (req: Request, res: Response) => {
 export const getUsersJoinedByMethodPerTimeInterval = async (req: Request, res: Response) => {
     console.log("getUsersJoinedByMethodPerTimeInterval user kpi ")
     try {
-        const { interval = 'perMonth' } = req.query;
+        const { interval = 'perYear' } = req.query;
 
         // Get the current date
         const currentDate = new Date();

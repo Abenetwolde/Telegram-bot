@@ -96,6 +96,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
   return (
     <RootStyle
       sx={{
+        height: 'auto',
         width: {
           lg: isCollapse ? NAVBAR.DASHBOARD_COLLAPSE_WIDTH : NAVBAR.DASHBOARD_WIDTH,
         },

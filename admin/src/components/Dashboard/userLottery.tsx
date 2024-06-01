@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../app/store';
 import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
-import { setRowsPerPageAndFetch, setPageAndFetch } from '../../redux/userSlice';
-
 import { MutatingDots } from 'react-loader-spinner';
 
 interface UserLotteryProps {

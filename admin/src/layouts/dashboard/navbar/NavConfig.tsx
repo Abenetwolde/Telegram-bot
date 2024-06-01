@@ -2,8 +2,9 @@
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 // import Label from '../../../components/Label';
-import Label from '../../../Label';
+// import Label from '../../../Label';
 import SvgIconStyle from '../../../components/SvgIconStyle';
+import Label from '../../../components/Label';
 
 // ----------------------------------------------------------------------
 
@@ -28,12 +29,23 @@ const navConfig = [
   // // GENERAL
   // // ----------------------------------------------------------------------
   {
+    subheader: 'analysis',
+    items: [
+      { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
+      { title: 'category', path: PATH_DASHBOARD.general.category, icon: ICONS.ecommerce },
+    ]
+  },
+  {
     subheader: 'general',
     items: [
       { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
       { title: 'category', path: PATH_DASHBOARD.general.category, icon: ICONS.ecommerce },
       { title: 'Foods', path: PATH_DASHBOARD.general.foods, icon: ICONS.ecommerce },
-      { title: 'Orders', path: PATH_DASHBOARD.general.orders, icon: ICONS.ecommerce },
+      { title: 'Orders', path: PATH_DASHBOARD.general.orders, icon: ICONS.ecommerce ,  info: (
+                <Label variant="outlined" color="error">
+                  +32
+                </Label>
+              ),},
       { title: 'Payments', path: PATH_DASHBOARD.general.payments, icon: ICONS.ecommerce },
       { title: 'Users', path: PATH_DASHBOARD.general.users, icon: ICONS.ecommerce },
       // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics }, //todo uncommitted when ready

@@ -28,6 +28,8 @@ import UserSpentTimeTable from '../components/Dashboard/userSpentTimeTable';
 import FilterButtonGroup from '../components/FilterButtonGroup';
 import UserClickTable from '../components/Dashboard/UserClickTable';
 import UserPerformance from '../components/Dashboard/USerPerformance';
+import UserPerformanceIndicator from '../components/Dashboard/UserPerformanceIndicator';
+import LoadingIndicator from '../components/LoadingIndicator';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -74,15 +76,15 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [datauserspentperscene, setDataTimeSpentPerScene] = useState<any[]>([]);
   const [loadingdataspenttimescene, setLoadingsetDataTimeSpentPerScene] = useState(true);
-  const [filterUserTimeTable, setFilterUserTimeTable] =  useState('perMonth');
+  const [filterUserTimeTable, setFilterUserTimeTable] = useState('perMonth');
 
   const [datauserclcik, setDataUserClick] = useState<any[]>([]);
   const [loadingdatauserClick, setLoadinguserClick] = useState(true);
-  const [filterUserClickTable, setFilterUserClickTable] =  useState('perMonth');
+  const [filterUserClickTable, setFilterUserClickTable] = useState('perMonth');
 
   const [userperformance, setDataUserperformance] = useState<any[]>([]);
   const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
-  const [filterUserPerformanceTable, setFilterUserPerformance] =  useState('perMonth');
+  const [filterUserPerformanceTable, setFilterUserPerformance] = useState('perMonth');
 
   const handlefilterClickChange = (newFilter) => {
     setfilterClick(newFilter);
@@ -292,7 +294,7 @@ const Dashboard = () => {
         console.error('Error fetching data:', error);
         setLoadingUserPerformance(false);
       });
-  }, [filterUserClickTable]);
+  }, [filterUserPerformanceTable]);
 
 
   const COLORSd = ['#0088FE', '#00C49F', '#FF8042'];
@@ -326,16 +328,17 @@ const Dashboard = () => {
             }}
           >
 
-<Grid container  display={'flex'} spacing={2}alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-            <Grid item xs={12} md={5}>
+            <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+              <Grid item xs={12} md={5}>
                 <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                    User Performance
+                  User Performance
                 </Typography>
+              </Grid>
+              <Grid item xs={12} md={7}>
+                <FilterButtonGroup handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
+              </Grid>
+              <UserPerformanceIndicator />
             </Grid>
-            <Grid item xs={12} md={7}>
-              <FilterButtonGroup handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
-            </Grid>
-        </Grid>
 
             <ResponsiveContainer width="100%" height={300}>
               <UserPerformance data={userperformance} loading={loadingUserPerformance} />
@@ -358,16 +361,16 @@ const Dashboard = () => {
               textAlign: 'center'
             }}
           >
-        <Grid container  display={'flex'} spacing={2}alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-            <Grid item xs={12} md={5}>
+            <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+              <Grid item xs={12} md={5}>
                 <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                    User Click Per Scene
+                  User Click Per Scene
                 </Typography>
+              </Grid>
+              <Grid item xs={12} md={7}>
+                <FilterButtonGroup handlefilter={handleFilterUserClickTable} filter={filterUserTimeTable} />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={7}>
-              <FilterButtonGroup handlefilter={handleFilterUserClickTable} filter={filterUserTimeTable} />
-            </Grid>
-        </Grid>
             <ResponsiveContainer width="100%" height={300}>
               <UserClickTable data={datauserclcik} loading={loadingdatauserClick} />
             </ResponsiveContainer>
@@ -393,16 +396,16 @@ const Dashboard = () => {
             }}
           >
 
-<Grid container  display={'flex'} spacing={2}alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-            <Grid item xs={12} md={5}>
+            <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+              <Grid item xs={12} md={5}>
                 <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                    User Spent Time Per Scene
+                  User Spent Time Per Scene
                 </Typography>
+              </Grid>
+              <Grid item xs={12} md={7}>
+                <FilterButtonGroup handlefilter={handleFilterUserTimeTable} filter={filterUserTimeTable} />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={7}>
-              <FilterButtonGroup handlefilter={handleFilterUserTimeTable} filter={filterUserTimeTable} />
-            </Grid>
-        </Grid>
 
             <ResponsiveContainer width="100%" height={300}>
               <UserSpentTimeTable data={datauserspentperscene} loading={loadingdataspenttimescene} />
@@ -425,16 +428,16 @@ const Dashboard = () => {
               textAlign: 'center'
             }}
           >
-        <Grid container  display={'flex'} spacing={2}alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-            <Grid item xs={12} md={5}>
+            <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+              <Grid item xs={12} md={5}>
                 <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                    User Click Per Scene
+                  User Click Per Scene
                 </Typography>
+              </Grid>
+              <Grid item xs={12} md={7}>
+                <FilterButtonGroup handlefilter={handleFilterUserClickTable} filter={filterUserTimeTable} />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={7}>
-              <FilterButtonGroup handlefilter={handleFilterUserClickTable} filter={filterUserTimeTable} />
-            </Grid>
-        </Grid>
             <ResponsiveContainer width="100%" height={300}>
               <UserClickTable data={datauserclcik} loading={loadingdatauserClick} />
             </ResponsiveContainer>
@@ -464,7 +467,7 @@ const Dashboard = () => {
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
 
-              <PieChart >
+            { userJoiningWay!==null? <PieChart >
                 <Pie
                   dataKey="value"
                   isAnimationActive={true}
@@ -489,7 +492,7 @@ const Dashboard = () => {
                   formatter={(value, entry) => <span style={{ color: entry.color }}>{value}</span>}
                 />
                 <Tooltip />
-              </PieChart>
+              </PieChart>:<LoadingIndicator/>}
             </ResponsiveContainer>
           </Card>
 
