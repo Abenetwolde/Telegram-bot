@@ -27,7 +27,7 @@ const { getSingleProduct, getAllProducts } = require('./Database/productcontroll
 const User = require('./Model/user.js');
 const { sendProductToChannel } = require('./Scenes/Admin/sendProduct.js');
 const { cronSendProductToChannel } = require('./Scenes/Cron/index.js');
-
+ 
 connectDatabase()
 bot.use(i18next({
   debug: true,

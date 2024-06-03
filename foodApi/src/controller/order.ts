@@ -789,10 +789,10 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                         }
                     }
                 },
-                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
+             
                 {
                     $group: {
-                        _id: '$orderItems.product',
+                        _id: 'clicks.name',
                         productName: { $first: '$orderItems.product' },
                         count: { $sum: 1 }
                     }

@@ -9,7 +9,7 @@ const UserPerformanceIndicator = () => {
     ];
     const theme: any = useTheme()
     return (
-        <Grid container sx={{ pt: 4 }}>
+        <Grid container sx={{ p: 5 }}>
             <Grid item xs={12} md={12} container spacing={2} alignItems={'center'} justifyContent="center">
 
 

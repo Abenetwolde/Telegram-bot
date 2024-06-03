@@ -15,7 +15,8 @@ import {
   getProductsExpiringSoon,
   ImageUpload,
   uploadImageToCloudinary,
-  uploadToCloudinary
+  uploadToCloudinary,
+  getProductmostCliked
 } from '../controller/product';
 
 
@@ -61,7 +62,7 @@ router.route('/updateproductbyid/:productId').put(updateProductById);
 
 // DELETE /api/products/:productId
 router.route('/deleteproductbyid/:productId').delete(deleteProductById);
-
+router.route('/get-product-most-cliked').get(getProductmostCliked);
 // GET /api/products/available
 router.route('/available').get(getAvailableProducts);
 

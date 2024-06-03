@@ -6,6 +6,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 const cloudinary = require('cloudinary');
 import mv from 'mv';
+import clickKpi from '../model/UserClicks';
 const fs = require('fs');
 const ffmpeg = require('ffmpeg-static');
 const { spawn } = require('child_process');
@@ -491,4 +492,30 @@ export const getProductsExpiringSoon = async (req: Request, res: Response) => {
     }
   };
         
-        
+  export const getProductmostCliked = async (req: Request, res: Response) => {
+    try {
+      const results = await clickKpi.aggregate([
+        { $unwind: "$clicks" },
+        { 
+            $match: { 
+                "clicks.name": "product",
+                "clicks.type": { $ne: "product" }
+            } 
+        },
+        { 
+            $group: {
+                _id: { name: "$clicks.name", type: "$clicks.type" },
+                totalCount: { $sum: "$clicks.count" }
+            }
+        },
+        { $sort: { totalCount: 1 } } // Sort by totalCount in ascending order
+    ]);
+      res.status(200).json({
+        success: true,
+        products: results,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Server error!' });
+    }
+  };
