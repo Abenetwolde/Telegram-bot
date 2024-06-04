@@ -504,15 +504,25 @@ export const getProductsExpiringSoon = async (req: Request, res: Response) => {
         },
         { 
             $group: {
-                _id: { name: "$clicks.name", type: "$clicks.type" },
+                _id: "$clicks.type",
                 totalCount: { $sum: "$clicks.count" }
             }
         },
-        { $sort: { totalCount: 1 } } // Sort by totalCount in ascending order
+    
+        { $sort: { totalCount: -1 } } // Sort by totalCount in ascending order
     ]);
+    const finalResults = await Promise.all(results?.map(async (result) => {
+      const product = await Product.findById(result._id).select('name').lean();
+      return {
+          name: product ? product?.name : 'Unknown Product',
+          totalClickCount: result?.totalCount
+      };
+  }));
+
+
       res.status(200).json({
         success: true,
-        products: results,
+        products: finalResults,
       });
     } catch (error) {
       console.error(error);

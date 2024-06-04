@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Category from '../model/category.model';
+import clickKpi from '../model/UserClicks';
 
 
 export const createCategory = async (req: Request, res: Response) => {
@@ -145,4 +146,40 @@ export const getAllCategories = async (req: Request, res: Response) => {
       res.status(500).json({ success: false, message: 'Server error!' });
     }
   };
-        
+  export const getCategorymostCliked = async (req: Request, res: Response) => {
+    try {
+      const results = await clickKpi.aggregate([
+        { $unwind: "$clicks" },
+        { 
+            $match: { 
+                "clicks.name": "category",
+                "clicks.type": { $ne: "category" }
+            } 
+        },
+        { 
+            $group: {
+                _id: "$clicks.type",
+                totalCount: { $sum: "$clicks.count" }
+            }
+        },
+    
+        { $sort: { totalCount: -1 } } // Sort by totalCount in ascending order
+    ]);
+    const finalResults = await Promise.all(results?.map(async (result) => {
+      const product = await Category.findById(result._id).select('name').lean();
+      return {
+          name: product ? product?.name : 'Unknown Product',
+          totalClickCount: result?.totalCount
+      };
+  }));
+
+
+      res.status(200).json({
+        success: true,
+        products: finalResults,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Server error!' });
+    }
+  };

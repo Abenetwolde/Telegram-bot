@@ -6,6 +6,7 @@ import {
   getCategoryById,
   updateCategory,
   deleteCategory,
+  getCategorymostCliked,
 } from '../controller/category'; // Import category controllers
 
 
@@ -26,5 +27,5 @@ router.route('/updatecategorybyid/:categoryId').put(updateCategory);
 
 // DELETE /api/categories/:categoryId
 router.route('/deletecategorybyid/:categoryId').delete(deleteCategory);
-
+router.route('/get-category-most-cliked').get(getCategorymostCliked);
 export default router;

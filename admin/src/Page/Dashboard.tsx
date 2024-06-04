@@ -12,7 +12,7 @@ import api from '../services/api';
 
 import { addDays } from 'date-fns'
 
-import { ButtonGroup, Grid, IconButton, InputAdornment, TextField, useTheme } from '@mui/material';
+import { ButtonGroup,  CardHeader, Grid, IconButton, InputAdornment, TextField, styled, useTheme } from '@mui/material';
 import { Box, Card, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import LanguagePieChart from '../components/Dashboard/LanguagePieChart';
 import UserSpentTime from '../components/Dashboard/SpentTime';
@@ -30,6 +30,9 @@ import UserClickTable from '../components/Dashboard/UserClickTable';
 import UserPerformance from '../components/Dashboard/USerPerformance';
 import UserPerformanceIndicator from '../components/Dashboard/UserPerformanceIndicator';
 import LoadingIndicator from '../components/LoadingIndicator';
+import ReactApexChart from 'react-apexcharts';
+import BaseOptionChart from '../components/chart/BaseOptionChart';
+import { merge } from 'lodash';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -45,6 +48,28 @@ const CustomTooltip = ({ label, payload }) => {
     </div>
   );
 };
+const CHART_HEIGHT = 372;
+const LEGEND_HEIGHT = 72;
+
+const ChartWrapperStyle = styled('div')(({ theme }) => ({
+  height: CHART_HEIGHT,
+  marginTop: theme.spacing(5),
+  '& .apexcharts-canvas svg': { height: CHART_HEIGHT },
+  '& .apexcharts-canvas svg,.apexcharts-canvas foreignObject': {
+    overflow: 'visible',
+  },
+  '& .apexcharts-legend': {
+    height: LEGEND_HEIGHT,
+    alignContent: 'center',
+    position: 'relative !important',
+    borderTop: `solid 1px ${theme.palette.divider}`,
+    top: `calc(${CHART_HEIGHT - LEGEND_HEIGHT}px) !important`,
+  },
+}));
+
+// ----------------------------------------------------------------------
+
+const CHART_DATA = [4344, 5435, 1443, 4443];
 const Dashboard = () => {
   const theme = useTheme()
   const [open, setOpen] = useState(false);
@@ -240,7 +265,9 @@ const Dashboard = () => {
       value: value
     };
   });
-
+console.log(userJoiningWay)
+const labelforJoinUser:any=userJoiningWay.map((m)=>m.name)
+const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
   useEffect(() => {
     // Fetch data from the API
     api.get('/kpi/get-users-with-lottery-numbers') // Replace with your actual API endpoint
@@ -295,7 +322,30 @@ const Dashboard = () => {
         setLoadingUserPerformance(false);
       });
   }, [filterUserPerformanceTable]);
-
+  const chartOptions = merge(BaseOptionChart(), {
+    colors: [
+      theme.palette.primary.main,
+      theme.palette.chart.blue[0],
+      theme.palette.chart.violet[0],
+      theme.palette.chart.yellow[0],
+    ],
+    labels: labelforJoinUser,
+    stroke: { colors: [theme.palette.background.paper] },
+    legend: { floating: true, horizontalAlign: 'center' },
+    dataLabels: { enabled: true, dropShadow: { enabled: false } },
+    tooltip: {
+      fillSeriesColor: false,
+      y: {
+        formatter: (seriesName) => Number(seriesName),
+        title: {
+          formatter: (seriesName) => `${seriesName}`,
+        },
+      },
+    },
+    plotOptions: {
+      pie: { donut: { labels: { show: false } } },
+    },
+  });
 
   const COLORSd = ['#0088FE', '#00C49F', '#FF8042'];
   return (
@@ -349,33 +399,12 @@ const Dashboard = () => {
 
         <Grid item xs={12} md={12} lg={6} width="100%" textAlign="center">
 
-          <Card
-            sx={{
-              width: '100%',
-              mb: { xs: 5, lg: 2 },
-              mt: { xs: 5, lg: 2 },
-              height: 'auto',
-              borderRadius: '16px',
-              boxShadow: 3,
-              p: 2,
-              textAlign: 'center'
-            }}
-          >
-            <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-              <Grid item xs={12} md={5}>
-                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                  User Click Per Scene
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={7}>
-                <FilterButtonGroup handlefilter={handleFilterUserClickTable} filter={filterUserTimeTable} />
-              </Grid>
-            </Grid>
-            <ResponsiveContainer width="100%" height={300}>
-              <UserClickTable data={datauserclcik} loading={loadingdatauserClick} />
-            </ResponsiveContainer>
-          </Card>
-
+        <Card>
+      <CardHeader title="User Join From" />
+      <ChartWrapperStyle dir="ltr">
+        <ReactApexChart type="pie" series={valueforJoinUser} options={chartOptions} height={280} />
+      </ChartWrapperStyle>
+    </Card>
         </Grid>
       </Grid>
 

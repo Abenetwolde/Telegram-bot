@@ -210,70 +210,86 @@ myOrderScene.action('reject_cancel', async (ctx) => {
   await updateClicks(ctx,"order","order")
 });
 myOrderScene.hears("My Order History", async (ctx) => {
-    if (ctx.session.cleanUpState) {
-        ctx.session.cleanUpState.forEach(async (message) => {
-            console.log("%c called deleteing when its leave", "color: red;")
-            if (message?.type === 'myorder' || message?.type === 'orderhistory') {
-                try {
-                    await ctx.telegram.deleteMessage(ctx.chat.id, message?.id);
-                } catch (error) {
-                    console.log("error while deleting.......", error)
+    try {
+        if (ctx.session.cleanUpState) {
+            ctx.session.cleanUpState.forEach(async (message) => {
+                console.log("%c called deleteing when its leave", "color: red;")
+                if (message?.type === 'myorder' || message?.type === 'orderhistory') {
+                    try {
+                        await ctx.telegram.deleteMessage(ctx.chat.id, message?.id);
+                    } catch (error) {
+                        console.log("error while deleting.......", error)
+                    } 
+    
                 }
-
-            }
-
-
-        });
-    }
+    
+    
+            });
+        }
+      
+    } catch (error) {
+        console.log(error)
+        ctx.reply(error.message)    }
 
     // await ctx.reply("To go back to home, press 🏠 Home", Markup.keyboard([["🏠 Home", "My Order"]]).resize().oneTime());
     // Delete all previous order messages with the type "myorder"
     const userId = ctx.from.id
     // Fetch user orders with a completed status
-    const completedOrders = await getUserOrders(userId, "delivered");
+    try {
+        const completedOrders = await getUserOrders(userId, "delivered"); 
+        if (completedOrders?.length === 0) {
+            const message = await ctx.reply("You don't have any completed orders.", Markup.inlineKeyboard([Markup.button.callback("Back", "Back")]))
+            await ctx.session.cleanUpState.push({ id: message.message_id, type: "myorder" })
+        } else {
+            for (const order of completedOrders) {
+                const formatTelegramMessage = (product, quantity) => {
+                    const { name, description, price, available, warranty, category, highlights, images, createdAt } = product;
+    
+                    const formattedprice = product.quantity !== 0 ?
+                        `  
+                  . 
+                  . 
+                   ${quantity}x${product.price}= ${quantity * product.price} ETB` : ''
+    
+                    return `
+                 ${category.icon} ${name} ${category.icon}
+                 💴 ${price} ETB
+                 #${category.name} ${category.icon}
+                 ${formattedprice}
+                
+                
+                    `;
+                };
+    
+                const resizeimage = order.orderItems[0].product?.images[0]?.imageUrl
+                if(resizeimage){
+                    const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
+                    const imageBuffer = await sharp(response.data)
+                        .resize(200, 200)
+                        .toBuffer();
+                    const orderHistorymessage = await ctx.replyWithPhoto(
+                        { source: imageBuffer },
+                        {
+                            caption: formatTelegramMessage(order?.orderItems[0]?.product, order?.orderItems[0]?.quantity),
+                            ...Markup.inlineKeyboard([Markup.button.url("Reorder", `https://t.me/testecommerce12bot?start=chat_${order?.orderItems[0]?.product?._id}`)]),
+                        },
+        
+                    );
+                    ctx.session.cleanUpState.push({ id: orderHistorymessage.message_id, type: "orderhistory" });
+                }else{
+                    ctx.reply("no image url")
+                }
+        
 
-    if (completedOrders.length === 0) {
-        const message = await ctx.reply("You don't have any completed orders.", Markup.inlineKeyboard([Markup.button.callback("Back", "Back")]))
-        await ctx.session.cleanUpState.push({ id: message.message_id, type: "myorder" })
-    } else {
-        for (const order of completedOrders) {
-            const formatTelegramMessage = (product, quantity) => {
-                const { name, description, price, available, warranty, category, highlights, images, createdAt } = product;
-
-                const formattedprice = product.quantity !== 0 ?
-                    `  
-              . 
-              . 
-               ${quantity}x${product.price}= ${quantity * product.price} ETB` : ''
-
-                return `
-             ${category.icon} ${name} ${category.icon}
-             💴 ${price} ETB
-             #${category.name} ${category.icon}
-             ${formattedprice}
-            
-            
-                `;
-            };
-
-            const resizeimage = order.orderItems[0].product?.images[0].imageUrl
-            const response = await axios.get(resizeimage, { responseType: 'arraybuffer' });
-            const imageBuffer = await sharp(response.data)
-                .resize(200, 200)
-                .toBuffer();
-            const orderHistorymessage = await ctx.replyWithPhoto(
-                { source: imageBuffer },
-                {
-                    caption: formatTelegramMessage(order?.orderItems[0]?.product, order?.orderItems[0]?.quantity),
-                    ...Markup.inlineKeyboard([Markup.button.url("Reorder", `https://t.me/testecommerce12bot?start=chat_${order?.orderItems[0]?.product?._id}`)]),
-                },
-
-            );
-            ctx.session.cleanUpState.push({ id: orderHistorymessage.message_id, type: "orderhistory" });
-        }
-
-        // await ctx.reply("To go back to home, press 🏠 Home", Markup.keyboard([Markup.button.callback("🏠 Home", "home")]).resize());
+            }
+            // await ctx.reply("To go back to home, press 🏠 Home", Markup.keyboard([Markup.button.callback("🏠 Home", "home")]).resize());
+        } 
+    } catch (error) {
+        console.log(error)
     }
+    
+
+   
     await updateClicks(ctx,"order","order")
 });
 myOrderScene.hears("🏠 Home", async (ctx) => {
