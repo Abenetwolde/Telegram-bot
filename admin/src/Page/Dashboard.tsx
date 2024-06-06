@@ -12,7 +12,7 @@ import api from '../services/api';
 
 import { addDays } from 'date-fns'
 
-import { ButtonGroup,  CardHeader, Grid, IconButton, InputAdornment, TextField, styled, useTheme } from '@mui/material';
+import { ButtonGroup,  CardHeader, Container, Grid, IconButton, InputAdornment, TextField, styled, useTheme } from '@mui/material';
 import { Box, Card, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import LanguagePieChart from '../components/Dashboard/LanguagePieChart';
 import UserSpentTime from '../components/Dashboard/SpentTime';
@@ -33,6 +33,7 @@ import LoadingIndicator from '../components/LoadingIndicator';
 import ReactApexChart from 'react-apexcharts';
 import BaseOptionChart from '../components/chart/BaseOptionChart';
 import { merge } from 'lodash';
+import useSettings from '../hooks/useSettings';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -346,10 +347,10 @@ const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
       pie: { donut: { labels: { show: false } } },
     },
   });
-
+  const { themeStretch } = useSettings();
   const COLORSd = ['#0088FE', '#00C49F', '#FF8042'];
   return (
-    <Box pb={6} mb={6}>
+    <Container maxWidth={themeStretch ? false : 'xl'}>
       <TotalCountCardGrid
         // renderTotalCountCard={renderTotalCountCard}
         isLoading={isLoading}
@@ -362,46 +363,17 @@ const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
         totalCancelOrderCount={totalCancelOrderCount}
         newCancelOrderData={newCancelOrderData}
       />
-      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+      <Grid container spacing={3} mt={5}>
+        <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
 
-          <Card
-            sx={{
-              width: '100%',
-              mb: { xs: 5, lg: 2 },
-              mt: { xs: 5, lg: 2 },
-              height: 'auto',
-              borderRadius: '16px',
-              boxShadow: 3,
-              p: 2,
-              textAlign: 'center'
-            }}
-          >
-
-            <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-              <Grid item xs={12} md={5}>
-                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                  User Performance
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={7}>
-                <FilterButtonGroup handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
-              </Grid>
-              <UserPerformanceIndicator />
-            </Grid>
-
-            <ResponsiveContainer width="100%" height={300}>
-              <UserPerformance data={userperformance} loading={loadingUserPerformance} />
-            </ResponsiveContainer>
-          </Card>
-
+ <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} />
         </Grid>
 
-        <Grid item xs={12} md={12} lg={6} width="100%" textAlign="center">
+        <Grid item xs={12} md={4} lg={4} width="100%" textAlign="center">
 
         <Card>
       <CardHeader title="User Join From" />
-      <ChartWrapperStyle dir="ltr">
+    <ChartWrapperStyle dir="ltr">
         <ReactApexChart type="pie" series={valueforJoinUser} options={chartOptions} height={280} />
       </ChartWrapperStyle>
     </Card>
@@ -605,7 +577,7 @@ const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
 
 
 
-    </Box >
+    </Container >
   );
 };
 

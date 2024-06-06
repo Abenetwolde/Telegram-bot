@@ -1,41 +1,56 @@
 import React from 'react';
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Box, Button, Card, CardHeader, Divider, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
 import LoadingIndicator from '../LoadingIndicator';
+// import Scrollbar from '../Scrollbar';
+import Iconify from '../Iconify';
+import Scrollbar from '../Scrollbar';
+import Label from '../Label';
+import FilterButtonGroup from '../FilterButtonGroup';
 
 interface UserPerformanceProps {
     data: Array<any>;
     loading: boolean;
+    filterUserPerformanceTable:any;
+    handleFilterUserPerformanceTable:any;
 }
 
-const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading }) => {
+const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading,filterUserPerformanceTable,handleFilterUserPerformanceTable, }) => {
+    const theme = useTheme();
+
+    const isLight = theme.palette.mode === 'light';
     const columns = [
-    //   {
-    //     accessor: 'user.user.telegramid',
-    //     Header: 'Telegram ID',
-    //     Cell: ({ value }: any) => (
-    //         <div className="flex items-center">
-    //             {value}
-    //         </div>
-    //     ),
-    // },
-      {
-        accessor: 'user',
-        Header: 'First Name',
-        Cell: ({ value }: any) => (
-            <div className="flex items-center">
-                {value?.user?.first_name}
-            </div>
-        ),
-    },
-    {
-      accessor: 'user',
-      Header: 'User Name',
-      Cell: ({ value }: any) => (
-          <div className="flex items-center">
-              {`@${value?.user?.last_name}`}
-          </div>
-      ),
-  },
+        //   {
+        //     accessor: 'user.user.telegramid',
+        //     Header: 'Telegram ID',
+        //     Cell: ({ value }: any) => (
+        //         <div className="flex items-center">
+        //             {value}
+        //         </div>
+        //     ),
+        // },
+        {
+            accessor: 'user',
+            Header: 'First Name',
+            Cell: ({ value }: any) => (
+                <div className="flex items-center">
+                    {value?.user?.first_name}
+                </div>
+            ),
+        },
+        {
+            accessor: 'user',
+            Header: 'User Name',
+            Cell: ({ value }: any) => (
+
+                <Label
+                    variant={isLight ? 'ghost' : 'filled'}
+                    color={"info"}>
+
+                    {`@${value?.user?.last_name}`}
+                </Label>
+
+            ),
+        },
         {
             accessor: 'timeSpent',
             Header: 'Time Spent',
@@ -59,17 +74,23 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading }) => {
             Header: 'Total Orders',
             Cell: ({ value }: any) => (
                 <div className="flex items-center">
-                     {value}
+                    {value}
                 </div>
             ),
         },
+
         {
             accessor: 'overallScore',
             Header: 'Overall Score',
             Cell: ({ value }: any) => (
-                <div className="flex items-center">
-                       {`${value*100}%`}
-                </div>
+                <Label
+                    variant={isLight ? 'ghost' : 'filled'}
+                    color={(value >= 0.70 && 'success') ||
+                        (value >= 0.30 && 'warning') ||
+                        'error'}      >
+
+                    {`${value * 100}%`}
+                </Label>
             ),
         },
     ];
@@ -88,9 +109,12 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading }) => {
             {
                 !loading ?
                     (
-                        <Box mt={1}>
-                            <TableContainer component={Paper} className="overflow-auto">
-                                <Table sx={{ maxWidth: 1200 }} aria-label="user table" className="border-collapse align-center justify-center mx-auto">
+                        <Card>
+                            <CardHeader title="Recent Transitions" sx={{ mb: 3 }} />
+                            <FilterButtonGroup handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
+                            {/* <Scrollbar children={undefined} sx={undefined}> */}
+                            <TableContainer sx={{ minWidth: 720 }}>
+                                <Table>
                                     <TableHead>
                                         <TableRow>
                                             {columns.map((column) => (
@@ -119,7 +143,20 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading }) => {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                        </Box>
+                            {/* </Scrollbar> */}
+
+                            <Divider />
+
+                            <Box sx={{ p: 2, textAlign: 'right', border: 'none', outline: "none" }}>
+                                <Button sx={{
+                                    '&:focus': {
+                                        outline: 'none',
+                                    },
+                                }} size="small" color="inherit" endIcon={<Iconify icon={'eva:arrow-ios-forward-fill'} />}>
+                                    View All
+                                </Button>
+                            </Box>
+                        </Card>
                     ) :
                     (
                         <LoadingIndicator />
