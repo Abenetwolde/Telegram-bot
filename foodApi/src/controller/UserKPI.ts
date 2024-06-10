@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, query } from 'express';
 
 import UserKPI from '../model/UserKpi';
 import KpiProducts from '../model/KpiProduct';
@@ -760,12 +760,15 @@ export const getUserTotalClicksPerName = async (req: Request, res: Response) => 
 
 export const getUsersPerformance = async (req: Request, res: Response) => {
     console.log("getUsersPerformance")
-    try {
-        const { interval = 'perMonth' } = req.query;
+    try { 
+        console.log(req.query.page)
+        const { interval = 'perMonth', page = 1, limit = 3, search = '' } = req.query;
         let usertimedata: any = []
         let userclickdata: any = []
         let userorderdata: any = []
-        // Get the current date
+        const currentPage = parseInt(page as string, 10) || 1;
+        const itemsPerPage = parseInt(limit as string, 3) || 10;
+        const searchQuery = (search as string).trim();
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0);
 
@@ -861,11 +864,11 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
 
         const resultsclick: any = await clickKpi.aggregate([
             { $unwind: '$clicks' },
-            // {
-            //     $match: {
-            //         'clicks.date': { $gte: startDate, $lte: endDate }
-            //     }
-            // },
+            {
+                $match: {
+                    'clicks.date': { $gte: startDate, $lte: endDate }
+                }
+            },
 
             {
                 $group: {
@@ -1004,11 +1007,25 @@ usertimedata.forEach((userTimeDataItem: any) => {
       usersWithScores.sort((a: any, b: any) => {
         return b.overallScore - a.overallScore;
     });
-      res.json({
-        usersWithScores
 
-        // userClick: result2,
-        // 
+        let filteredUsersWithScores = usersWithScores;
+        console.log(usersWithScores[0])
+        if (searchQuery) {
+            filteredUsersWithScores = usersWithScores.filter((user: any) => 
+                (user.user.user.first_name && user.user.user.first_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (user.user.user.last_name && user.user.user.last_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (user.user.user.telegramid && user.user.user.telegramid.toString().toLowerCase().includes(searchQuery.toLowerCase()))
+            );
+        }
+
+        const totalUsers = filteredUsersWithScores.length;
+        const paginatedUsers = filteredUsersWithScores.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    res.json({
+        totalUsers,
+        currentPage,
+        totalPages: Math.ceil(totalUsers / itemsPerPage),
+        users: paginatedUsers,
     });
 } catch (error) {
     console.error(error);

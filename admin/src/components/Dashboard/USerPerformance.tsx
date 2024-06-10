@@ -6,15 +6,16 @@ import Iconify from '../Iconify';
 import Scrollbar from '../Scrollbar';
 import Label from '../Label';
 import FilterButtonGroup from '../FilterButtonGroup';
+import UserPerformanceIndicator from './UserPerformanceIndicator';
 
 interface UserPerformanceProps {
     data: Array<any>;
     loading: boolean;
-    filterUserPerformanceTable:any;
-    handleFilterUserPerformanceTable:any;
+    filterUserPerformanceTable: any;
+    handleFilterUserPerformanceTable: any;
 }
 
-const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading,filterUserPerformanceTable,handleFilterUserPerformanceTable, }) => {
+const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filterUserPerformanceTable, handleFilterUserPerformanceTable, }) => {
     const theme = useTheme();
 
     const isLight = theme.palette.mode === 'light';
@@ -106,62 +107,70 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading,filterU
 
     return (
         <div>
-            {
-                !loading ?
-                    (
-                        <Card>
-                            <CardHeader title="Recent Transitions" sx={{ mb: 3 }} />
-                            <FilterButtonGroup handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
-                            {/* <Scrollbar children={undefined} sx={undefined}> */}
-                            <TableContainer sx={{ minWidth: 720 }}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            {columns.map((column) => (
-                                                <TableCell key={column.accessor} className={`p-2 !text-md`}>
-                                                    {column.Header}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {data?.length ? data.map((item, index) => (
-                                            <TableRow key={index}>
-                                                {columns.map((column) => (
-                                                    <TableCell key={column.accessor} className="p-2">
-                                                        {column.Cell({ value: getNestedValue(item, column.accessor) })}
-                                                    </TableCell>
-                                                ))}
-                                            </TableRow>
-                                        )) :
-                                            <TableRow>
-                                                <TableCell colSpan={columns.length} className="p-2" align="center">
-                                                    No data
-                                                </TableCell>
-                                            </TableRow>
-                                        }
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                            {/* </Scrollbar> */}
 
-                            <Divider />
 
-                            <Box sx={{ p: 2, textAlign: 'right', border: 'none', outline: "none" }}>
-                                <Button sx={{
-                                    '&:focus': {
-                                        outline: 'none',
-                                    },
-                                }} size="small" color="inherit" endIcon={<Iconify icon={'eva:arrow-ios-forward-fill'} />}>
-                                    View All
-                                </Button>
-                            </Box>
-                        </Card>
-                    ) :
-                    (
-                        <LoadingIndicator />
-                    )
-            }
+            <Card>
+                <Box sx={{ mb: 3, textAlign: 'left' }}>
+                <CardHeader sx={{ mb: 3, textAlign: 'left' }}  title="Top 3 Perform User" sx={{ mb: 3 }} />
+                </Box>
+              
+                <UserPerformanceIndicator/>
+                <Box sx={{mb:3,mr:5}}>
+                <FilterButtonGroup  handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
+                </Box>
+               
+
+                {
+                    !loading ? <TableContainer sx={{minWidth: 720 }}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    {columns.map((column) => (
+                                        <TableCell key={column.accessor} className={`p-2 !text-md`}>
+                                            {column.Header}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {data?.length ? data.map((item, index) => (
+                                    <TableRow key={index}>
+                                        {columns.map((column) => (
+                                            <TableCell key={column.accessor} className="p-2">
+                                                {column.Cell({ value: getNestedValue(item, column.accessor) })}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                )) :
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length} className="p-2" align="center">
+                                            No data
+                                        </TableCell>
+                                    </TableRow>
+                                }
+                            </TableBody>
+                        </Table>
+                    </TableContainer> :
+                        (
+                            <LoadingIndicator />
+                        )
+                }
+
+
+                <Divider />
+
+                <Box sx={{ p: 2, textAlign: 'right', border: 'none', outline: "none" }}>
+                    <Button sx={{
+                        '&:focus': {
+                            outline: 'none',
+                        },
+                    }} size="small" color="inherit" endIcon={<Iconify icon={'eva:arrow-ios-forward-fill'} />}>
+                        View All
+                    </Button>
+                </Box>
+            </Card>
+
+
         </div>
     );
 };

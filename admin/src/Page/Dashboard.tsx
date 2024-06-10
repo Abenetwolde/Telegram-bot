@@ -315,7 +315,7 @@ const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
     // Fetch data from the API
     api.get(`/kpi/get-users-performance?interval=${filterUserPerformanceTable}`) // Replace with your actual API endpoint
       .then(response => {
-        setDataUserperformance(response.data?.usersWithScores);
+        setDataUserperformance(response.data?.users);
         setLoadingUserPerformance(false);
       })
       .catch(error => {
