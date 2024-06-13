@@ -766,6 +766,7 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
         let usertimedata: any = []
         let userclickdata: any = []
         let userorderdata: any = []
+        console.log("search log",search)
         const currentPage = parseInt(page as string, 10) || 1;
         const itemsPerPage = parseInt(limit as string, 3) || 10;
         const searchQuery = (search as string).trim();
@@ -1009,7 +1010,7 @@ usertimedata.forEach((userTimeDataItem: any) => {
     });
 
         let filteredUsersWithScores = usersWithScores;
-        console.log(usersWithScores[0])
+     
         if (searchQuery) {
             filteredUsersWithScores = usersWithScores.filter((user: any) => 
                 (user.user.user.first_name && user.user.user.first_name.toLowerCase().includes(searchQuery.toLowerCase())) ||

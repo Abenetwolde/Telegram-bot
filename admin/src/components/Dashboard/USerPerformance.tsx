@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Card, CardHeader, Divider, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
+import { Box, Button, Card, CardHeader, Divider, InputAdornment, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TextField, useTheme } from '@mui/material';
 import LoadingIndicator from '../LoadingIndicator';
 // import Scrollbar from '../Scrollbar';
 import Iconify from '../Iconify';
@@ -7,17 +7,22 @@ import Scrollbar from '../Scrollbar';
 import Label from '../Label';
 import FilterButtonGroup from '../FilterButtonGroup';
 import UserPerformanceIndicator from './UserPerformanceIndicator';
+import { useNavigate } from 'react-router-dom';
 
 interface UserPerformanceProps {
     data: Array<any>;
     loading: boolean;
     filterUserPerformanceTable: any;
     handleFilterUserPerformanceTable: any;
+    isFalse: boolean;
+    handelSearch:any
+    handelLimit:any;
+    handelPage:any;
 }
 
-const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filterUserPerformanceTable, handleFilterUserPerformanceTable, }) => {
+const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filterUserPerformanceTable,handelSearch, handleFilterUserPerformanceTable, handelLimit,handelPage,isFalse }) => {
     const theme = useTheme();
-
+    const navigate = useNavigate();
     const isLight = theme.palette.mode === 'light';
     const columns = [
         //   {
@@ -104,24 +109,44 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
         });
         return value;
     };
-
+    const handleChangeSearch = (event) => {
+        // Your search handler function
+        const value = event.target.value;
+        console.log(value); // Replace with actual search handling logic
+    };
+    const tableData = isFalse ? data?.users : data;
+    console.log("Table data",tableData)
     return (
         <div>
 
 
             <Card>
                 <Box sx={{ mb: 3, textAlign: 'left' }}>
-                <CardHeader sx={{ mb: 3, textAlign: 'left' }}  title="Top 3 Perform User" sx={{ mb: 3 }} />
+                    <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={!isFalse?`Top 3 Perform User`:`Users Performance`}  sx={{ mb: 3 }} />
                 </Box>
-              
-                <UserPerformanceIndicator/>
-                <Box sx={{mb:3,mr:5}}>
-                <FilterButtonGroup  handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
+
+
+                <UserPerformanceIndicator />
+                <Box className={`flex items-center ${isFalse? `justify-between`:`justify-end` } `}sx={{ mb: 3, mx: 5 }}>
+                    {/* <Box></Box> */}
+                    {isFalse&&<TextField
+                        size="small"
+                        placeholder="Search Users..."
+                        onChange={handelSearch}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Iconify icon={'eva:search-fill'} sx={{ ml: 1, width: 20, height: 20, color: 'text.disabled' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />}
+                    <FilterButtonGroup handlefilter={handleFilterUserPerformanceTable} filter={filterUserPerformanceTable} />
                 </Box>
-               
+
 
                 {
-                    !loading ? <TableContainer sx={{minWidth: 720 }}>
+                    !loading ? <TableContainer sx={{ minWidth: 720 }}>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -133,7 +158,7 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {data?.length ? data.map((item, index) => (
+                                {tableData.length ? tableData.map((item, index) => (
                                     <TableRow key={index}>
                                         {columns.map((column) => (
                                             <TableCell key={column.accessor} className="p-2">
@@ -149,6 +174,19 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
                                     </TableRow>
                                 }
                             </TableBody>
+                  {       isFalse&&   <TableFooter>
+                                        <TableRow>
+                                            <TablePagination
+                                                rowsPerPageOptions={[1,2,3]}
+                                                count={data?.totalUsers}
+                                                rowsPerPage={data?.totalPages}
+                                                page={data?.currentPage}
+                                                onPageChange={handelPage}
+                                                onRowsPerPageChange={handelLimit}
+                                                className="mx-auto"
+                                            />
+                                        </TableRow>
+                                    </TableFooter>}
                         </Table>
                     </TableContainer> :
                         (
@@ -159,15 +197,15 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
 
                 <Divider />
 
-                <Box sx={{ p: 2, textAlign: 'right', border: 'none', outline: "none" }}>
-                    <Button sx={{
+                {!isFalse && <Box sx={{ p: 2, textAlign: 'right', border: 'none', outline: "none" }}>
+                    <Button onClick={() => navigate('/dashboard/users/performance')} sx={{
                         '&:focus': {
                             outline: 'none',
                         },
                     }} size="small" color="inherit" endIcon={<Iconify icon={'eva:arrow-ios-forward-fill'} />}>
                         View All
                     </Button>
-                </Box>
+                </Box>}
             </Card>
 
 

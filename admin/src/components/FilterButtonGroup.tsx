@@ -30,7 +30,7 @@ const FilterButtonGroup = ({ handlefilter,filter }) => {
 
     return (
     
-                <Box display="flex" justifyContent={{ xs: 'center', md: 'flex-end' }} width="100%">
+                <Box display="flex" justifyContent={{ xs: 'center', md: 'flex-end' }}>
                     <ButtonGroup variant="outlined" aria-label="Basic button group">
                         {['perWeek', 'perMonth', 'perYear'].map((filter) => (
                             <Button

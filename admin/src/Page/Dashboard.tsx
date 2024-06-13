@@ -12,7 +12,7 @@ import api from '../services/api';
 
 import { addDays } from 'date-fns'
 
-import { ButtonGroup,  CardHeader, Container, Grid, IconButton, InputAdornment, TextField, styled, useTheme } from '@mui/material';
+import { ButtonGroup, CardHeader, Container, Grid, IconButton, InputAdornment, TextField, styled, useTheme } from '@mui/material';
 import { Box, Card, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import LanguagePieChart from '../components/Dashboard/LanguagePieChart';
 import UserSpentTime from '../components/Dashboard/SpentTime';
@@ -266,9 +266,9 @@ const Dashboard = () => {
       value: value
     };
   });
-console.log(userJoiningWay)
-const labelforJoinUser:any=userJoiningWay.map((m)=>m.name)
-const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
+  console.log(userJoiningWay)
+  const labelforJoinUser: any = userJoiningWay.map((m) => m.name)
+  const valueforJoinUser: any = userJoiningWay.map((m) => m.value)
   useEffect(() => {
     // Fetch data from the API
     api.get('/kpi/get-users-with-lottery-numbers') // Replace with your actual API endpoint
@@ -365,18 +365,20 @@ const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
       />
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
+         
+            <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false}  />
+          
 
- <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} />
         </Grid>
 
         <Grid item xs={12} md={4} lg={4} width="100%" textAlign="center">
 
-        <Card>
-      <CardHeader title="User Join From" />
-    <ChartWrapperStyle dir="ltr">
-        <ReactApexChart type="pie" series={valueforJoinUser} options={chartOptions} height={280} />
-      </ChartWrapperStyle>
-    </Card>
+          <Card>
+            <CardHeader title="User Join From" />
+            <ChartWrapperStyle dir="ltr">
+              <ReactApexChart type="pie" series={valueforJoinUser} options={chartOptions} height={280} />
+            </ChartWrapperStyle>
+          </Card>
         </Grid>
       </Grid>
 
@@ -468,7 +470,7 @@ const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
 
-            { userJoiningWay!==null? <PieChart >
+              {userJoiningWay !== null ? <PieChart >
                 <Pie
                   dataKey="value"
                   isAnimationActive={true}
@@ -493,7 +495,7 @@ const valueforJoinUser:any=userJoiningWay.map((m)=>m.value)
                   formatter={(value, entry) => <span style={{ color: entry.color }}>{value}</span>}
                 />
                 <Tooltip />
-              </PieChart>:<LoadingIndicator/>}
+              </PieChart> : <LoadingIndicator />}
             </ResponsiveContainer>
           </Card>
 

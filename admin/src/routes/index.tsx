@@ -83,6 +83,7 @@ export default function Router() {
         { path: 'orders', element: <OrdersPage /> },
         { path: 'payments', element: <PaymentPage /> },
         { path: 'users', element: <UsersPage /> },
+        { path: 'users/:path', element: <UsersPage /> },
         // { path: 'ecommerce', element: <GeneralEcommerce /> },
         // { path: 'analytics', element: <GeneralAnalytics /> },
         // { path: 'banking', element: <GeneralBanking /> },
