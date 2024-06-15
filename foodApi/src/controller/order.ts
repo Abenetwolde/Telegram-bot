@@ -436,7 +436,7 @@ export const getOrderbyCancelandComplated = async (req: Request, res: Response) 
 
 
         const { interval = 'perMonth' } = req.query;
-
+console.log(interval)
         // Get the current date
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0);
@@ -504,14 +504,16 @@ export const getOrderbyCancelandComplated = async (req: Request, res: Response) 
                                 status: '$_id.status',
                                 count: '$count'
                             }
-                        }
+                        },
+                        totalCount: { $sum: '$count' }
                     }
                 },
                 {
                     $project: {
                         _id: 0,
                         createdAt: '$_id',
-                        orders: 1
+                        orders: 1,
+                        totalCount: 1
                     }
                 },
                 {
@@ -545,14 +547,16 @@ export const getOrderbyCancelandComplated = async (req: Request, res: Response) 
                                 status: '$_id.status',
                                 count: '$count'
                             }
-                        }
+                        },
+                        totalCount: { $sum: '$count' }
                     }
                 },
                 {
                     $project: {
                         _id: 0,
                         createdAt: '$_id',
-                        orders: 1
+                        orders: 1,
+                        totalCount: 1
                     }
                 },
                 {

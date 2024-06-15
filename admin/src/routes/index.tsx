@@ -78,6 +78,7 @@ export default function Router() {
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         { path: 'app', element: <Dashboard /> },
+        { path: 'order-dashboard', element: <OrderDashboard /> },
         { path: 'category', element: <Category /> },
         { path: 'foods', element: <ProdcutPage /> },
         { path: 'orders', element: <OrdersPage /> },
@@ -224,6 +225,7 @@ export default function Router() {
 // // Authentication
 const Login = Loadable(lazy(() => import('../components/Login.tsx')));
 const Dashboard = Loadable(lazy(() => import('../Page/Dashboard.tsx')));
+const OrderDashboard = Loadable(lazy(() => import('../Page/OrderDashboard.tsx')));
 const Category = Loadable(lazy(() => import('../Page/NewCategory.tsx')));
 const ProdcutPage = Loadable(lazy(() => import('../Page/ProdcutPage.tsx')));
 const OrdersPage = Loadable(lazy(() => import('../Page/Orders.tsx')));

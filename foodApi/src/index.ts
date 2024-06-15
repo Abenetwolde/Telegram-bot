@@ -35,7 +35,7 @@ app.use(express.static('uploads'));
 cloudinary.config({
   cloud_name: "abmanwolde",
   api_key: "827239376525146",
-  api_secret: "qcT03npP3xh4VrLYBBMHuXr2IbQ",
+  api_secret: "qcT03npP3xh4VrLYBBMHuXr2IbQ", 
 });
 app.use('/api/user', user);
 app.use('/api/product', product);
@@ -44,11 +44,11 @@ app.use('/api/order', order);
 app.use('/api/payment', payment);
 app.use('/api/kpi', useKpi);
 connectToDatabase()
-  
+   
 app.listen(7000, () => {
   console.log('Server running on http://localhost:7000/');
-});
- 
+}); 
+  
  
 // mongoose.connection.on('error', (error: Error) => console.log(error));
 

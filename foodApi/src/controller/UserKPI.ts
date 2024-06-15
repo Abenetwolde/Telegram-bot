@@ -762,14 +762,17 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
     console.log("getUsersPerformance")
     try { 
         console.log(req.query.page)
-        const { interval = 'perMonth', page = 1, limit = 3, search = '' } = req.query;
+        const { interval = 'perMonth', page = 1, limit, search = '' } = req.query;
         let usertimedata: any = []
         let userclickdata: any = []
         let userorderdata: any = []
-        console.log("search log",search)
-        const currentPage = parseInt(page as string, 10) || 1;
-        const itemsPerPage = parseInt(limit as string, 3) || 10;
+        
+        const currentPage = parseInt(page as string);
+        const itemsPerPage = parseInt(limit as string)
         const searchQuery = (search as string).trim();
+        console.log("search log",searchQuery)
+        console.log("limit log",itemsPerPage)
+        console.log("page log",currentPage)
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0);
 
@@ -1023,6 +1026,7 @@ usertimedata.forEach((userTimeDataItem: any) => {
         const paginatedUsers = filteredUsersWithScores.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     res.json({
+        page:currentPage,
         totalUsers,
         currentPage,
         totalPages: Math.ceil(totalUsers / itemsPerPage),

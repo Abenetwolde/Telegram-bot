@@ -32,7 +32,7 @@ const navConfig = [
     subheader: 'analysis',
     items: [
       { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
-      { title: 'category', path: PATH_DASHBOARD.general.category, icon: ICONS.ecommerce },
+      { title: 'Order Dashboard', path: PATH_DASHBOARD.general.orderdashboard, icon: ICONS.ecommerce },
     ]
   },
   {

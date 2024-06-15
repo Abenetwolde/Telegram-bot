@@ -313,7 +313,7 @@ const Dashboard = () => {
   useEffect(() => {
     setLoadingUserPerformance(true);
     // Fetch data from the API
-    api.get(`/kpi/get-users-performance?interval=${filterUserPerformanceTable}`) // Replace with your actual API endpoint
+    api.get(`/kpi/get-users-performance?interval=${filterUserPerformanceTable}&limit=3`) // Replace with your actual API endpoint
       .then(response => {
         setDataUserperformance(response.data?.users);
         setLoadingUserPerformance(false);

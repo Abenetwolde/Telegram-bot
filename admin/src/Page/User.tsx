@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
@@ -23,28 +23,53 @@ const UserPage = () => {
     setFilterUserPerformance(newFilter);
 
   };
-  const handelSearch = (e) => {
-    console.log("search log", e.target.value)
-    setSearch(e.target.value);
-
+  const { path } = useParams();
+  const performanceSectionRef = useRef(null);
+  const searchDebounceRef = useRef(null);
+  const debounce = (func, delay) => {
+    return (...args) => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+      searchDebounceRef.current = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
   };
-  const handelPage = (number: number) => {
-    // console.log("search log",e.target.value)
+
+  const handleSearch = debounce((e) => {
+    setPage(1);
+    setSearch(e.target.value);
+  }, 500);
+
+  const handelPage = (_e:unknown, number: any) => {
+    console.log("page ch log......",number)
     setPage(number);
 
   };
-  const handelLimit = (number: number) => {
-    // console.log("search log",e.target.value)
-    setLimit(number);
+  const handelLimit = (number: any) => {
+   console.log("limit log",number?.target.value)
+    setLimit(number?.target.value);
+     setPage(1);
 
   };
+  const scrollToSection = (ref) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
+  useEffect(() => {
+    if (path === 'performance') {
+      scrollToSection(performanceSectionRef);
+    }
+  }, [path]);
   useEffect(() => {
     dispatch(fetchUserStart())
     //@ts-ignore
     dispatch(fetchUsers());
   }, [dispatch]);
-  const { path } = useParams();
+
   useEffect(() => {
     setLoadingUserPerformance(true);
     // Fetch data from the API
@@ -57,17 +82,8 @@ const UserPage = () => {
         console.error('Error fetching data:', error);
         setLoadingUserPerformance(false);
       });
-  }, [filterUserPerformanceTable, search,page,limit]);
-  useEffect(() => {
-    if (path === 'performance') {
-      const scrollHeight = document.documentElement.scrollHeight;
-      const halfPageHeight = scrollHeight / 2;
-      window.scrollTo({
-        top: halfPageHeight,
-        behavior: 'smooth'
-      });
-    }
-  }, [path]);
+  }, [filterUserPerformanceTable,search,page,limit]);
+
 
   const isFalse: boolean = path ? true : false
 
@@ -78,11 +94,14 @@ const UserPage = () => {
       <div className="mb-8  flex-col align-center justify-center mx-auto w-full">
       </div>
       <div className="max-w-full  overflow-x-auto">
-
+   
         <UserTable />
         <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
+        <div ref={performanceSectionRef}>
 
-          <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} handelSearch={handelSearch} handelLimit={handelLimit} handelPage={handelPage} isFalse={isFalse} />
+<UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} handelSearch={handleSearch} handelLimit={handelLimit} handelPage={handelPage} isFalse={isFalse} />
+</div>
+          
         </Grid>
       </div>
       <ToastContainer />

@@ -117,7 +117,7 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
     const tableData = isFalse ? data?.users : data;
     console.log("Table data",tableData)
     return (
-        <div>
+        <div className='mt-5'>
 
 
             <Card>
@@ -146,7 +146,7 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
 
 
                 {
-                    !loading ? <TableContainer sx={{ minWidth: 720 }}>
+                    !loading ? <TableContainer  className="overflow-auto " sx={{ maxWidth: 720 }}>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -177,9 +177,9 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
                   {       isFalse&&   <TableFooter>
                                         <TableRow>
                                             <TablePagination
-                                                rowsPerPageOptions={[1,2,3]}
+                                                rowsPerPageOptions={[1,2,3,4]}
                                                 count={data?.totalUsers}
-                                                rowsPerPage={data?.totalPages}
+                                                rowsPerPage={data?.totalPages-1}
                                                 page={data?.currentPage}
                                                 onPageChange={handelPage}
                                                 onRowsPerPageChange={handelLimit}
@@ -195,7 +195,7 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
                 }
 
 
-                <Divider />
+                <Divider /> 
 
                 {!isFalse && <Box sx={{ p: 2, textAlign: 'right', border: 'none', outline: "none" }}>
                     <Button onClick={() => navigate('/dashboard/users/performance')} sx={{

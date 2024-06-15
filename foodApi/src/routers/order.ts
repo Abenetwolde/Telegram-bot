@@ -69,7 +69,7 @@ router.route('/getpaginatedorders').get(getPaginatedOrders);
 
 // GET /api/orders/total-amount-range
 router.route('/getordersbytotalamountrange').get(getOrdersByTotalAmountRange);
-
+ 
 // GET /api/orders/count
 router.route('/getordercount').get(getOrderCount);
 router.route('/getorderby-cancel-and-complated').get(getOrderbyCancelandComplated);
@@ -77,3 +77,4 @@ router.route('/getorderby-cash-and-online').get(getOrderbyCashandOnline);
 router.route('/get-order-most-order-product').get(getOrderMostOrderProduct);
 router.route('/get-order-most-order-category').get(getOrderMostOrdeCategory);
 export default router;
+  
