@@ -186,9 +186,13 @@ const OrderDashboard = () => {
   const { themeStretch } = useSettings();
   const [OrderStatus, setOrderStatus] = useState([]);
   const [cancelAndComplated, setcancelAndComplated] = useState([]);
-  const [filterOfStatus, setFilterOFStatus] = useState("perYear");
+  const [filterOfStatus, setFilterOFStatus] = useState("perMonth");
   const handleFilterOFStatusChange = (filter) => {
     setFilterOFStatus(filter);
+  };
+  const [cancelVsComppated, setcancelVsComppated] = useState("perMonth");
+  const handlesetCancelVsComppated = (filter) => {
+    setcancelVsComppated(filter);
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -196,8 +200,6 @@ const OrderDashboard = () => {
         const response = await api.get(`/order/getorderby-cancel-and-complated?interval=${filterOfStatus}`); // Replace with your actual API endpoint
         const data = response.data.result;
         const aggregatedData = aggregateData(data);
-        const transformedData = transformData(data);
-        setcancelAndComplated(transformedData)
         setOrderStatus(aggregatedData);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -206,6 +208,20 @@ const OrderDashboard = () => {
 
     fetchData();
   }, [filterOfStatus]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/order/getorderby-cancel-and-complated?interval=${cancelVsComppated}`); // Replace with your actual API endpoint
+        const data = response.data.result;
+        const transformedData =  transformData(data);
+        setcancelAndComplated(transformedData)
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [cancelVsComppated]);
   const aggregateData = (data) => {
     const statusCounts = data.reduce((acc, day) => {
       day.orders.forEach((order) => {
@@ -226,15 +242,15 @@ const OrderDashboard = () => {
   const transformData = (data) => {
     const transformedData = data.map((item) => {
       const cancelledOrders = item.orders.find(order => order.status === 'cancelled')?.count || 0;
-      const completedOrders = item.orders.find(order => order.status === 'delivered')?.count || 0;
-      console.log("cancelledOrders data",cancelledOrders)
+      const completedOrders = item.orders.find(order => order.status === 'delivered'||order.status === 'completed')?.count || 0;
+
       return {
         date: item.createdAt,
         cancelled: cancelledOrders,
         completed: completedOrders,
       };
     });
-console.log("transform data",transformedData)
+
     return [
       {
         name: 'Cancelled Orders',
@@ -246,7 +262,7 @@ console.log("transform data",transformedData)
       {
         name: 'Completed Orders',
         data: transformedData.map(item => ({
-          x: new Date(item.date).getTime(),
+          x: item.date,
           y: item.completed,
         })),
       },
@@ -274,7 +290,7 @@ console.log("transform data",transformedData)
 
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
-          <CancelANdComplatedOrder OrderStatus={cancelAndComplated} />
+          <CancelANdComplatedOrder OrderStatus={cancelAndComplated} handleFilterOFStatusChange={handlesetCancelVsComppated} filterOfStatus={cancelVsComppated}/>
             {/* <EcommerceYearlySales /> */}
           </Grid>
         <Grid item xs={12} md={4} lg={4} width="100%" textAlign="center">

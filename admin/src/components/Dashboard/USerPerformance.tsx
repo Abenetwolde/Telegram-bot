@@ -146,7 +146,7 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
 
 
                 {
-                    !loading ? <TableContainer  className="overflow-auto " sx={{ maxWidth: 720 }}>
+                    !loading ? <TableContainer  className="overflow-auto " >
                         <Table>
                             <TableHead>
                                 <TableRow>
