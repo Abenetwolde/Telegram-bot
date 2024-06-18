@@ -38,6 +38,7 @@ import AllOrderStatus from '../components/OrderDashboard/AllOrderStatus';
 import CancelANdComplatedOrder from '../components/OrderDashboard/CancelANdComplatedOrder';
 import CashAndOnine from '../components/OrderDashboard/CashAndOnine';
 import MostOfOrderCategory from '../components/OrderDashboard/MostOfOrderCategory';
+import MostOfOrderProduct from '../components/OrderDashboard/MostOfOrderProduct';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -96,25 +97,7 @@ const OrderDashboard = () => {
   const [newOrderData, setNewOrderData] = useState([]);
   const [newCancelOrderData, setNewCancelOrderData] = useState([]);
   const [userCounts, setUserCounts] = useState([]);
-  const [opacity, setOpacity] = useState({ frombotcount: 1, fromchannelcount: 1, frominvitation: 1 });
-  const [languageData, setLanguageData] = useState(null);
-  const [filter, setFilter] = useState('perYear');
-  const [filterClick, setfilterClick] = useState("perMonth"); // Initialize the state with the default value
-  const [filterScene, setfilterScene] = useState("perMonth");
-  const [userRegisteringWay, setuserRegisteringWay] = useState([]);
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [datauserspentperscene, setDataTimeSpentPerScene] = useState<any[]>([]);
-  const [loadingdataspenttimescene, setLoadingsetDataTimeSpentPerScene] = useState(true);
-  const [filterUserTimeTable, setFilterUserTimeTable] = useState('perMonth');
 
-  const [datauserclcik, setDataUserClick] = useState<any[]>([]);
-  const [loadingdatauserClick, setLoadinguserClick] = useState(true);
-  const [filterUserClickTable, setFilterUserClickTable] = useState('perMonth');
-
-  const [userperformance, setDataUserperformance] = useState<any[]>([]);
-  const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
-  const [filterUserPerformanceTable, setFilterUserPerformance] = useState('perMonth');
 
   const handlefilterClickChange = (newFilter) => {
     setfilterClick(newFilter);
@@ -193,6 +176,8 @@ const OrderDashboard = () => {
   const [cashVsOnlineFilter, setCashVsOnlineFilter] = useState("perMonth");
   const [categoriesbyOrder, setCategoriesbyOrder] = useState([]);
   const [filterCategoriesbyOrder, setCategoriesbyOrderFilter] = useState("perMonth");
+  const [productbyOrder, setProductbyOrder] = useState([]);
+  const [filterProductsbyOrder, setProductbyOrderFilter] = useState("perMonth");
   const handleFilterOFStatusChange = (filter) => {
     setFilterOFStatus(filter);
   };
@@ -205,6 +190,9 @@ const OrderDashboard = () => {
   }, []);
   const handleCategoriesOrder = useCallback((filter) => {
     setCategoriesbyOrderFilter(filter);
+  }, []);
+  const handleProductOrder = useCallback((filter) => {
+    setProductbyOrderFilter(filter);
   }, []);
   useEffect(() => {
     const fetchData = async () => {
@@ -263,7 +251,21 @@ const OrderDashboard = () => {
 
     fetchData();
   }, [filterCategoriesbyOrder]);
-  console.log(categoriesbyOrder)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/order/get-order-most-order-product?interval=${filterProductsbyOrder}`); // Replace with your actual API endpoint
+        const data = response.data?.result;
+        // const transformedData = transformDataForCashAndOnline(data);
+        setProductbyOrder(data)
+       
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [filterProductsbyOrder]);
   const MemoizedCancelAndComplatedOrder = useMemo(() => {
     return React.memo(CancelANdComplatedOrder);
   }, []);
@@ -272,6 +274,9 @@ const OrderDashboard = () => {
   }, []);
   const MemoizedCategoryMostOrder = useMemo(() => {
     return React.memo(MostOfOrderCategory);
+  }, []);
+  const MemoizedProdcutMostOrder = useMemo(() => {
+    return React.memo(MostOfOrderProduct);
   }, []);
   const aggregateData = (data) => {
     const statusCounts = data.reduce((acc, day) => {
@@ -392,6 +397,12 @@ const OrderDashboard = () => {
             handleFilterOFStatusChange={handleCategoriesOrder}
             filterOfStatus={filterCategoriesbyOrder} />
 
+        </Grid>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <MemoizedProdcutMostOrder
+            data={productbyOrder}
+            handleFilterOFStatusChange={handleProductOrder}
+            filterOfStatus={filterProductsbyOrder} />
 
         </Grid>
       </Grid>

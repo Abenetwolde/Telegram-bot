@@ -794,7 +794,7 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                         }
                     }
                 },
-                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
+                { $match: { orderStatus: { $in: ['completed','pending',  'delivered'] } } },
                 {
                     $group: {
                         _id: '$orderItems.product',
@@ -842,7 +842,7 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                         }
                     }
                 },
-                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
+                { $match: { orderStatus: { $in: ['completed','pending',  'delivered'] } } },
                 {
                     $group: {
                         _id: '$orderItems.product',
@@ -952,7 +952,7 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
                         }
                     }
                 },
-                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
+                { $match: { orderStatus: { $in: ['completed','pending', 'delivered'] } } },
                 {
                     $group: {
                         _id: '$orderItems.product',

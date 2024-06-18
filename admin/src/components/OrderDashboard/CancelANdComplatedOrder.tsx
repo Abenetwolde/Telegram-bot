@@ -28,7 +28,7 @@ export default function CancelANdComplatedOrder({ OrderStatus, handleFilterOFSta
         enabled: false
       },
       legend: {
-        position: 'top'
+        position: 'bottom'
       },
       stroke: {
         curve: 'smooth' // Make the line smooth
