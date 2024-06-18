@@ -9,7 +9,7 @@ async function createCart(userId, productId, quantity) {
       $addToSet: {
         items: { product: productId, quantity: quantity }
       }
-     };
+     }; 
     const options = {
        upsert: true, // Create new cart if it doesn't exist
       new: true, // Return the updated cart

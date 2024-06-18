@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Button, Col, Row } from "antd";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { format } from 'date-fns';
@@ -36,6 +36,8 @@ import { merge } from 'lodash';
 import useSettings from '../hooks/useSettings';
 import AllOrderStatus from '../components/OrderDashboard/AllOrderStatus';
 import CancelANdComplatedOrder from '../components/OrderDashboard/CancelANdComplatedOrder';
+import CashAndOnine from '../components/OrderDashboard/CashAndOnine';
+import MostOfOrderCategory from '../components/OrderDashboard/MostOfOrderCategory';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -187,13 +189,23 @@ const OrderDashboard = () => {
   const [OrderStatus, setOrderStatus] = useState([]);
   const [cancelAndComplated, setcancelAndComplated] = useState([]);
   const [filterOfStatus, setFilterOFStatus] = useState("perMonth");
+  const [cashVsOnline, setCashVsOnline] = useState([]);
+  const [cashVsOnlineFilter, setCashVsOnlineFilter] = useState("perMonth");
+  const [categoriesbyOrder, setCategoriesbyOrder] = useState([]);
+  const [filterCategoriesbyOrder, setCategoriesbyOrderFilter] = useState("perMonth");
   const handleFilterOFStatusChange = (filter) => {
     setFilterOFStatus(filter);
   };
   const [cancelVsComppated, setcancelVsComppated] = useState("perMonth");
-  const handlesetCancelVsComppated = (filter) => {
+  const handlesetCancelVsComppated = useCallback((filter) => {
     setcancelVsComppated(filter);
-  };
+  }, []);
+  const handlesetCashVsOnline = useCallback((filter) => {
+    setCashVsOnlineFilter(filter);
+  }, []);
+  const handleCategoriesOrder = useCallback((filter) => {
+    setCategoriesbyOrderFilter(filter);
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -213,7 +225,7 @@ const OrderDashboard = () => {
       try {
         const response = await api.get(`/order/getorderby-cancel-and-complated?interval=${cancelVsComppated}`); // Replace with your actual API endpoint
         const data = response.data.result;
-        const transformedData =  transformData(data);
+        const transformedData = transformData(data);
         setcancelAndComplated(transformedData)
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -222,6 +234,45 @@ const OrderDashboard = () => {
 
     fetchData();
   }, [cancelVsComppated]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/order/getorderby-cash-and-online?interval=${cashVsOnlineFilter}`); // Replace with your actual API endpoint
+        const data = response.data.result;
+        const transformedData = transformDataForCashAndOnline(data);
+        setCashVsOnline(transformedData)
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [cashVsOnlineFilter]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/order/get-order-most-order-category?interval=${filterCategoriesbyOrder}`); // Replace with your actual API endpoint
+        const data = response.data?.categorycount;
+        // const transformedData = transformDataForCashAndOnline(data);
+        setCategoriesbyOrder(data)
+       
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [filterCategoriesbyOrder]);
+  console.log(categoriesbyOrder)
+  const MemoizedCancelAndComplatedOrder = useMemo(() => {
+    return React.memo(CancelANdComplatedOrder);
+  }, []);
+  const MemoizedCashAndOnine = useMemo(() => {
+    return React.memo(CashAndOnine);
+  }, []);
+  const MemoizedCategoryMostOrder = useMemo(() => {
+    return React.memo(MostOfOrderCategory);
+  }, []);
   const aggregateData = (data) => {
     const statusCounts = data.reduce((acc, day) => {
       day.orders.forEach((order) => {
@@ -230,9 +281,9 @@ const OrderDashboard = () => {
       return acc;
     }, {});
 
-    const totalCount:any = Object.values(statusCounts).reduce((acc, count) => acc + count, 0);
+    const totalCount: any = Object.values(statusCounts).reduce((acc, count) => acc + count, 0);
 
-    return Object.entries(statusCounts).map(([status, count]:any) => ({
+    return Object.entries(statusCounts).map(([status, count]: any) => ({
       label: `Total ${status.charAt(0).toUpperCase() + status.slice(1)}`,
       amount: count,
       value: ((count / totalCount) * 100).toFixed(2) // Calculate percentage
@@ -242,7 +293,7 @@ const OrderDashboard = () => {
   const transformData = (data) => {
     const transformedData = data.map((item) => {
       const cancelledOrders = item.orders.find(order => order.status === 'cancelled')?.count || 0;
-      const completedOrders = item.orders.find(order => order.status === 'delivered'||order.status === 'completed')?.count || 0;
+      const completedOrders = item.orders.find(order => order.status === 'delivered' || order.status === 'completed')?.count || 0;
 
       return {
         date: item.createdAt,
@@ -268,6 +319,35 @@ const OrderDashboard = () => {
       },
     ];
   };
+  const transformDataForCashAndOnline = (data) => {
+    const transformedData = data.map((item) => {
+      const cancelledOrders = item.orders.find(order => order.status === 'Cash')?.count || 0;
+      const completedOrders = item.orders.find(order => order.status === 'online')?.count || 0;
+
+      return {
+        date: item.createdAt,
+        cancelled: cancelledOrders,
+        completed: completedOrders,
+      };
+    });
+
+    return [
+      {
+        name: 'Cash Payment',
+        data: transformedData.map(item => ({
+          x: item.date,
+          y: item.cancelled,
+        })),
+      },
+      {
+        name: ' Online Payment',
+        data: transformedData.map(item => ({
+          x: item.date,
+          y: item.completed,
+        })),
+      },
+    ];
+  };
   return (
     <Container maxWidth={themeStretch ? false : 'xl'}>
       <TotalCountCardGrid
@@ -284,23 +364,35 @@ const OrderDashboard = () => {
       />
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-         <AllOrderStatus OrderStatus={OrderStatus} handleFilterOFStatusChange={handleFilterOFStatusChange} filterOfStatus={filterOfStatus}/>
-            {/* <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false}  /> */}
-          
+          <AllOrderStatus OrderStatus={OrderStatus} handleFilterOFStatusChange={handleFilterOFStatusChange} filterOfStatus={filterOfStatus} />
+          {/* <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false}  /> */}
+
 
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
-          <CancelANdComplatedOrder OrderStatus={cancelAndComplated} handleFilterOFStatusChange={handlesetCancelVsComppated} filterOfStatus={cancelVsComppated}/>
-            {/* <EcommerceYearlySales /> */}
-          </Grid>
-        <Grid item xs={12} md={4} lg={4} width="100%" textAlign="center">
+          <MemoizedCancelAndComplatedOrder
+            OrderStatus={cancelAndComplated}
+            handleFilterOFStatusChange={handlesetCancelVsComppated}
+            filterOfStatus={cancelVsComppated}
+          />
 
-          {/* <Card>
-            <CardHeader title="User Join From" />
-            <ChartWrapperStyle dir="ltr">
-              <ReactApexChart type="pie" series={valueforJoinUser} options={chartOptions} height={280} />
-            </ChartWrapperStyle>
-          </Card> */}
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={6}>
+          <MemoizedCashAndOnine
+            OrderStatus={cashVsOnline}
+            handleFilterOFStatusChange={handlesetCashVsOnline}
+            filterOfStatus={cashVsOnlineFilter}
+          />
+
+        </Grid>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <MemoizedCategoryMostOrder
+            data={categoriesbyOrder}
+            handleFilterOFStatusChange={handleCategoriesOrder}
+            filterOfStatus={filterCategoriesbyOrder} />
+
+
         </Grid>
       </Grid>
 
@@ -332,7 +424,7 @@ const OrderDashboard = () => {
               </Grid>
             </Grid> */}
 
-     
+
           </Card>
 
         </Grid>
@@ -351,7 +443,7 @@ const OrderDashboard = () => {
               textAlign: 'center'
             }}
           >
-      
+
           </Card>
 
         </Grid>

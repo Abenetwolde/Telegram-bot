@@ -729,6 +729,7 @@ export const getOrderbyCashandOnline = async (req: Request, res: Response) => {
 };
 
 export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
+    console.log("getOrderMostOrderProduct")
     interface OrderSummary {
         status: string;
         count: number;
@@ -793,11 +794,11 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                         }
                     }
                 },
-             
+                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
                 {
                     $group: {
-                        _id: 'clicks.name',
-                        productName: { $first: '$orderItems.product' },
+                        _id: '$orderItems.product',
+                         productName: { $first: '$orderItems.product' },
                         count: { $sum: 1 }
                     }
                 },
@@ -845,7 +846,7 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                 {
                     $group: {
                         _id: '$orderItems.product',
-                        // productName: { $first: '$orderItems.product' },
+                         productName: { $first: '$orderItems.product' },
                         count: { $sum: 1 }
                     }
                 },
@@ -854,7 +855,7 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                 },
                 {
                     $lookup: {
-                        from: 'Product',
+                        from: 'products',
                         localField: '_id',
                         foreignField: '_id',
                         as: 'product'
@@ -891,6 +892,7 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
         count: number;
         time: Date;
     }
+    console.log("getOrderMostOrdeCategory")
     try {
         // Parse the start and end dates from the request query
 
@@ -940,7 +942,7 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
         // Construct the aggregation pipeline
 
         // Execute the aggregation pipeline
-        if (interval === "perWeek" || interval === "perMonth") {
+      
             result = await Order.aggregate<OrderSummary>([
                 {
                     $match: {
@@ -1002,49 +1004,10 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
 
 
             ]);
+        
+    
 
-        } else if (interval == "perYear") {
-            result = await Order.aggregate<OrderSummary>([
-                {
-                    $match: {
-                        createdAt: {
-                            $gte: startDate,
-                            $lte: endDate
-                        }
-                    }
-                },
-                { $match: { orderStatus: { $in: ['completed', 'delivered'] } } },
-                {
-                    $group: {
-                        _id: '$orderItems.product',
-                        // productName: { $first: '$orderItems.product' },
-                        count: { $sum: 1 }
-                    }
-                },
-                {
-                    $sort: { count: -1 }
-                },
-                {
-                    $lookup: {
-                        from: 'Product',
-                        localField: '_id',
-                        foreignField: '_id',
-                        as: 'product'
-                    }
-                },
-                {
-                    $unwind: '$product'
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        productName: '$product.name',
-                        count: 1
-                    }
-                },
-
-            ]);
-        }
+        
 
 
         let aggregatedCounts: any = {};
