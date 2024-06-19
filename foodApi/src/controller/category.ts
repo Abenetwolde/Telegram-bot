@@ -147,9 +147,52 @@ export const getAllCategories = async (req: Request, res: Response) => {
     }
   };
   export const getCategorymostCliked = async (req: Request, res: Response) => {
+    const { interval = 'perMonth' } = req.query;
+
+    // Get the current date
+    const currentDate = new Date();
+    currentDate.setUTCHours(0, 0, 0, 0);
+    let startDate, endDate;
+    switch (interval) {
+        case 'perDay':
+            const selectedDate = new Date();
+            startDate = new Date(selectedDate);
+            startDate.setUTCHours(0, 0, 0, 0);
+            endDate = new Date(selectedDate);
+            endDate.setUTCHours(23, 59, 59, 999);
+            break;
+        case 'perWeek':
+            // Calculate the start of the current week (Sunday)
+            startDate = new Date(currentDate);
+            startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
+            startDate.setUTCHours(0, 0, 0, 0);
+            // Calculate the end of the current week (Saturday)
+            endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + 6); // Move to Saturday
+            endDate.setUTCHours(23, 59, 59, 999);
+            break;
+        case 'perMonth':
+            // Calculate the start and end of the current month
+            startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            endDate.setUTCHours(23, 59, 59, 999);
+            break;
+        case 'perYear':
+            // Calculate the start and end of the current year
+            startDate = new Date(currentDate.getFullYear(), 0, 1);
+            endDate = new Date(currentDate.getFullYear(), 11, 31);
+            endDate.setUTCHours(23, 59, 59, 999);
+            break;
+
+    }
     try {
       const results = await clickKpi.aggregate([
         { $unwind: "$clicks" },
+        {
+          $match: {
+              'clicks.date': { $gte: startDate, $lte: endDate }
+          }
+      },
         { 
             $match: { 
                 "clicks.name": "category",
@@ -166,9 +209,10 @@ export const getAllCategories = async (req: Request, res: Response) => {
         { $sort: { totalCount: -1 } } // Sort by totalCount in ascending order
     ]);
     const finalResults = await Promise.all(results?.map(async (result) => {
-      const product = await Category.findById(result._id).select('name').lean();
+      const product = await Category.findById(result._id).select('name icon').lean();
       return {
-          name: product ? product?.name : 'Unknown Product',
+          name: product ? product?.name : 'Unknown Category',
+          icon: product ? product?.icon : 'Unknown Icon',
           totalClickCount: result?.totalCount
       };
   }));

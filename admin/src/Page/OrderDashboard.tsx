@@ -39,6 +39,7 @@ import CancelANdComplatedOrder from '../components/OrderDashboard/CancelANdCompl
 import CashAndOnine from '../components/OrderDashboard/CashAndOnine';
 import MostOfOrderCategory from '../components/OrderDashboard/MostOfOrderCategory';
 import MostOfOrderProduct from '../components/OrderDashboard/MostOfOrderProduct';
+import CategoryMostClicked from '../components/OrderDashboard/CategoryMostClicked';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -99,28 +100,6 @@ const OrderDashboard = () => {
   const [userCounts, setUserCounts] = useState([]);
 
 
-  const handlefilterClickChange = (newFilter) => {
-    setfilterClick(newFilter);
-
-  };
-  const handlefilterTimePerScenceClickChange = (newFilter) => {
-    setfilterScene(newFilter);
-
-  };
-  const handleFilterUserClickTable = (newFilter) => {
-    setFilterUserClickTable(newFilter);
-
-  };
-  const handleFilterUserPerformanceTable = (newFilter) => {
-    setFilterUserPerformance(newFilter);
-
-  };
-
-  const refOne = useRef(null)
-  const handleMouseEnter = (o) => {
-    const { dataKey } = o;
-    setOpacity(prevOpacity => ({ ...prevOpacity, [dataKey]: 0.5 }));
-  };
   useEffect(() => {
 
     document.addEventListener("keydown", hideOnEscape, true)
@@ -142,29 +121,6 @@ const OrderDashboard = () => {
     }
   }
 
-  const handleMouseLeave = (o) => {
-    const { dataKey } = o;
-    setOpacity(prevOpacity => ({ ...prevOpacity, [dataKey]: 1 }));
-  };
-
-
-
-
-
-
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
-    //  setRange([]);
-  };
-
-  const handlefilterScene = (string) => {
-    setfilterScene(string);
-    //  setRange([]);
-  };
-  const handleFilterUserTimeTable = (string) => {
-    setFilterUserTimeTable(string);
-    //  setRange([]);
-  };
 
 
 
@@ -178,8 +134,13 @@ const OrderDashboard = () => {
   const [filterCategoriesbyOrder, setCategoriesbyOrderFilter] = useState("perMonth");
   const [productbyOrder, setProductbyOrder] = useState([]);
   const [filterProductsbyOrder, setProductbyOrderFilter] = useState("perMonth");
+  const [categorybyClick, setCategoryByClick] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState("perMonth");
   const handleFilterOFStatusChange = (filter) => {
     setFilterOFStatus(filter);
+  };
+  const handleCategoryFilter = (filter) => {
+    setCategoryFilter(filter);
   };
   const [cancelVsComppated, setcancelVsComppated] = useState("perMonth");
   const handlesetCancelVsComppated = useCallback((filter) => {
@@ -193,7 +154,7 @@ const OrderDashboard = () => {
   }, []);
   const handleProductOrder = useCallback((filter) => {
     setProductbyOrderFilter(filter);
-  }, []);
+  }, []); 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -266,8 +227,26 @@ const OrderDashboard = () => {
 
     fetchData();
   }, [filterProductsbyOrder]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/category/get-category-most-cliked?interval=${filterProductsbyOrder}`); // Replace with your actual API endpoint
+        const data = response.data;
+        // const transformedData = transformDataForCashAndOnline(data);
+        setCategoryByClick(data)
+       
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [filterProductsbyOrder]);
   const MemoizedCancelAndComplatedOrder = useMemo(() => {
     return React.memo(CancelANdComplatedOrder);
+  }, []);
+  const MemoizedCategoryClikced = useMemo(() => {
+    return React.memo(CategoryMostClicked)
   }, []);
   const MemoizedCashAndOnine = useMemo(() => {
     return React.memo(CashAndOnine);
@@ -372,6 +351,13 @@ const OrderDashboard = () => {
           <AllOrderStatus OrderStatus={OrderStatus} handleFilterOFStatusChange={handleFilterOFStatusChange} filterOfStatus={filterOfStatus} />
           {/* <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false}  /> */}
 
+
+        </Grid>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <MemoizedCategoryClikced
+            data={categorybyClick}
+            handleFilterOFStatusChange={handleCategoriesOrder}
+            filterOfStatus={categoryFilter} />
 
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
