@@ -353,7 +353,7 @@ const OrderDashboard = () => {
 
 
         </Grid>
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <Grid item columnSpacing={2} xs={12} md={3} lg={3} width="100%" textAlign="center">
           <MemoizedCategoryClikced
             data={categorybyClick}
             handleFilterOFStatusChange={handleCategoriesOrder}
