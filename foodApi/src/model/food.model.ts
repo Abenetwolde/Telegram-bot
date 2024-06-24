@@ -10,8 +10,8 @@ interface IProduct extends Document {
   category: mongoose.Types.ObjectId;
   images: [
     {
-        public_id: { type: String, required: true },
-        url: { type: String, required: true },
+      imageId: { type: String, required: true },
+      imageUrl: { type: String, required: true },
     },
 ],
   orderQuantity: number;

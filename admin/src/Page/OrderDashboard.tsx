@@ -40,6 +40,7 @@ import CashAndOnine from '../components/OrderDashboard/CashAndOnine';
 import MostOfOrderCategory from '../components/OrderDashboard/MostOfOrderCategory';
 import MostOfOrderProduct from '../components/OrderDashboard/MostOfOrderProduct';
 import CategoryMostClicked from '../components/OrderDashboard/CategoryMostClicked';
+import ProductMostClicked from '../components/OrderDashboard/ProductMostClicked';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -136,11 +137,16 @@ const OrderDashboard = () => {
   const [filterProductsbyOrder, setProductbyOrderFilter] = useState("perMonth");
   const [categorybyClick, setCategoryByClick] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("perMonth");
+  const [productbyClick, setProductByClick] = useState([]);
+  const [productFilter, setProductFilter] = useState("perMonth");
   const handleFilterOFStatusChange = (filter) => {
     setFilterOFStatus(filter);
   };
   const handleCategoryFilter = (filter) => {
     setCategoryFilter(filter);
+  };
+  const handleProductFilter = (filter) => {
+    setProductFilter(filter);
   };
   const [cancelVsComppated, setcancelVsComppated] = useState("perMonth");
   const handlesetCancelVsComppated = useCallback((filter) => {
@@ -230,7 +236,7 @@ const OrderDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api.get(`/category/get-category-most-cliked?interval=${filterProductsbyOrder}`); // Replace with your actual API endpoint
+        const response = await api.get(`/category/get-category-most-cliked?interval=${categoryFilter}`); // Replace with your actual API endpoint
         const data = response.data;
         // const transformedData = transformDataForCashAndOnline(data);
         setCategoryByClick(data)
@@ -241,12 +247,31 @@ const OrderDashboard = () => {
     };
 
     fetchData();
-  }, [filterProductsbyOrder]);
+  }, [categoryFilter]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/product/get-product-most-cliked?interval=${productFilter}`); // Replace with your actual API endpoint
+        const data = response.data;
+
+        setProductByClick(data)
+       
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [productFilter]);
   const MemoizedCancelAndComplatedOrder = useMemo(() => {
     return React.memo(CancelANdComplatedOrder);
   }, []);
+  
   const MemoizedCategoryClikced = useMemo(() => {
     return React.memo(CategoryMostClicked)
+  }, []);
+  const MemoizedProductClikced = useMemo(() => {
+    return React.memo(ProductMostClicked)
   }, []);
   const MemoizedCashAndOnine = useMemo(() => {
     return React.memo(CashAndOnine);
@@ -353,11 +378,18 @@ const OrderDashboard = () => {
 
 
         </Grid>
-        <Grid item columnSpacing={2} xs={12} md={3} lg={3} width="100%" textAlign="center">
+        <Grid item columnSpacing={2} xs={12} md={6} lg={6} width="100%" textAlign="center">
           <MemoizedCategoryClikced
             data={categorybyClick}
-            handleFilterOFStatusChange={handleCategoriesOrder}
+            handleFilterOFStatusChange={handleCategoryFilter}
             filterOfStatus={categoryFilter} />
+
+        </Grid>
+        <Grid item columnSpacing={2} xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <MemoizedProductClikced
+            data={productbyClick}
+            handleFilterOFStatusChange={handleProductFilter}
+            filterOfStatus={productFilter} />
 
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
@@ -410,16 +442,7 @@ const OrderDashboard = () => {
             }}
           >
 
-            {/* <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-              <Grid item xs={12} md={5}>
-                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                  User Spent Time Per Scene
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={7}>
-                <FilterButtonGroup handlefilter={handleFilterUserTimeTable} filter={filterUserTimeTable} />
-              </Grid>
-            </Grid> */}
+     
 
 
           </Card>

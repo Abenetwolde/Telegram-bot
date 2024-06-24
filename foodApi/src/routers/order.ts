@@ -18,7 +18,12 @@ import {
  getOrderbyCancelandComplated,
  getOrderbyCashandOnline,
  getOrderMostOrderProduct,
- getOrderMostOrdeCategory
+ getOrderMostOrdeCategory,
+ getTransactionDifferenceByMonth,
+ getOrderCancelByMonth,
+ getOrderComplatedByMonth,
+ getOrderByCash,
+ getOrderByOnline
 } from '../controller/order'; // Import order controllers
 import multer from 'multer';
 import path from 'path';
@@ -76,5 +81,10 @@ router.route('/getorderby-cancel-and-complated').get(getOrderbyCancelandComplate
 router.route('/getorderby-cash-and-online').get(getOrderbyCashandOnline);
 router.route('/get-order-most-order-product').get(getOrderMostOrderProduct);
 router.route('/get-order-most-order-category').get(getOrderMostOrdeCategory);
+router.route('/get-total-transaction').get(getTransactionDifferenceByMonth);
+router.route('/get-cancel-order').get(getOrderCancelByMonth);
+router.route('/get-complated-order').get(getOrderComplatedByMonth);
+router.route('/get-order-by-cash').get(getOrderByCash);
+router.route('/get-order-by-online').get(getOrderByOnline);
 export default router;
   

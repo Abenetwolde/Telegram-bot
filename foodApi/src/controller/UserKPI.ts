@@ -9,6 +9,334 @@ import { userInfo } from 'os';
 import Order from '../model/order.model';
 
 
+export const getUsersCountAndPercentageChange = async (req: Request, res: Response): Promise<void> => {
+    try {
+        
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+        // Query the database to find all users created within the specified interval
+        let newUserCounts: any[] = [];
+
+      
+            newUserCounts = await User.aggregate([
+                {
+                    $match: {
+                        createdAt: { $gte: startDate, $lte: endDate }
+                    }
+                },
+                {
+                    $group: {
+                        _id: {
+                            date: { $dateToString: { format: "%d-%m", date: "$createdAt" } },
+                            from: "$from"
+                        },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id.date",
+                        newUserCounts: {
+                            $push: {
+                                from: "$_id.from",
+                                count: "$count"
+                            }
+                        }
+                    }
+                },
+                { $sort: { "_id": 1 } }
+            ]);
+        
+           
+      
+
+        // Format the response with counts for each date
+        const formattedCounts = newUserCounts.map(({ _id, newUserCounts }) => {
+            const counts: any = { frombotcount: 0, fromchannelcount: 0, frominvitation: 0 };
+            newUserCounts.forEach(({ from, count }: any) => {
+                if (from === 'BOT') {
+                    counts.frombotcount += count;
+                } else if (from === 'CHANNEL') {
+                    counts.fromchannelcount += count;
+                } else if (from === 'INVITATION') {
+                    counts.frominvitation += count;
+                }
+            });
+            counts.total = (counts.frombotcount || 0) + (counts.fromchannelcount || 0) + (counts.frominvitation || 0);
+            return { _id, ...counts };
+        });
+
+        // Calculate percentage increase or decrease compared to the previous month
+        let percentageChange = 0;
+        let increase = false;
+     
+            const previousMonthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+            const previousMonthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+            const previousMonthUsers = await User.countDocuments({
+                createdAt: { $gte: previousMonthStartDate, $lte: previousMonthEndDate }
+            });
+
+            const currentMonthUsers = formattedCounts.reduce((total, item) => total + (item.total || 0), 0);
+            if (previousMonthUsers !== 0) {
+                percentageChange = ((currentMonthUsers - previousMonthUsers) / previousMonthUsers) * 100;
+                increase = currentMonthUsers > previousMonthUsers;
+            }
+    
+
+        // Send the response containing the number of new users joined per date and percentage change info
+        res.json({ newUserCounts: formattedCounts, totalUsers: formattedCounts.reduce((total, item) => total + (item.total || 0), 0), percentageChange, increase });
+    } catch (error) {
+        // Handle errors
+        console.error('Error fetching new users per date:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+export const getUSerSpentTimeCountAndPercentageChange = async (req: Request, res: Response) => {
+    console.log("reach user kpi ")
+    try {
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        endDate.setUTCHours(23, 59, 59, 999);
+        let results:any = []
+        let previousMonthResults:any = []
+        let percentageChange = 0;
+        let increase = false;
+            results = await UserKPI.aggregate([
+                { $unwind: '$scene' }, // Unwind the scene array
+                {
+                    $match: {
+                        'scene.date': { $gte: startDate, $lte: endDate } // Filter based on the calculated start and end dates
+                    }
+                },
+                {
+                    $group: {
+                        _id: {
+                            date: { $dateToString: { format: "%Y-%m-%d", date: "$scene.date" } },
+
+                        },
+                        totalDuration: {
+                            $sum: {
+                                $add: [
+                                    { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 0] } }, 3600] }, // Convert hours to seconds
+                                    { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 1] } }, 60] }, // Convert minutes to seconds
+                                    { $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 2] } } // Extract seconds
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        _id: "$_id.date",
+                        totalDurationInMinutes: { $divide: ['$totalDuration', 60] }
+                    }
+                },
+                {
+                    $sort: { "_id": 1 }
+                }
+
+            ]);
+    
+            const previousMonthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+            const previousMonthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+    
+           previousMonthResults = await UserKPI.aggregate([
+                { $unwind: '$scene' }, // Unwind the scene array
+                {
+                    $match: {
+                        'scene.date': { $gte: previousMonthStartDate, $lte: previousMonthEndDate } // Filter based on the calculated start and end dates
+                    }
+                },
+                {
+                    $group: {
+                        _id: {
+                            date: { $dateToString: { format: "%Y-%m-%d", date: "$scene.date" } },
+
+                        },
+                        totalDuration: {
+                            $sum: {
+                                $add: [
+                                    { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 0] } }, 3600] }, // Convert hours to seconds
+                                    { $multiply: [{ $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 1] } }, 60] }, // Convert minutes to seconds
+                                    { $toInt: { $arrayElemAt: [{ $split: ['$scene.duration', ':'] }, 2] } } // Extract seconds
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        _id: "$_id.date",
+                        totalDurationInMinutes: { $divide: ['$totalDuration', 60] }
+                    }
+                },
+                {
+                    $sort: { "_id": 1 }
+                }
+
+            ]);
+    
+        if (results.length > 0 && previousMonthResults.length > 0) {
+            const currentMonthTime:any = results.reduce((total: any, item: { totalDurationInMinutes: any; }) => total + item.totalDurationInMinutes, 0);
+            const previousMonthTime = previousMonthResults.reduce((total: any, item: { totalDurationInMinutes: any; }) => total + item.totalDurationInMinutes, 0);
+
+            if (previousMonthTime !== 0) {
+                percentageChange = ((currentMonthTime - previousMonthTime) / previousMonthTime) * 100;
+                increase = currentMonthTime > previousMonthTime;
+            }
+        }
+
+        // Send the response containing total time spent this month, percentage change, and increase boolean
+        res.json({
+            thisMonth:results,
+            totalTimeSpentThisMonth: results.reduce((total:any, item:any) => total + item.totalDurationInMinutes, 0),
+            percentageChange,
+            increase
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error!' });
+    }
+};
+
+export const getTotalNumberofClicksCountAndPercentageChange = async (req: Request, res: Response) => {
+    console.log("totalNumberofClicks user kpi ")
+    try {
+       
+
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Initialize start and end dates based on the selected interval
+        let startDate, endDate;
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        endDate.setUTCHours(23, 59, 59, 999);
+        let results:any = []
+        let previousMonthResults:any = []
+        let percentageChange = 0;
+        let increase = false;
+        let totalProductClicksResult: any = null;
+        const previousMonthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const previousMonthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+
+
+    
+            results = await clickKpi.aggregate(
+
+                [
+                    { $unwind: '$clicks' },
+                    {
+                        $match: {
+                            'clicks.date': { $gte: startDate, $lte: endDate }
+                        }
+                    },
+
+                    {
+                        $group: {
+                            _id: { $dateToString: { format: "%Y-%m-%d", date: "$clicks.date" } },
+                            totalProductClicks: { $sum: '$clicks.count' }
+                        }
+                    },
+                    {
+                        $sort: {
+                            "_id": 1 // Sort the dates in ascending order
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            totalClicks: { $sum: '$totalProductClicks' }, // Sum of totalProductClicks
+                            clicksByDate: { $push: { date: '$_id', totalProductClicks: '$totalProductClicks' } }
+                        }
+                    },
+
+                    {
+                        $project: {
+                            _id: 0, // Exclude the _id field
+                            totalClicks: 1,
+                            clicksByDate: 1
+                        }
+                    }
+
+                ]
+            )
+
+            previousMonthResults = await clickKpi.aggregate(
+
+                [
+                    { $unwind: '$clicks' },
+                    {
+                        $match: {
+                            'clicks.date': { $gte: previousMonthStartDate, $lte: previousMonthEndDate } // Filter based on the calculated start and end dates
+                        }
+                    },
+
+                    {
+                        $group: {
+                            _id: { $dateToString: { format: "%Y-%m-%d", date: "$clicks.date" } },
+                            totalProductClicks: { $sum: '$clicks.count' }
+                        }
+                    },
+                    {
+                        $sort: {
+                            "_id": 1 // Sort the dates in ascending order
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            totalClicks: { $sum: '$totalProductClicks' }, // Sum of totalProductClicks
+                            clicksByDate: { $push: { date: '$_id', totalProductClicks: '$totalProductClicks' } }
+                        }
+                    },
+
+                    {
+                        $project: {
+                            _id: 0, // Exclude the _id field
+                            totalClicks: 1,
+                            clicksByDate: 1
+                        }
+                    }
+
+                ]
+            )
+        
+            if (results.length > 0 && previousMonthResults.length > 0) {
+                const currentMonthClick:any = results.reduce((total: any, item: { totalClicks: any; }) => total + item.totalClicks, 0);
+                const previousMonthClick = previousMonthResults.reduce((total: any, item: { totalClicks: any; }) => total + item.totalClicks, 0);
+    
+                if (previousMonthClick !== 0) {
+                    percentageChange = ((currentMonthClick - previousMonthClick) / previousMonthClick) * 100;
+                    increase = currentMonthClick > previousMonthClick;
+                }
+            }
+
+        res.json({
+            thisMonth:results,
+            totalClickThisMonth: results.reduce((total:any, item:any) => total + item.totalClicks, 0),
+            percentageChange,
+            increase
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error!' });
+    }
+};
+
 export const GetUSerSpentTime = async (req: Request, res: Response) => {
     console.log("reach user kpi ")
     try {
@@ -617,9 +945,9 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
 };
 
 export const getUserTotalClicksPerName = async (req: Request, res: Response) => {
-    console.log("getUserTotalClicksPerName")
+    console.log("getUserTotalClicksPerName");
     try {
-        const { interval = 'perMonth' } = req.query;
+        const { interval = 'perMonth', search = '', page = 1, pageSize = 10 } = req.query;
 
         // Get the current date
         const currentDate = new Date();
@@ -636,57 +964,65 @@ export const getUserTotalClicksPerName = async (req: Request, res: Response) => 
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
             case 'perWeek':
-                // Calculate the start of the current week (Sunday)
                 startDate = new Date(currentDate);
-                startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
+                startDate.setDate(startDate.getDate() - startDate.getDay());
                 startDate.setUTCHours(0, 0, 0, 0);
-                // Calculate the end of the current week (Saturday)
                 endDate = new Date(startDate);
-                endDate.setDate(endDate.getDate() + 6); // Move to Saturday
+                endDate.setDate(endDate.getDate() + 6);
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
             case 'perMonth':
-                // Calculate the start and end of the current month
                 startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
                 endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
             case 'perYear':
-                // Calculate the start and end of the current year
                 startDate = new Date(currentDate.getFullYear(), 0, 1);
                 endDate = new Date(currentDate.getFullYear(), 11, 31);
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
-
+            default:
+                startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
         }
 
+        // Parse pagination parameters
+        const pageNumber = parseInt(page as string, 10) || 1;
+        const pageSizeNumber = parseInt(pageSize as string, 10) || 10;
+        const skip = (pageNumber - 1) * pageSizeNumber;
 
+        const matchStage:any = {
+            'clicks.date': { $gte: startDate, $lte: endDate },
+        };
 
-        const results = await clickKpi.aggregate([
+        if (search) {
+            const userIds = await User.find({ first_name: { $regex: search, $options: 'i' } }).distinct('_id');
+            matchStage['user'] = { $in: userIds };
+        }
+
+        const aggregationPipeline:any = [
             { $unwind: '$clicks' },
-            { $match: { 'clicks.date': { $gte: startDate, $lte: endDate } } },
+            { $match: matchStage },
             {
                 $lookup: {
-                    from: 'users', // Use the name of your user collection
+                    from: 'users',
                     localField: 'user',
                     foreignField: '_id',
                     as: 'userInfo',
                 },
-            }, // Filter based on the calculated start and end dates
+            },
             {
                 $group: {
-                    _id: {
-                        telegramid: '$telegramid',
-                        sceneName: '$clicks.name'
-                    },
+                    _id: { telegramid: '$telegramid', sceneName: '$clicks.name' },
                     totalClicks: { $sum: '$clicks.count' },
-                    userInfo: { $first: '$userInfo' }, // Preserve user information
+                    userInfo: { $first: '$userInfo' },
                 },
             },
             {
                 $group: {
                     _id: '$_id.telegramid',
-
                     userClicks: {
                         $push: {
                             sceneName: '$_id.sceneName',
@@ -694,63 +1030,50 @@ export const getUserTotalClicksPerName = async (req: Request, res: Response) => 
                         },
                     },
                     totalClicks: { $sum: '$totalClicks' },
-                    userInfo: { $first: '$userInfo' }, // Preserve user information
+                    userInfo: { $first: '$userInfo' },
                 },
             },
             {
                 $project: {
-                    _id: 0, // Exclude _id field
-                    telegramid: '$_id', // Project name field
-                    userinformationperScene: '$userClicks', // Rename userClicks to user
-                    totalClicks: 1,
-                    userInfo: '$userInfo', // Preserve user information
-                },
-
-            },
-            {
-                $project: {
-                    _id: 0, // Exclude _id field
-                    telegramid: 1, // Project name field
-                    userinformationperScene: 1, // Rename userClicks to user
+                    _id: 0,
+                    telegramid: '$_id',
+                    userinformationperScene: '$userClicks',
                     totalClicks: 1,
                     userInfo: { $arrayElemAt: ['$userInfo', 0] },
                 },
-
             },
             {
                 $project: {
-                    _id: 0, // Exclude _id field
-                    telegramid: 1, // Project name field
-                    userinformationperScene: 1, // Rename userClicks to user
+                    _id: 0,
+                    telegramid: 1,
+                    userinformationperScene: 1,
                     totalClicks: 1,
-                    userInformation: { _id: '$userInfo._id', telegramid: '$userInfo.telegramid', username: '$userInfo.username', first_name: '$userInfo.first_name' },
+                    userInformation: {
+                        _id: '$userInfo._id',
+                        telegramid: '$userInfo.telegramid',
+                        username: '$userInfo.username',
+                        first_name: '$userInfo.first_name',
+                    },
                 },
-
             },
-            {
-                $sort: {
-                    totalClicks: -1 // Sort in ascending order
-                }
-            }
+            { $sort: { totalClicks: -1 } },
+            { $skip: skip },
+            { $limit: pageSizeNumber },
+        ];
 
-        ]);
-        const mappedResults = await Promise.all(results.map(async (result: any) => {
-            // Find user information
-            const user = await User.findOne({ telegramid: result.telegramid }).select('telegramid first_name username');;
+        const results = await clickKpi.aggregate(aggregationPipeline);
 
-            return {
-                ...result,
-                user
-            };
-        }));
+        const totalRecords = await clickKpi.countDocuments(matchStage);
+        const totalPages = Math.ceil(totalRecords / pageSizeNumber);
 
-        res.json({ clicksPerScene: results });
-
-
-
-
-
-
+        res.status(200).json({
+            success: true,
+            clicksPerScene: results,
+            totalRecords,
+            totalPages,
+            currentPage: pageNumber,
+            pageSize: pageSizeNumber,
+        });
 
     } catch (error) {
         console.error(error);

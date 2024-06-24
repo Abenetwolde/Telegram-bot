@@ -1,13 +1,16 @@
 // categoryRoutes.ts
 import express from 'express';
 
-import { GetTimeSpentPerScene, GetUSerSpentTime, dateRangeSpentTime, getUserTotalClicksPerName, getUsersJoinedByMethodPerTimeInterval, getUsersPerformance, spendTimePerScene, totalNumberofClicks,getUsersLotterandInvitedUserData } from '../controller/UserKPI';
+import { GetTimeSpentPerScene,getUsersCountAndPercentageChange, GetUSerSpentTime, dateRangeSpentTime, getUserTotalClicksPerName, getUsersJoinedByMethodPerTimeInterval, getUsersPerformance, spendTimePerScene, totalNumberofClicks,getUsersLotterandInvitedUserData, getUSerSpentTimeCountAndPercentageChange, getTotalNumberofClicksCountAndPercentageChange } from '../controller/UserKPI';
 
 
 const router = express.Router();
 
 
 // POST /api/categories
+router.route('/get-user-stats').get(getUsersCountAndPercentageChange);
+router.route('/get-user-time-spent-month').get(getUSerSpentTimeCountAndPercentageChange);
+router.route('/get-user-time-click-month').get(getTotalNumberofClicksCountAndPercentageChange);
 router.route('/get-user-spent-time').get(GetUSerSpentTime);
 router.route('/get-user-spent-range').post(dateRangeSpentTime);
 router.route('/get-user-spent-per-scene-name').get(spendTimePerScene);

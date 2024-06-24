@@ -276,8 +276,8 @@ export const updateOrderById = async (req: Request, res: Response) => {
             if (req.body.paymentType == "Cash" && paymentstatus == "completed") {
                 try {
                     console.log("this code is impelement", req.body.orderId)
-                    const orderid=req.body.orderId 
-                    const ispaymentexist = await Payment.findOne({ order:orderid })
+                    const orderid = req.body.orderId
+                    const ispaymentexist = await Payment.findOne({ order: orderid })
                     console.log("ordermpelement", ispaymentexist)
                     if (!ispaymentexist) {
                         const payment = new Payment({
@@ -436,7 +436,7 @@ export const getOrderbyCancelandComplated = async (req: Request, res: Response) 
 
 
         const { interval = 'perMonth' } = req.query;
-console.log(interval)
+        console.log(interval)
         // Get the current date
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0);
@@ -794,11 +794,11 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                         }
                     }
                 },
-                { $match: { orderStatus: { $in: ['completed','pending',  'delivered'] } } },
+                { $match: { orderStatus: { $in: ['completed', 'pending', 'delivered'] } } },
                 {
                     $group: {
                         _id: '$orderItems.product',
-                         productName: { $first: '$orderItems.product' },
+                        productName: { $first: '$orderItems.product' },
                         count: { $sum: 1 }
                     }
                 },
@@ -842,11 +842,11 @@ export const getOrderMostOrderProduct = async (req: Request, res: Response) => {
                         }
                     }
                 },
-                { $match: { orderStatus: { $in: ['completed','pending',  'delivered'] } } },
+                { $match: { orderStatus: { $in: ['completed', 'pending', 'delivered'] } } },
                 {
                     $group: {
                         _id: '$orderItems.product',
-                         productName: { $first: '$orderItems.product' },
+                        productName: { $first: '$orderItems.product' },
                         count: { $sum: 1 }
                     }
                 },
@@ -942,72 +942,72 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
         // Construct the aggregation pipeline
 
         // Execute the aggregation pipeline
-      
-            result = await Order.aggregate<OrderSummary>([
-                {
-                    $match: {
-                        createdAt: {
-                            $gte: startDate,
-                            $lte: endDate
-                        }
-                    }
-                },
-                { $match: { orderStatus: { $in: ['completed','pending', 'delivered'] } } },
-                {
-                    $group: {
-                        _id: '$orderItems.product',
-                        productName: { $first: '$orderItems.product' },
-                        count: { $sum: 1 }
-                    }
-                },
 
-                {
-                    $lookup: {
-                        from: 'products',
-                        localField: '_id',
-                        foreignField: '_id',
-                        as: 'product'
+        result = await Order.aggregate<OrderSummary>([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lte: endDate
                     }
-                },
-                {
-                    $unwind: '$product'
-                },
-                {
-                    $project: {
-                        _id: '$product.category',
-                        count: 1,
-                    }
-                },
+                }
+            },
+            { $match: { orderStatus: { $in: ['completed', 'pending', 'delivered'] } } },
+            {
+                $group: {
+                    _id: '$orderItems.product',
+                    productName: { $first: '$orderItems.product' },
+                    count: { $sum: 1 }
+                }
+            },
 
-                {
-                    $lookup: {
-                        from: 'categories',
-                        localField: '_id',
-                        foreignField: '_id',
-                        as: 'category'
-                    }
-                },
-                {
-                    $unwind: '$category'
-                },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            },
+            {
+                $unwind: '$product'
+            },
+            {
+                $project: {
+                    _id: '$product.category',
+                    count: 1,
+                }
+            },
 
-                {
-                    $project: {
-                        _id: 0,
-                        categoryName: '$category.name',
-                        count: 1
-                    }
-                },
-                {
-                    $sort: { count: -1 }
-                },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $unwind: '$category'
+            },
+
+            {
+                $project: {
+                    _id: 0,
+                    categoryName: '$category.name',
+                    count: 1
+                }
+            },
+            {
+                $sort: { count: -1 }
+            },
 
 
-            ]);
-        
-    
+        ]);
 
-        
+
+
+
 
 
         let aggregatedCounts: any = {};
@@ -1030,5 +1030,488 @@ export const getOrderMostOrdeCategory = async (req: Request, res: Response) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const getTransactionDifferenceByMonth = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Calculate the start and end dates for the current month
+        let startDate, endDate;
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        endDate.setUTCHours(23, 59, 59, 999);
+
+        // Aggregate query to calculate total transactions per day for the current month
+        const results = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate }, // Filter based on the current month
+                    orderStatus: { $ne: 'cancelled' } // Exclude cancelled orders
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    totalTransaction: { $sum: '$totalPrice' }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    totalTransaction: 1
+                }
+            },
+            {
+                $sort: { "_id": 1 }
+            }
+        ]);
+
+        const previousMonthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const previousMonthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+
+
+        const previousMonthResults = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: previousMonthStartDate, $lte: previousMonthEndDate }, // Filter based on the previous month
+                    orderStatus: { $ne: 'cancelled' } // Exclude cancelled orders
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    totalTransaction: { $sum: '$totalPrice' }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    totalTransaction: 1
+                }
+            },
+            {
+                $sort: { "_id": 1 }
+            }
+        ]);
+
+        // Calculate percentage change and determine if it's an increase or decrease
+        let percentageChange = 0;
+        let increase = false;
+
+        if (results.length > 0 && previousMonthResults.length > 0) {
+            const currentMonthTotal = results.reduce((total, item) => total + item.totalTransaction, 0);
+            const previousMonthTotal = previousMonthResults.reduce((total, item) => total + item.totalTransaction, 0);
+
+            if (previousMonthTotal !== 0) {
+                percentageChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+                increase = currentMonthTotal > previousMonthTotal;
+            }
+        }
+
+        // Send the response containing total transaction this month, percentage change, and increase boolean
+        res.json({
+            thisMonthData: results,
+            totalTransactionThisMonth: results.reduce((total, item) => total + item.totalTransaction, 0),
+            percentageChange,
+            increase
+        });
+
+    } catch (error) {
+        console.error('Error fetching transaction difference by month:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const getOrderCancelByMonth = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Calculate the start and end dates for the current month
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        endDate.setUTCHours(23, 59, 59, 999);
+
+        // Aggregate query to calculate total cancelled orders per day for the current month
+        const results = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    orderStatus: 'cancelled'
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: '$_id',
+                    count: 1
+                }
+            },
+            {
+                $sort: { createdAt: 1 }
+            }
+        ]);
+
+        // Calculate the start and end dates for the previous month
+        const previousMonthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const previousMonthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+        previousMonthEndDate.setUTCHours(23, 59, 59, 999);
+
+        // Aggregate query to calculate total cancelled orders per day for the previous month
+        const previousMonthResults = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: previousMonthStartDate, $lte: previousMonthEndDate },
+                    orderStatus: 'cancelled'
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: '$_id',
+                    count: 1
+                }
+            },
+            {
+                $sort: { createdAt: 1 }
+            }
+        ]);
+
+        // Calculate percentage change and determine if it's an increase or decrease
+        let percentageChange = 0;
+        let increase = false;
+
+        if (results.length > 0 && previousMonthResults.length > 0) {
+            const currentMonthTotal = results.reduce((total, item) => total + item.count, 0);
+            const previousMonthTotal = previousMonthResults.reduce((total, item) => total + item.count, 0);
+
+            if (previousMonthTotal !== 0) {
+                percentageChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+                increase = currentMonthTotal > previousMonthTotal;
+            }
+        }
+
+        // Send the response containing total cancelled orders this month, percentage change, and increase boolean
+        res.json({
+            thisMonthData: results,
+            totalCancelledThisMonth: results.reduce((total, item) => total + item.count, 0),
+            percentageChange,
+            increase
+        });
+
+    } catch (error) {
+        console.error('Error fetching cancelled orders by month:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const getOrderComplatedByMonth = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Calculate the start and end dates for the current month
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        endDate.setUTCHours(23, 59, 59, 999);
+
+        // Aggregate query to calculate total cancelled orders per day for the current month
+        const results = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    orderStatus: { $in: ['completed', 'pending', 'delivered'] },
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: '$_id',
+                    count: 1
+                }
+            },
+            {
+                $sort: { createdAt: 1 }
+            }
+        ]);
+
+        // Calculate the start and end dates for the previous month
+        const previousMonthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const previousMonthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+        previousMonthEndDate.setUTCHours(23, 59, 59, 999);
+
+        // Aggregate query to calculate total cancelled orders per day for the previous month
+        const previousMonthResults = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: previousMonthStartDate, $lte: previousMonthEndDate },
+                    orderStatus: { $in: ['completed', 'pending', 'delivered'] },
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: '$_id',
+                    count: 1
+                }
+            },
+            {
+                $sort: { createdAt: 1 }
+            }
+        ]);
+
+        // Calculate percentage change and determine if it's an increase or decrease
+        let percentageChange = 0;
+        let increase = false;
+
+        if (results.length > 0 && previousMonthResults.length > 0) {
+            const currentMonthTotal = results.reduce((total, item) => total + item.count, 0);
+            const previousMonthTotal = previousMonthResults.reduce((total, item) => total + item.count, 0);
+
+            if (previousMonthTotal !== 0) {
+                percentageChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+                increase = currentMonthTotal > previousMonthTotal;
+            }
+        }
+
+        // Send the response containing total cancelled orders this month, percentage change, and increase boolean
+        res.json({
+            thisMonthData: results,
+            totalCancelledThisMonth: results.reduce((total, item) => total + item.count, 0),
+            percentageChange,
+            increase
+        });
+
+    } catch (error) {
+        console.error('Error fetching cancelled orders by month:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+export const getOrderByCash = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Calculate the start and end dates for the current month
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        endDate.setUTCHours(23, 59, 59, 999);
+
+        // Calculate the start and end dates for the previous month
+        const previousMonthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const previousMonthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+        previousMonthEndDate.setUTCHours(23, 59, 59, 999);
+let results:any=[]
+        // Aggregate query to calculate total orders by payment type for the current month
+         results = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    paymentType: { $in: ['Cash'] },
+                    orderStatus: { $ne: 'cancelled' }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                  
+                    count: { $sum: 1 },
+                    totalPrice: { $sum: "$totalPrice" },
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: '$_id',
+                    count: 1,
+                    totalPrice: 1
+                }
+            },
+            {
+                $sort: { createdAt: 1 }
+            }
+        ]);
+
+        // Aggregate query to calculate total orders by payment type for the previous month
+        const previousMonthResults = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: previousMonthStartDate, $lte: previousMonthEndDate },
+                    paymentType: { $in: ['Cash'] },
+                    orderStatus: { $ne: 'cancelled' }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                  
+                    count: { $sum: 1 },
+                    totalPrice: { $sum: "$totalPrice" },
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: '$_id',
+                    count: 1,
+                    totalPrice: 1
+                }
+            },
+            {
+                $sort: { createdAt: 1 }
+            }
+        ]);
+
+        let percentageChange = 0;
+        let increase = false;
+
+        if (results.length > 0 && previousMonthResults.length > 0) {
+            const currentMonthTotal:any = results.reduce((total: any, item: { count: any; }) => total + item.count, 0);
+            const previousMonthTotal = previousMonthResults.reduce((total, item) => total + item.count, 0);
+
+            if (previousMonthTotal !== 0) {
+                percentageChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+                increase = currentMonthTotal > previousMonthTotal;
+            }
+        }
+
+        res.json({
+            currentMonthData:results,
+            totalcash: results.reduce((total: any, item: { count: any; }) => total + item.count, 0),
+            percentageChange,
+            increase
+        });
+
+    } catch (error) {
+        console.error('Error fetching orders by payment type:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const getOrderByOnline = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+
+        // Calculate the start and end dates for the current month
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        endDate.setUTCHours(23, 59, 59, 999);
+
+        // Calculate the start and end dates for the previous month
+        const previousMonthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const previousMonthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+        previousMonthEndDate.setUTCHours(23, 59, 59, 999);
+let results:any=[]
+        // Aggregate query to calculate total orders by payment type for the current month
+         results = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    paymentType: { $in: ['online'] },
+                    orderStatus: { $ne: 'cancelled' }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                  
+                    count: { $sum: 1 },
+                    totalPrice: { $sum: "$totalPrice" },
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: '$_id',
+                    count: 1,
+                    totalPrice: 1
+                }
+            },
+            {
+                $sort: { createdAt: 1 }
+            }
+        ]);
+
+        // Aggregate query to calculate total orders by payment type for the previous month
+        const previousMonthResults = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: previousMonthStartDate, $lte: previousMonthEndDate },
+                    paymentType: { $in: ['online'] },
+                    orderStatus: { $ne: 'cancelled' }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                  
+                    count: { $sum: 1 },
+                    totalPrice: { $sum: "$totalPrice" },
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: '$_id',
+                    count: 1,
+                    totalPrice: 1
+                }
+            },
+            {
+                $sort: { createdAt: 1 }
+            }
+        ]);
+
+        let percentageChange = 0;
+        let increase = false;
+
+        if (results.length > 0 && previousMonthResults.length > 0) {
+            const currentMonthTotal:any = results.reduce((total: any, item: { count: any; }) => total + item.count, 0);
+            const previousMonthTotal = previousMonthResults.reduce((total, item) => total + item.count, 0);
+
+            if (previousMonthTotal !== 0) {
+                percentageChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+                increase = currentMonthTotal > previousMonthTotal;
+            }
+        }
+
+        res.json({
+            currentMonthData:results,
+            totalcash: results.reduce((total: any, item: { count: any; }) => total + item.count, 0),
+            percentageChange,
+            increase
+        });
+
+    } catch (error) {
+        console.error('Error fetching orders by payment type:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
