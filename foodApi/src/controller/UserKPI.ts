@@ -826,9 +826,9 @@ console.log(formattedResult)
     }
 };
 export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
-    console.log("GetTimeSpentPerScene user kpi ")
+    console.log("GetTimeSpentPerScene user kpi ");
     try {
-        const { interval = 'perMonth' } = req.query;
+        const { interval = 'perMonth', search = '', page = 1, pageSize = 10 } = req.query;
 
         // Get the current date
         const currentDate = new Date();
@@ -838,43 +838,54 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
         let startDate, endDate;
         switch (interval) {
             case 'perDay':
-                console.log('perday')
+                console.log('perDay');
                 const selectedDate = new Date();
                 startDate = new Date(currentDate);
                 endDate = new Date(currentDate);
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
-              
             case 'perWeek':
-                // Calculate the start of the current week (Sunday)
                 startDate = new Date(currentDate);
                 startDate.setDate(startDate.getDate() - startDate.getDay()); // Move to Sunday
                 startDate.setUTCHours(0, 0, 0, 0);
-                // Calculate the end of the current week (Saturday)
                 endDate = new Date(startDate);
                 endDate.setDate(endDate.getDate() + 6); // Move to Saturday
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
             case 'perMonth':
-                // Calculate the start and end of the current month
                 startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
                 endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
             case 'perYear':
-                // Calculate the start and end of the current year
                 startDate = new Date(currentDate.getFullYear(), 0, 1);
                 endDate = new Date(currentDate.getFullYear(), 11, 31);
                 endDate.setUTCHours(23, 59, 59, 999);
                 break;
-
+            default:
+                startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                endDate.setUTCHours(23, 59, 59, 999);
+                break;
         }
 
+        // Parse pagination parameters
+        const pageNumber = parseInt(page as string, 10) || 1;
+        const pageSizeNumber = parseInt(pageSize as string, 10) || 10;
+        const skip = (pageNumber - 1) * pageSizeNumber;
 
+        const matchStage:any = {
+            'scene.date': { $gte: startDate, $lte: endDate },
+        };
 
-        const results = await UserKPI.aggregate([
-            { $unwind: '$scene' }, // Unwind the scene array
-            { $match: { 'scene.date': { $gte: startDate, $lte: endDate } } }, // Filter based on the calculated start and end dates
+        if (search) {
+            const userIds = await User.find({ first_name: { $regex: search, $options: 'i' } }).distinct('_id');
+            matchStage['user'] = { $in: userIds };
+        }
+
+        const aggregationPipeline:any = [
+            { $unwind: '$scene' },
+            { $match: matchStage },
             {
                 $group: {
                     _id: {
@@ -892,11 +903,10 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
                     }
                 }
             },
-
             {
                 $group: {
-                    _id: '$_id.telegramid', // Group by telegramId
-                    totalSpentTimeInSeconds: { $sum: '$totalDuration' },// Total spent time by each user
+                    _id: '$_id.telegramid',
+                    totalSpentTimeInSeconds: { $sum: '$totalDuration' },
                     scenes: {
                         $push: {
                             sceneName: '$_id.sceneName',
@@ -907,36 +917,43 @@ export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
             },
             {
                 $addFields: {
-                    totalSpentTimeInMinutes: { $divide: ['$totalSpentTimeInSeconds', 60] } // Convert total duration to minutes
+                    totalSpentTimeInMinutes: { $divide: ['$totalSpentTimeInSeconds', 60] }
                 }
             },
             {
-                $unset: 'totalSpentTimeInSeconds' // Remove the totalSpentTimeInSeconds field
+                $unset: 'totalSpentTimeInSeconds'
             },
             {
                 $sort: {
-                    totalSpentTimeInMinutes: -1 // Sort in ascending order
+                    totalSpentTimeInMinutes: -1
                 }
-            }
+            },
+            { $skip: skip },
+            { $limit: pageSizeNumber },
+        ];
 
-        ]);
+        const results = await UserKPI.aggregate(aggregationPipeline);
+
+        const totalRecords = await UserKPI.countDocuments(matchStage);
+        const totalPages = Math.ceil(totalRecords / pageSizeNumber);
+
         const mappedResults = await Promise.all(results.map(async (result: any) => {
             // Find user information
-            const user = await User.findOne({ telegramid: result._id }).select('telegramid first_name username');;
-
+            const user = await User.findOne({ telegramid: result._id }).select('telegramid first_name username');
             return {
                 ...result,
                 user
             };
         }));
 
-        res.json({ timeSpentPerScene: mappedResults });
-
-
-
-
-
-
+        res.status(200).json({
+            success: true,
+            timeSpentPerScene: mappedResults,
+            totalRecords,
+            totalPages,
+            currentPage: pageNumber,
+            pageSize: pageSizeNumber,
+        });
 
     } catch (error) {
         console.error(error);

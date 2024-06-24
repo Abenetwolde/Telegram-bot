@@ -110,37 +110,52 @@ exports.deleteAuser = async (req: Request, res: Response) => {
 
 
 }
-exports.getAllAuser = async (req: Request, res: Response) => {
-    console.log("hit the get all user api")
+export const getAllAuser = async (req: Request, res: Response) => {
+    console.log("hit the get all user api");
     try {
-        // Parse the page and pageSize query parameters
+        // Parse the query parameters
         const page = parseInt(req.query.page as string) || 1;
-        const pageSize = parseInt(req.query.pageSize as string) || 10; // Adjust the default page size as needed/ Adjust the default page size as needed
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const search = req.query.search ? req.query.search.toString() : '';
+        const sortField = req.query.sortField ? req.query.sortField.toString() : 'createdAt';
+        const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+        const joinMethod = req.query.joinMethod ? req.query.joinMethod.toString() : '';
 
-        // Calculate the number of products to skip
+        // Calculate the number of users to skip
         const skip = (page - 1) * pageSize;
-        let users = await User.find().skip(skip)
-            .limit(pageSize);
-        const count = await User.countDocuments();
+
+        // Build the query object
+        let query: any = {};
+        if (search) {
+            query.first_name = { $regex: search, $options: 'i' }; // Case-insensitive search
+        }
+        if (joinMethod) {
+            query.from = joinMethod;
+        }
+
+        // Build the sort object
+        const sort: any = {};
+        sort[sortField] = sortOrder;
+
+        // Fetch the users with pagination, search, and sorting
+        const users = await User.find(query).sort(sort).skip(skip).limit(pageSize);
+        const count = await User.countDocuments(query);
 
         // Calculate the total number of pages
         const totalPages = Math.ceil(count / pageSize);
-        if (users) {
-            res.status(201).json({
-                success: true,
-                users,
-                count,
-                page,
-                pageSize,
-                totalPages,
-            });
-        }
 
+        res.status(201).json({
+            success: true,
+            users,
+            count,
+            page,
+            pageSize,
+            totalPages,
+        });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ success: false, message: 'Server error!' });
     }
-
-
 }
 interface NewUserCount {
     _id: string;

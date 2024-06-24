@@ -98,7 +98,7 @@ const userSchema = new Schema<IUser>({
   from: {
     type: String,
     default: 'BOT',
-    enum: ['BOT', 'CHANNEL'],
+    enum: ['BOT', 'CHANNEL','INVITATION'],
     required: [true, 'status is required'],
   },
   token: {

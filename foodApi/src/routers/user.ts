@@ -19,5 +19,5 @@ router.route('/deleteuser/:telegramid').delete(deleteAuser);
 router.route('/getallusers').get(getAllAuser);
 router.route('/:id/favorites').post(AddsFavorite);
 router.route('/api/users/:id/favorites/:productId').delete(RemovesFavorite);
-
+  
 export default router;
