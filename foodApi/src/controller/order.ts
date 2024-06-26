@@ -49,6 +49,31 @@ export const createOrder = async (req: Request, res: Response) => {
 export const getOrders = async (req: Request, res: Response) => {
     console.log("get all order")
     try {
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const search = req.query.orderNumber ? req.query.orderNumber.toString() : '';
+        const sortField = req.query.sortField ? req.query.sortField.toString() : 'createdAt';
+        const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+        const orderStatus = req.query.orderStatus ? req.query.orderStatus.toString() : '';
+        const paymentType = req.query.paymentType ? req.query.paymentType.toString() : '';
+        // const role = req.query.role ? req.query.role.toString() : '';
+        let query: any = {};
+        const searchNumber = parseInt(search, 10);
+        if (!isNaN(searchNumber)) {
+            query.orderNumber = searchNumber // Case-insensitive search
+        }
+        if (orderStatus) {
+            query.orderStatus = orderStatus;
+        }
+        if (paymentType) {
+            query.paymentType = paymentType;
+        }
+
+   
+        // Build the sort object
+        const sort: any = {};
+        sort[sortField] = sortOrder;
+
         // Define the base filter
         let filter: any = {};
 
@@ -71,26 +96,30 @@ export const getOrders = async (req: Request, res: Response) => {
         }
 
         // Parse the page and pageSize query parameters
-        const page = parseInt(req.query.page as string) || 1;
-        const pageSize = parseInt(req.query.pageSize as string) || 10; // Adjust the default page size as needed
+        // const page = parseInt(req.query.page as string) || 1;
+        // const pageSize = parseInt(req.query.pageSize as string) || 10; // Adjust the default page size as needed
 
         // Calculate the number of orders to skip
         const skip = (page - 1) * pageSize;
 
         // Find the orders for the current page
-        const orders = await Order.find(filter)
+        const orders = await Order.find(query)
             .populate({
                 path: 'orderItems.product',
-                model: 'Product'
+                model: 'Product',
+                select: 'name images price orderQuantity'
             })
             .populate('payment')
-
+            .populate({
+                path: 'user',
+                select: 'username first_name'
+            })
             .skip(skip)
             .limit(pageSize)
-            .sort({ createdAt: -1 });
+            .sort(sort);
 
         // Count the total number of orders
-        const count = await Order.countDocuments(filter);
+        const count = await Order.countDocuments(query);
 
         // Calculate the total number of pages
         const totalPages = Math.ceil(count / pageSize);
@@ -103,7 +132,7 @@ export const getOrders = async (req: Request, res: Response) => {
         }));
         res.status(200).json({
             success: true,
-            orders: ordersWithUserDetails,
+            orders: orders,
             count,
             page,
             pageSize,
@@ -114,6 +143,7 @@ export const getOrders = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: 'Server error!' });
     }
 };
+
 export const getOrdersPerDay = async (req: Request, res: Response) => {
     console.log("get all order per day")
     try {

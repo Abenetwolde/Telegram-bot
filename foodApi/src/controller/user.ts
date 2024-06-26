@@ -120,6 +120,7 @@ export const getAllAuser = async (req: Request, res: Response) => {
         const sortField = req.query.sortField ? req.query.sortField.toString() : 'createdAt';
         const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
         const joinMethod = req.query.joinMethod ? req.query.joinMethod.toString() : '';
+        const role = req.query.role ? req.query.role.toString() : '';
 
         // Calculate the number of users to skip
         const skip = (page - 1) * pageSize;
@@ -133,6 +134,9 @@ export const getAllAuser = async (req: Request, res: Response) => {
             query.from = joinMethod;
         }
 
+        if (role) {
+            query.role = role;
+        }
         // Build the sort object
         const sort: any = {};
         sort[sortField] = sortOrder;
