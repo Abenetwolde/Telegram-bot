@@ -76,7 +76,7 @@ export const getOrders = async (req: Request, res: Response) => {
 
         // Define the base filter
         let filter: any = {};
-
+ 
         // Apply search filter if provided in the query parameters
         if (typeof req.query.search === 'string') {
             filter.orderId = { $regex: req.query.search, $options: 'i' };
