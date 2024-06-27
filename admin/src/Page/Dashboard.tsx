@@ -115,7 +115,7 @@ const Dashboard = () => {
   const handlefilterClickChange = (newFilter) => {
     setfilterClick(newFilter);
 
-  };
+  }; 
   const handlefilterTimePerScenceClickChange = (newFilter) => {
     setfilterScene(newFilter);
 
