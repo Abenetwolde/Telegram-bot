@@ -136,7 +136,7 @@ export const getAllAuser = async (req: Request, res: Response) => {
 
         if (role) {
             query.role = role;
-        }
+        } 
         // Build the sort object
         const sort: any = {};
         sort[sortField] = sortOrder;
