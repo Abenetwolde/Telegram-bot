@@ -34,6 +34,7 @@ import ReactApexChart from 'react-apexcharts';
 import BaseOptionChart from '../components/chart/BaseOptionChart';
 import { merge } from 'lodash';
 import useSettings from '../hooks/useSettings';
+import UserRegister from '../components/Cards/User/UserRegister';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -111,7 +112,7 @@ const Dashboard = () => {
   const [userperformance, setDataUserperformance] = useState<any[]>([]);
   const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
   const [filterUserPerformanceTable, setFilterUserPerformance] = useState('perMonth');
-
+  const [carduserRegistration, setUserRegistration] = useState<any[]>([]);
   const handlefilterClickChange = (newFilter) => {
     setfilterClick(newFilter);
 
@@ -323,6 +324,19 @@ const Dashboard = () => {
         setLoadingUserPerformance(false);
       });
   }, [filterUserPerformanceTable]);
+  useEffect(() => {
+    // setLoadingUserPerformance(true);
+    // Fetch data from the API
+    api.get(`/kpi/get-user-stats`) // Replace with your actual API endpoint
+      .then(response => {
+        setUserRegistration(response.data);
+        // setLoadingUserPerformance(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        // setLoadingUserPerformance(false);
+      });
+  }, []);
   const chartOptions = merge(BaseOptionChart(), {
     colors: [
       theme.palette.primary.main,
@@ -349,9 +363,10 @@ const Dashboard = () => {
   });
   const { themeStretch } = useSettings();
   const COLORSd = ['#0088FE', '#00C49F', '#FF8042'];
+  
   return (
     <Container maxWidth={themeStretch ? false : 'xl'}>
-      <TotalCountCardGrid
+      {/* <TotalCountCardGrid
         // renderTotalCountCard={renderTotalCountCard}
         isLoading={isLoading}
         totalUserCount={totalUserCount}
@@ -362,11 +377,19 @@ const Dashboard = () => {
         isCancelOrderLoading={iscancelOrderLoading}
         totalCancelOrderCount={totalCancelOrderCount}
         newCancelOrderData={newCancelOrderData}
-      />
+      /> */}
+       <Box m={2}>
+    <Grid container spacing={2}>
+      <Grid  lg={4} item spacing={3} justifyContent="center">
+<UserRegister data={carduserRegistration}/>
+        
+      </Grid>
+    </Grid>
+  </Box>
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
          
-            <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false}  />
+            <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false} handelSearch={undefined} handelLimit={undefined} handelPage={undefined}  />
           
 
         </Grid>
