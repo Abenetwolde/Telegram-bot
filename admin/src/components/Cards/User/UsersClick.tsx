@@ -5,6 +5,7 @@ import { Box, Card, Typography, Stack, useTheme } from '@mui/material';
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
 
+
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   width: 24,
   height: 24,
@@ -17,31 +18,32 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
   backgroundColor: alpha(theme.palette.success.main, 0.16),
 }));
 
-const UserRegister = ({anotherComponentRef, data }: any) => {
+const UsersClickperMonth = ({anotherComponentRef, data }: any) => {
+  const seriesData = data?.thisMonth?.flatMap((item) => item?.clicksByDate?.map((c) => c.totalProductClicks)) || [];
+  const categoriesData = data?.thisMonth?.flatMap((item) => item?.clicksByDate?.map((c) => c.date)) || [];
+
+
+
   const percent = 90
   const theme = useTheme()
   const options = {
     chart: {
-      
-      type: 'area',
+      type: 'bar',
       width: 50,
       animations: { enabled: true }, sparkline: { enabled: true },
     },
     xaxis: {
-      categories: data?.newUserCounts?.map(point => point._id),
+      categories: categoriesData
     },
-    colors:[theme.palette.warning.main],
-    stroke: {
-      width: 2
+    tooltip: {
+      enabled: true, // Disable tooltip
     },
-    // tooltip: {
-    //   enabled: false, // Disable tooltip
-    // },
+    colors:[theme.palette.success.main]
   };
   const series = [
     {
       name: 'Total',
-      data: data?.newUserCounts?.map(point => point.total),
+      data:seriesData
     },
   ];
   const handleViewMore = () => {
@@ -52,25 +54,24 @@ const UserRegister = ({anotherComponentRef, data }: any) => {
   return (
     <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
       <Box sx={{ flexGrow: 1 }}>
-
         <Box sx={{ display: 'flex', }}>
           <IconWrapperStyle
             sx={{
-                color: 'warning.main',
+                color: 'success.main',
                 bgcolor: (theme) => alpha(theme.palette.warning.main, 0.16),
   
             }}
           >
-            <Iconify width={30} height={30} icon={'mdi:register'} sx={undefined} />
+            <Iconify width={30} height={30} icon={'tdesign:gesture-click'} sx={undefined} />
           </IconWrapperStyle>
-          <Typography  color={"text.secondary"}variant="subtitle2" paragraph>
-          New User per month
-        </Typography>
+          <Typography color={"text.secondary"} variant="subtitle2" paragraph>
+            Users Click per month
+          </Typography>
+     
         </Box>
-        <Typography variant="h3" gutterBottom>
-          {fNumber(data?.totalUsers)}
+        <Typography variant="h3" gutterBottom >
+          {fNumber(data?.totalClickThisMonth)}
         </Typography>
-
         <Stack direction="row" alignItems="center">
           <IconWrapperStyle
             sx={{
@@ -96,12 +97,12 @@ const UserRegister = ({anotherComponentRef, data }: any) => {
           view more
         </Typography>
       </Box>
-      <Box sx={{ width: '100%',pl:3 }} >
-      <ReactApexChart options={options} series={series} type="area"width={"95%"} height={"80%"} />
+
+  <Box sx={{ width: '100%',pl:3 }} >
+      <ReactApexChart options={options} series={series} type="bar" width={"95%"} height={"80%"} />
       </Box>
-      
     </Card>
   );
 };
 
-export default UserRegister;
+export default UsersClickperMonth;

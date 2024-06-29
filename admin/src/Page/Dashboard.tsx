@@ -35,6 +35,9 @@ import BaseOptionChart from '../components/chart/BaseOptionChart';
 import { merge } from 'lodash';
 import useSettings from '../hooks/useSettings';
 import UserRegister from '../components/Cards/User/UserRegister';
+// import UsersClick from '../components/Cards/User/UserClick';
+import UsersSpentTime from '../components/Cards/User/UserSpentTime';
+import UsersClickperMonth from '../components/Cards/User/UsersClick';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -59,7 +62,7 @@ const ChartWrapperStyle = styled('div')(({ theme }) => ({
   '& .apexcharts-canvas svg': { height: CHART_HEIGHT },
   '& .apexcharts-canvas svg,.apexcharts-canvas foreignObject': {
     overflow: 'visible',
-  }, 
+  },
   '& .apexcharts-legend': {
     height: LEGEND_HEIGHT,
     alignContent: 'center',
@@ -113,10 +116,12 @@ const Dashboard = () => {
   const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
   const [filterUserPerformanceTable, setFilterUserPerformance] = useState('perMonth');
   const [carduserRegistration, setUserRegistration] = useState<any[]>([]);
+  const [userSpentHeader, setUsersTimeHeader] = useState<any[]>([]);
+  const [userClcikHeader, setUserClcikHeader] = useState<any[]>([]);
   const handlefilterClickChange = (newFilter) => {
     setfilterClick(newFilter);
 
-  }; 
+  };
   const handlefilterTimePerScenceClickChange = (newFilter) => {
     setfilterScene(newFilter);
 
@@ -243,6 +248,7 @@ const Dashboard = () => {
 
     fetchData();
   }, []);
+  
   console.log(userRegisteringWay, "skdoskfopk user ")
   const userJoiningWay = Object.entries(userRegisteringWay).map(([key, value]) => {
     let name;
@@ -327,6 +333,18 @@ const Dashboard = () => {
   useEffect(() => {
     // setLoadingUserPerformance(true);
     // Fetch data from the API
+    api.get(`/kpi/get-user-time-spent-month`) // Replace with your actual API endpoint
+      .then(response => {
+        setUsersTimeHeader(response.data);
+        // setLoadingUserPerformance(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        // setLoadingUserPerformance(false);
+      });
+  }, []);
+  useEffect(() => {
+
     api.get(`/kpi/get-user-stats`) // Replace with your actual API endpoint
       .then(response => {
         setUserRegistration(response.data);
@@ -334,7 +352,19 @@ const Dashboard = () => {
       })
       .catch(error => {
         console.error('Error fetching data:', error);
+      
+      });
+  }, []);
+  useEffect(() => {
+
+    api.get(`/kpi/get-user-time-click-month`) // Replace with your actual API endpoint
+      .then(response => {
+        setUserClcikHeader(response.data);
         // setLoadingUserPerformance(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      
       });
   }, []);
   const chartOptions = merge(BaseOptionChart(), {
@@ -363,34 +393,53 @@ const Dashboard = () => {
   });
   const { themeStretch } = useSettings();
   const COLORSd = ['#0088FE', '#00C49F', '#FF8042'];
-  
+  const userregister = useRef(null);
+  const anotherComponentRef = useRef(null);
   return (
     <Container maxWidth={themeStretch ? false : 'xl'}>
-      {/* <TotalCountCardGrid
-        // renderTotalCountCard={renderTotalCountCard}
-        isLoading={isLoading}
-        totalUserCount={totalUserCount}
-        userCounts={userCounts}
-        isOrderLoading={isOrderLoading}
-        totalOrderCount={totalOrderCount}
-        newOrderData={newOrderData}
-        isCancelOrderLoading={iscancelOrderLoading}
-        totalCancelOrderCount={totalCancelOrderCount}
-        newCancelOrderData={newCancelOrderData}
-      /> */}
-       <Box m={2}>
-    <Grid container spacing={2}>
-      <Grid  lg={4} item spacing={3} justifyContent="center">
-<UserRegister data={carduserRegistration}/>
-        
+  
+        <Grid container spacing={2}>
+          <Grid lg={4} item  justifyContent="center">
+            <UserRegister anotherComponentRef={userregister} data={carduserRegistration} />
+          </Grid>
+          <Grid lg={4} item  justifyContent="center">
+            <UsersSpentTime anotherComponentRef={anotherComponentRef} data={userSpentHeader} />
+          </Grid>
+          <Grid lg={4} item  justifyContent="center">
+           <UsersClickperMonth anotherComponentRef={anotherComponentRef} data={userClcikHeader}/>
+          </Grid>
+        </Grid>
+
+        <Grid container ref={userregister}spacing={3} direction={{ xs: 'column', lg: 'row' }} width="100%">
+        <Grid item xs={12} md={8} lg={8}>
+          <UserRegistration
+            refOne={refOne}
+            range={range}
+            setRange={setRange}
+            open={open}
+            setOpen={setOpen}
+            filter={filter}
+            handleFilterChange={handleFilterChange}
+            totalUserCount={totalUserCount}
+            userCounts={userCounts}
+            handleMouseEnter={handleMouseEnter}
+            handleMouseLeave={handleMouseLeave}
+            opacity={opacity}
+            CustomTooltip={CustomTooltip}
+          />
+        </Grid>
+        <Grid item xs={12} md={4} lg={4}>
+          <LanguageDistributionCard
+            languageData={languageData}
+          />
+        </Grid>
       </Grid>
-    </Grid>
-  </Box>
+
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
-         
-            <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false} handelSearch={undefined} handelLimit={undefined} handelPage={undefined}  />
-          
+
+          <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false} handelSearch={undefined} handelLimit={undefined} handelPage={undefined} />
+
 
         </Grid>
 
@@ -422,7 +471,7 @@ const Dashboard = () => {
             }}
           >
 
-            <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
+            <Grid ref={anotherComponentRef} container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
               <Grid item xs={12} md={5}>
                 <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
                   User Spent Time Per Scene
@@ -549,30 +598,7 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3} direction={{ xs: 'column', lg: 'row' }} width="100%">
-        <Grid item xs={12} md={8} lg={8}>
-          <UserRegistration
-            refOne={refOne}
-            range={range}
-            setRange={setRange}
-            open={open}
-            setOpen={setOpen}
-            filter={filter}
-            handleFilterChange={handleFilterChange}
-            totalUserCount={totalUserCount}
-            userCounts={userCounts}
-            handleMouseEnter={handleMouseEnter}
-            handleMouseLeave={handleMouseLeave}
-            opacity={opacity}
-            CustomTooltip={CustomTooltip}
-          />
-        </Grid>
-        <Grid item xs={12} md={4} lg={4}>
-          <LanguageDistributionCard
-            languageData={languageData}
-          />
-        </Grid>
-      </Grid>
+    
 
       <Grid container display="flex" /* spacing={4} */ flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={2}>
         <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">

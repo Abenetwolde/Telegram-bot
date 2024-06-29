@@ -9,6 +9,8 @@ import productSlice from '../redux/productSlice';
 import userSlice from '../redux/userSlice';
 import orderSlice from '../redux/orderSlice';
 import payment from '../redux/payment';
+import { orderSliceApi } from '../redux/Api/Order';
+// import { orderSliceApi } from '../redux/Api/Order';
 
 const store = configureStore({
   reducer: {
@@ -17,13 +19,14 @@ const store = configureStore({
     product:productSlice,
     user:userSlice, 
     order:orderSlice,
-    payment:payment
+    payment:payment,
+    [orderSliceApi.reducerPath]: orderSliceApi.reducer,
     // [categoryApi.reducerPath]: categoryApi.reducer,
     // [productApi.reducerPath]: productApi.reducer, // Add the categoryApi reducer
     // Add other reducers as needed
   },
 
-  // middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(categoryApi.middleware, productApi.middleware),
+   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(orderSliceApi.middleware),
 
 });
 
