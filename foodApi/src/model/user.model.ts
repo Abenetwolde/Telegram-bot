@@ -35,11 +35,12 @@ export interface IUser extends Document {
   orders:Array<Schema.Types.ObjectId>;
   subscriptions: Array<Schema.Types.ObjectId>;
   locale: string;
+  refershingToken:String,
   language: string;
   role: {
     type: String,
     default: 'ADMIN',
-    enum: ['ADMIN', 'SUPER ADMIN','USER'],
+    enum: ['ADMIN', 'SUPER ADMIN','USER','TESTER'],
     required: [true, 'Role is required'],
   },
   is_bot:Boolean,
@@ -67,7 +68,7 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>({
   telegramid: {
     type: Number,
-    required:true
+    // required:true
   },
   email: {
     type: String,
@@ -91,7 +92,7 @@ const userSchema = new Schema<IUser>({
   role: {
     type: String,
     default: 'ADMIN',
-    enum: ['ADMIN', 'SUPER ADMIN','USER'],
+    enum: ['ADMIN', 'SUPERADMIN','USER'],
     required: [true, 'Role is required'],
   },
 
@@ -99,9 +100,12 @@ const userSchema = new Schema<IUser>({
     type: String,
     default: 'BOT',
     enum: ['BOT', 'CHANNEL','INVITATION'],
-    required: [true, 'status is required'],
+    // required: [true, 'status is required'],
   },
   token: {
+    type: String,
+  },
+  refershingToken: {
     type: String,
   },
   phone: String,

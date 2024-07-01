@@ -4,6 +4,75 @@ import User, { IUser } from '../model/user.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Document, Types } from 'mongoose';
+
+const generateToken = (user:any) => {
+    return jwt.sign({ id: user._id, role: user.role }, 'your_jwt_secret', {
+      expiresIn: '1h', // Adjust expiration as needed
+    });
+  };
+  
+  // Refresh Token (for demonstration purposes, adjust as needed)
+  const generateRefreshToken = (user:any) => {
+    return jwt.sign({ id: user._id }, 'your_refresh_token_secret', {
+      expiresIn: '7d', // Adjust expiration as needed
+    });
+  };
+  
+  // Register a new user (only for SUPER ADMIN)
+  export const registerUser = async (req: Request, res: Response) => {
+    const { email, password, first_name, last_name, role } = req.body;
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = new User({
+        email,
+        password: hashedPassword,
+        first_name,
+        last_name,
+        role,
+      });
+      const user = await newUser.save();
+      res.status(201).json(user);
+    } catch (error:any) {
+      res.status(400).json({ error: error.message });
+    }
+  };
+  
+  // Login user
+  export const loginUser = async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+      }
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+      }
+      const token = generateToken(user);
+      const refreshToken = generateRefreshToken(user);
+      res.json({ token, refreshToken });
+    } catch (error:any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+  // Refresh token
+  export const refreshToken = (req: Request, res: Response) => {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+  
+    try {
+      const decoded = jwt.verify(token, 'your_refresh_token_secret');
+      const newToken = generateToken(decoded);
+      res.json({ token: newToken });
+    } catch (error) {
+      res.status(403).json({ message: 'Invalid token' });
+    }
+  };
+
 exports.createUser = async (req: Request, res: Response) => {
     console.log("hit the create user api")
 
