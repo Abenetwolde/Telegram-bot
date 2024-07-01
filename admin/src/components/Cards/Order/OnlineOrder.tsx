@@ -19,7 +19,7 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
   backgroundColor: alpha(theme.palette.success.main, 0.16),
 }));
 
-const CashOrder = ({ anotherComponentRef}: any) => {
+const OnlineOrder = ({ anotherComponentRef}: any) => {
   const { data, error, isLoading } = useGetCashOrdersQuery();
   const theme = useTheme()
   const options :any= {
@@ -108,4 +108,4 @@ const CashOrder = ({ anotherComponentRef}: any) => {
   );
 };
 
-export default CashOrder;
+export default OnlineOrder;

@@ -355,6 +355,9 @@ const OrderDashboard = () => {
           <Grid lg={4} item  justifyContent="center">
          <CashOrder/>
           </Grid>
+          <Grid lg={4} item  justifyContent="center">
+         <CashOrder/>
+          </Grid>
         </Grid>
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">

@@ -1161,7 +1161,7 @@ export const getOrderCancelByMonth = async (req: Request, res: Response): Promis
         currentDate.setUTCHours(0, 0, 0, 0);
 
         // Calculate the start and end dates for the current month
-        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth()-1, 1);
         const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         endDate.setUTCHours(23, 59, 59, 999);
 
@@ -1256,7 +1256,7 @@ export const getOrderComplatedByMonth = async (req: Request, res: Response): Pro
         currentDate.setUTCHours(0, 0, 0, 0);
 
         // Calculate the start and end dates for the current month
-        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth()-1, 1);
         const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         endDate.setUTCHours(23, 59, 59, 999);
 
@@ -1350,7 +1350,7 @@ export const getOrderByCash = async (req: Request, res: Response): Promise<void>
         currentDate.setUTCHours(0, 0, 0, 0);
 
         // Calculate the start and end dates for the current month
-        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth()-1, 1);
         const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         endDate.setUTCHours(23, 59, 59, 999);
 
@@ -1451,7 +1451,7 @@ export const getOrderByOnline = async (req: Request, res: Response): Promise<voi
         currentDate.setUTCHours(0, 0, 0, 0);
 
         // Calculate the start and end dates for the current month
-        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth()-1, 1);
         const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         endDate.setUTCHours(23, 59, 59, 999);
 
