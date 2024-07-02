@@ -1,7 +1,7 @@
 // src/app/store.ts
 import { configureStore } from '@reduxjs/toolkit';
 import { ThunkAction, Action } from '@reduxjs/toolkit';
-import authReducer from '../features/authSlice';
+import authSlice from '../redux/authSlice';
 
 
 import categoryReducer from '../redux/categorySlice';
@@ -10,23 +10,25 @@ import userSlice from '../redux/userSlice';
 import orderSlice from '../redux/orderSlice';
 import payment from '../redux/payment';
 import { orderSliceApi } from '../redux/Api/Order';
+import { authApiSlice } from '../redux/Api/Auth';
+import { userApi } from '../redux/Api/User';
 // import { orderSliceApi } from '../redux/Api/Order';
 
 const store = configureStore({
   reducer: {
-    auth: authReducer,
+    auth: authSlice,
     category: categoryReducer,
     product:productSlice,
     user:userSlice, 
     order:orderSlice,
     payment:payment,
     [orderSliceApi.reducerPath]: orderSliceApi.reducer,
-    // [categoryApi.reducerPath]: categoryApi.reducer,
-    // [productApi.reducerPath]: productApi.reducer, // Add the categoryApi reducer
-    // Add other reducers as needed
+    [authApiSlice.reducerPath]: authApiSlice.reducer,
+    [userApi.reducerPath]: userApi.reducer,
+
   },
 
-   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(orderSliceApi.middleware),
+   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(orderSliceApi.middleware,authApiSlice.middleware,userApi.middleware),
 
 });
 

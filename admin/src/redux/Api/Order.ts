@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { CashResponse, CompletedOrdersResponse } from '../../types/order/order';
+import { CashResponse, CompletedOrdersResponse, TransactionResponse } from '../../types/order/order';
 
 const baseURL = process.env.DURL;
 
@@ -16,7 +16,13 @@ export const orderSliceApi = createApi({
       getCashOrders: builder.query<CashResponse, void>({
         query: () => '/order/get-order-by-cash',
       }),
+      getOnlineOrders: builder.query<CashResponse, void>({
+        query: () => '/order/get-order-by-online',
+      }),
+      getTotalTransaction: builder.query<TransactionResponse, void>({
+        query: () => '/order/get-total-transaction',
+      }),
   }),
 });
 
-export const { useGetCompletedOrdersQuery,useGetCancelOrdersQuery, useGetCashOrdersQuery } = orderSliceApi;
+export const { useGetCompletedOrdersQuery,useGetCancelOrdersQuery, useGetCashOrdersQuery , useGetOnlineOrdersQuery ,useGetTotalTransactionQuery} = orderSliceApi;

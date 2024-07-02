@@ -19,15 +19,32 @@ import {
 // utils
 import { fToNow } from '../../../utils/formatTime';
 // _mock_
-import { _notifications } from '../../../_mock';
+
 // components
 import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
+// import MenuPopover from '../../../components/MenuPopover';
 import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
 
 // ----------------------------------------------------------------------
-
+ const _notifications = [...Array(5)].map((_, index) => ({
+  id: 1,
+  title: ['Your order is placed', 'Sylvan King', 'You have new message', 'You have new mail', 'Delivery processing'][
+    index
+  ],
+  description: [
+    'waiting for shipping',
+    'answered to your comment on the Minimal',
+    '5 unread messages',
+    'sent from Guido Padberg',
+    'Your order is being shipped',
+  ][index],
+  avatar: "image",
+  type: ['order_placed', 'friend_interactive', 'chat_message', 'mail', 'order_shipped'][index],
+  createdAt: '12/23/33',
+  isUnRead: [true, true, false, false, false][index],
+}));
 export default function NotificationsPopover() {
   const [notifications, setNotifications] = useState(_notifications);
 

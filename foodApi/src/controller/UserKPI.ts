@@ -1099,7 +1099,7 @@ export const getUserTotalClicksPerName = async (req: Request, res: Response) => 
 };
 
 export const getUsersPerformance = async (req: Request, res: Response) => {
-    console.log("getUsersPerformance")
+    // console.log("getUsersPerformance")
     try { 
         console.log(req.query.page)
         const { interval = 'perMonth', page = 1, limit, search = '' } = req.query;
@@ -1110,9 +1110,9 @@ export const getUsersPerformance = async (req: Request, res: Response) => {
         const currentPage = parseInt(page as string);
         const itemsPerPage = parseInt(limit as string)
         const searchQuery = (search as string).trim();
-        console.log("search log",searchQuery)
-        console.log("limit log",itemsPerPage)
-        console.log("page log",currentPage)
+        // console.log("search log",searchQuery)
+        // console.log("limit log",itemsPerPage)
+        // console.log("page log",currentPage)
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0);
 

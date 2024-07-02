@@ -71,6 +71,16 @@ export interface Category {
     percentageChange: number;
     increase: boolean;
   }
+  export interface TransactionData {
+    _id: string;
+    totalTransaction: number;
+  }
+  export interface TransactionResponse{
+    thisMonthData: TransactionData[];
+    totalTransactionThisMonth: number;
+    percentageChange: number;
+    increase: boolean;
+  }
 // export interface ProdcutResponse {
 //     success: boolean;
 //     products: Product[];

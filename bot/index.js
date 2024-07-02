@@ -346,7 +346,7 @@ mongoClient.connect()
               last_name: ctx.from.last_name,
               username: ctx.from.username || null,
               is_bot: ctx.from.is_bot || false,
-              from: "INVITATION",
+              from: "Refferal",
               language: ctx.session.locale
             });
 

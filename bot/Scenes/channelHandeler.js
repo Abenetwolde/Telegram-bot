@@ -30,7 +30,7 @@ channelHandeler.enter(async(ctx) => {
             last_name: ctx.from.last_name,
             username: ctx.from.username || null,
             is_bot: ctx.from.is_bot || false,
-              from: 'CHANNEL' // Set initial status
+              from: 'Channel' // Set initial status
           });
           console.log("New User Created",newuser);
           ctx.session.token = await newuser?.token;

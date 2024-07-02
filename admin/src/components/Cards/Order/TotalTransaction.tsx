@@ -4,7 +4,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { Box, Card, Typography, Stack, useTheme, Skeleton } from '@mui/material';
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
-import { useGetCashOrdersQuery, useGetOnlineOrdersQuery } from '../../../redux/Api/Order';
+import { useGetTotalTransactionQuery } from '../../../redux/Api/Order';
 
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
@@ -19,12 +19,12 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
   backgroundColor: alpha(theme.palette.success.main, 0.16),
 }));
 
-const OnlineOrder = ({ anotherComponentRef}: any) => {
-  const { data, error, isLoading } = useGetOnlineOrdersQuery();
+const TotalTransaction = ({ anotherComponentRef}: any) => {
+  const { data, error, isLoading } = useGetTotalTransactionQuery();
   const theme = useTheme()
   const options :any= {
     chart: {
-      type: 'area',
+      type: 'line',
       width: 50,
 
       animations: { enabled: true }, sparkline: { enabled: true },
@@ -33,17 +33,17 @@ const OnlineOrder = ({ anotherComponentRef}: any) => {
       width: 2
     },
     xaxis: {
-      categories: data?.currentMonthData?.map(point => point.createdAt),
+      categories: data?.thisMonthData?.map(point => point._id),
     },
     tooltip: {
       enabled: false, // Disable tooltip
     },
-    colors: [theme.palette.primary.main]
+    colors: [theme.palette.warning.main]
   };
   const series = [
     {
       name: 'Total',
-      data: data?.currentMonthData?.map(point => point?.count),
+      data: data?.thisMonthData?.map(point => point?.totalTransaction),
     },
   ];
   const handleViewMore = () => {
@@ -65,13 +65,13 @@ const OnlineOrder = ({ anotherComponentRef}: any) => {
             <Iconify width={30} height={30} icon={'fluent:phone-screen-time-20-regular'} sx={undefined} />
           </IconWrapperStyle>
           <Typography color={"text.secondary"} variant="subtitle2" paragraph>
-            Ordered by Online per month
+            Total Transaction per month
           </Typography>
         </Box>
 
-        <Typography variant="h3" gutterBottom>
+        <Typography variant="h4" gutterBottom>
           {isLoading||error? <Skeleton/>:
-          fNumber(data?.totalcash)}
+          fNumber(data?.totalTransactionThisMonth)} ETB
         </Typography>
         
 
@@ -101,11 +101,11 @@ const OnlineOrder = ({ anotherComponentRef}: any) => {
         </Typography>
       </Box>
       <Box sx={{ width: '100%', pl: 3 }} >
-      {isLoading?<Skeleton variant="rectangular" width={"100%"} height={100} />:<ReactApexChart options={options} series={series} type="area" width={"95%"} height={"80%"} />}
+      {isLoading?<Skeleton variant="rectangular" width={"100%"} height={100} />:<ReactApexChart options={options} series={series} type="bar" width={"95%"} height={"80%"} />}
       </Box>
 
     </Card>
   );
 };
 
-export default OnlineOrder;
+export default TotalTransaction;

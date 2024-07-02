@@ -1070,7 +1070,7 @@ export const getTransactionDifferenceByMonth = async (req: Request, res: Respons
 
         // Calculate the start and end dates for the current month
         let startDate, endDate;
-        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth()-1, 1);
         endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         endDate.setUTCHours(23, 59, 59, 999);
 

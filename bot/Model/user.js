@@ -35,8 +35,8 @@ const userSchema = new mongoose.Schema({
   },
   from: {
     type: String,
-    default: 'BOT',
-    enum: ['BOT', 'CHANNEL','INVITATION'],
+    default: 'Bot',
+    enum: ['Bot', 'Channel','Refferal'],
     required: [true, 'status is required'],
   },
   language: {

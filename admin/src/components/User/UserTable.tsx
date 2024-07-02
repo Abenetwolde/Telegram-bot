@@ -3,13 +3,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
-import { setRowsPerPageAndFetch, setPageAndFetch } from '../../redux/userSlice';
+import { Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
+import { setPage, setPaginationData, setRowsPerPage } from '../../redux/userSlice';
 
 import { MutatingDots } from 'react-loader-spinner';
 import EditProdcut from './EditUser';
 import { Product } from '../../types/product';
 import DeleteProduct from './DeleteUser';
+import { useGetUsersQuery } from '../../redux/Api/User';
 // import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 const UserTable: React.FC = () => {
@@ -19,7 +20,7 @@ const UserTable: React.FC = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
 
     const columns = [
-        { Header: 'ID', accessor: '_id' },
+        // { Header: 'ID', accessor: '_id' , width:20},
         {
             accessor: 'telegramid',
             Header: 'Telegram ID',
@@ -108,22 +109,21 @@ const UserTable: React.FC = () => {
     ];
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.user);
-    console.log('user:', user);
-
+    const { data, error, isLoading } = useGetUsersQuery({ page: user.page, rowsPerPage: user.rowsPerPage });
+    useEffect(() => {
+      if (data) {
+        dispatch(setPaginationData({ totalPages: data.totalPages, totalRows: data.count }));
+      }
+    }, [data, dispatch]);
     const handleChangePage = (_event: unknown, newPage: number) => {
-        //@ts-ignore
-        console.log("niew page....",newPage)
-          //@ts-ignore
-        dispatch(setPageAndFetch(newPage));
-    };
-
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        //@ts-ignore
-        dispatch(setRowsPerPageAndFetch(parseInt(event.target.value, 10)));
-    };
+        dispatch(setPage(newPage));
+      };
+    
+      const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(setRowsPerPage(parseInt(event.target.value, 10)));
+      };
     const handleEditClick = (rowData: any) => {
         setEditedRow(rowData);
-        console.log("row data", rowData)
         setIsEditModalOpen(true);
     };
     const handlEDeleteClick = (rowData: any) => {
@@ -146,30 +146,37 @@ const UserTable: React.FC = () => {
         return value;
     };
 
-    // useEffect(() => {
-    //     dispatch(fetchCategoriesStart())
-    //     //@ts-ignore
-    //      dispatch(fetchCategories());
-    //   }, [dispatch]);
+    const renderSkeleton = () => {
+        return (
+            <TableRow>
+                {columns.map((column) => (
+                    <TableCell key={column.accessor}>
+                        <Skeleton height={30} variant="text" />
+                    </TableCell>
+                ))}
+                <TableCell>
+                    <Skeleton height={30} variant="text" />
+                </TableCell>
+            </TableRow>
+        );
+    };
     return (
-        <>
+        <> <EditProdcut
+        isOpen={isEditModalOpen}
+        handleClose={handleCloseEditModal}
+        editedRow={editedRow}
+        setEditedRow={setEditedRow}
+    />
 
-            <EditProdcut
-                isOpen={isEditModalOpen}
-                handleClose={handleCloseEditModal}
-                editedRow={editedRow}
-                setEditedRow={setEditedRow}
-            />
+            {/*
             <DeleteProduct
                 isOpen={deleteModalOpen}
                 handleClose={() => setDeleteModalOpen(false)}
                 deletedItem={deleteRow}
-            />
+            /> */}
 
-            <div>
-                {
-                    !user.loading ?
-                        (
+        
+
                             <div className="overflow-auto flex item-center justify-center shadow-xl">
                              
                             <TableContainer component={Paper} className="overflow-auto ">
@@ -186,32 +193,29 @@ const UserTable: React.FC = () => {
                                     </TableHead>
 
                                     <TableBody>
-
-                                        {user?.data && user?.data.map((product, index) => (
-                                            <TableRow
-                                                key={product._id}
-                                                // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
-                                            >
-                                                {columns.map((column) => (
-                                                    <TableCell key={column.accessor} className={`p-2`}>
-                                                        {column.Cell ? column.Cell({ value: product[column.accessor as keyof Product] }) : getProductValue(product, column.accessor)}
-                                                    </TableCell>
-                                                ))}
-
-                                                <TableCell className="p-2">
-                                                    <div className="flex justify-between items-center gap-1">
-
-                                                        <button onClick={() => handleEditClick(product)} className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-blue-100">
-                                                            <EditIcon />
-                                                        </button>
-                                                        <button onClick={() => handlEDeleteClick(product)} className="text-red-600 hover:bg-red-200 p-1 rounded-full bg-red-100">
-                                                            <DeleteIcon />
-                                                        </button>
-                                                    </div>
+                                {isLoading
+                                    ? Array.from(new Array(user.rowsPerPage)).map((_, index) => renderSkeleton())
+                                    : data && data?.users?.map((product) => (
+                                        <TableRow key={product._id}>
+                                            {columns.map((column) => (
+                                                <TableCell key={column.accessor} className={`p-2`}>
+                                                    {column.Cell ? column.Cell({ value: product[column.accessor as keyof Product] }) : getProductValue(product, column.accessor)}
                                                 </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
+                                            ))}
+
+                                            <TableCell className="p-2">
+                                                <div className="flex justify-between items-center gap-1">
+                                                    <button onClick={() => handleEditClick(product)} className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-blue-100">
+                                                        <EditIcon />
+                                                    </button>
+                                                    <button onClick={() => handlEDeleteClick(product)} className="text-red-600 hover:bg-red-200 p-1 rounded-full bg-red-100">
+                                                        <DeleteIcon />
+                                                    </button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                            </TableBody>
 
                                     <TableFooter>
                                         <TableRow>
@@ -229,30 +233,15 @@ const UserTable: React.FC = () => {
                                 </Table>
                             </TableContainer>
                             </div>
-                        ) :
+                        
 
-                        (
-                            <div className="flex justify-center items-center h-full">
-                                <MutatingDots
-                                    height="100"
-                                    width="100"
-                                    color="#add8e6"  // Light Blue
-                                    secondaryColor="#ffcccb"  // Light Red
-                                    radius="12.5"
-                                    ariaLabel="mutating-dots-loading"
-                                    wrapperStyle={{}}
-                                    wrapperClass=""
-                                    visible={true}
-                                />
-
-                            </div>
-                        )}
+                       
 
 
                 <div>
 
                 </div>
-            </div>
+          
         </>
     );
 };

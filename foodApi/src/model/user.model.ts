@@ -39,15 +39,15 @@ export interface IUser extends Document {
   language: string;
   role: {
     type: String,
-    default: 'ADMIN',
-    enum: ['ADMIN', 'SUPER ADMIN','USER','TESTER'],
+    default: 'Admin',
+    enum: ['Admin', 'SuperAdmin','User','Tester'],
     required: [true, 'Role is required'],
   },
   is_bot:Boolean,
   from: {
     type: String,
-    default: 'BOT',
-    enum: ['BOT', 'CHANNEL', 'INVITATION'],
+    default: 'Bot',
+    enum: ['Bot', 'Channel','Refferal'],
     required: [true, 'status is required'],
   }, 
   lotteryNumbers: {
@@ -91,15 +91,15 @@ const userSchema = new Schema<IUser>({
   },
   role: {
     type: String,
-    default: 'ADMIN',
-    enum: ['ADMIN', 'SUPERADMIN','USER'],
+    default: 'Admin',
+    enum: ['Admin', 'SuperAdmin','User','Tester'],
     required: [true, 'Role is required'],
   },
 
   from: {
     type: String,
-    default: 'BOT',
-    enum: ['BOT', 'CHANNEL','INVITATION'],
+    default: 'Bot',
+    enum: ['Bot', 'Channel','Refferal'],
     // required: [true, 'status is required'],
   },
   token: {

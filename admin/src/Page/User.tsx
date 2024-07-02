@@ -5,12 +5,12 @@ import { useDispatch } from "react-redux";
 
 
 import UserTable from "../components/User/UserTable";
-import { fetchUserStart, fetchUsers } from "../redux/userSlice";
+// import { fetchUserStart, fetchUsers } from "../redux/userSlice";
 import { useParams } from "react-router-dom";
 import { Grid } from "@mui/material";
 import UserPerformance from "../components/Dashboard/USerPerformance";
 import api from "../services/api";
-fetchUsers
+// fetchUsers
 const UserPage = () => {
   const [userperformance, setDataUserperformance] = useState<any[]>([]);
   const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
@@ -64,11 +64,11 @@ const UserPage = () => {
       scrollToSection(performanceSectionRef);
     }
   }, [path]);
-  useEffect(() => {
-    dispatch(fetchUserStart())
-    //@ts-ignore
-    dispatch(fetchUsers());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchUserStart())
+  //   //@ts-ignore
+  //   dispatch(fetchUsers());
+  // }, [dispatch]);
 
   useEffect(() => {
     setLoadingUserPerformance(true);

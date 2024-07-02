@@ -26,6 +26,8 @@ import ProductMostClicked from '../components/OrderDashboard/ProductMostClicked'
 import ComplateOrder from '../components/Cards/Order/CompateOrder';
 import CancelOrder from '../components/Cards/Order/CancelOrder';
 import CashOrder from '../components/Cards/Order/CashOrder';
+import OnlineOrder from '../components/Cards/Order/OnlineOrder';
+import TotalTransaction from '../components/Cards/Order/TotalTransaction';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -356,7 +358,10 @@ const OrderDashboard = () => {
          <CashOrder/>
           </Grid>
           <Grid lg={4} item  justifyContent="center">
-         <CashOrder/>
+         <OnlineOrder/>
+          </Grid>
+          <Grid lg={4} item  justifyContent="center">
+         <TotalTransaction/>
           </Grid>
         </Grid>
       <Grid container spacing={3} mt={5}>

@@ -51,7 +51,7 @@ const generateToken = (user:any) => {
       }
       const token = generateToken(user);
       const refreshToken = generateRefreshToken(user);
-      res.json({ token, refreshToken });
+      res.json({ token, refreshToken,user});
     } catch (error:any) {
       res.status(500).json({ error: error.message });
     }
@@ -130,15 +130,15 @@ exports.updateUserDetails = async (req: Request, res: Response) => {
     console.log("hit the updateUserDetails user api", req.body)
 
     try {
-        let user = await User.findOne({ telegramid: parseInt(req.params.telegramid)});
+        let user = await User.findById(req.params.telegramid);
         console.log("User.$where..........", user)
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found!' });
         }
    
-       const  muser = await User.findOneAndUpdate({ telegramid: parseInt(req.params.telegramid) },
+       const  muser = await User.findByIdAndUpdate(req.params.telegramid,
          { ...req.body} ,{ new: true });
-      console.log("msuser",muser)
+
        
         if (!muser) {
             return res.status(400).json({ success: false, message: 'User update failed!' });
