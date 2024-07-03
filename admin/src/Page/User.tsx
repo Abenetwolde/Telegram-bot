@@ -7,25 +7,35 @@ import { useDispatch } from "react-redux";
 import UserTable from "../components/User/UserTable";
 // import { fetchUserStart, fetchUsers } from "../redux/userSlice";
 import { useParams } from "react-router-dom";
-import { Grid } from "@mui/material";
+import { Box, Button, Grid, useTheme } from "@mui/material";
 import UserPerformance from "../components/Dashboard/USerPerformance";
 import api from "../services/api";
+import AddUserDialog from "../components/User/CreateUser";
+import { useGetUserPerformanceQuery } from "../redux/Api/User";
 // fetchUsers
 const UserPage = () => {
-  const [userperformance, setDataUserperformance] = useState<any[]>([]);
-  const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
+
   const [filterUserPerformanceTable, setFilterUserPerformance] = useState('perMonth');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(2);
+  const theme=useTheme()
   const dispatch = useDispatch();
   const handleFilterUserPerformanceTable = (newFilter) => {
     setFilterUserPerformance(newFilter);
 
   };
+  const [isOpen, setIsOpen] = useState(false);
   const { path } = useParams();
   const performanceSectionRef = useRef(null);
   const searchDebounceRef = useRef(null);
+  const { data: userperformance, isLoading: loadingUserPerformance, error, refetch } = useGetUserPerformanceQuery({
+    page: 1,
+    pageSize: 2,
+    search: '',
+    interval:filterUserPerformanceTable
+
+  });
   const debounce = (func, delay) => {
     return (...args) => {
       if (searchDebounceRef.current) {
@@ -39,18 +49,16 @@ const UserPage = () => {
 
   const handleSearch = debounce((e) => {
     setPage(1);
-    setSearch(e.target.value);
+    refetch({ page: 1, search: e.target.value });
   }, 500);
 
   const handelPage = (_e:unknown, number: any) => {
     console.log("page ch log......",number)
-    setPage(number);
+    refetch({ page: number });
 
   };
   const handelLimit = (number: any) => {
-   console.log("limit log",number?.target.value)
-    setLimit(number?.target.value);
-     setPage(1);
+    refetch({ page: 1, pageSize: number.target.value });
 
   };
   const scrollToSection = (ref) => {
@@ -70,32 +78,39 @@ const UserPage = () => {
   //   dispatch(fetchUsers());
   // }, [dispatch]);
 
-  useEffect(() => {
-    setLoadingUserPerformance(true);
-    // Fetch data from the API
-    api.get(`/kpi/get-users-performance?interval=${filterUserPerformanceTable}&search=${search}&limit=${limit}&page=${page}`) // Replace with your actual API endpoint
-      .then(response => {
-        setDataUserperformance(response.data);
-        setLoadingUserPerformance(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        setLoadingUserPerformance(false);
-      });
-  }, [filterUserPerformanceTable,search,page,limit]);
+  // useEffect(() => {
+  //   setLoadingUserPerformance(true);
+  //   // Fetch data from the API
+  //   api.get(`/kpi/get-users-performance?interval=${filterUserPerformanceTable}&search=${search}&limit=${limit}&page=${page}`) // Replace with your actual API endpoint
+  //     .then(response => {
+  //       setDataUserperformance(response.data);
+  //       setLoadingUserPerformance(false);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error fetching data:', error);
+  //       setLoadingUserPerformance(false);
+  //     });
+  // }, [filterUserPerformanceTable,search,page,limit]);
 
 
   const isFalse: boolean = path ? true : false
 
   return (
-    <div className="">
-
-      {/* <AdminSidebar /> */}
-      <div className="mb-8  flex-col align-center justify-center mx-auto w-full">
-      </div>
-      <div className="max-w-full  overflow-x-auto">
-   
-        <UserTable />
+  <>
+      <div className="max-w-full flex flex-col flex-end overflow-x-auto">
+        {/* <Box width={'100%'}display={'felx'} justifyContent={'flex-end'} alignItems={'center'}>
+        <Button
+      size="small"
+          variant="contained"
+          // color={theme.palette.info.light}
+          onClick={() => setIsOpen(true)}
+          style={{ backgroundColor:theme.palette.info.main, border: 'none', outline: "none",float: 'right', marginBottom: '1rem', padding:"0.5rem", width: '100px' }}
+        >
+          + Add User
+        </Button>
+        </Box>
+    
+        <UserTable /> */}
         <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
         <div ref={performanceSectionRef}>
 
@@ -104,8 +119,9 @@ const UserPage = () => {
           
         </Grid>
       </div>
+      <AddUserDialog isOpen={isOpen} handleClose={() => setIsOpen(false)} />
       <ToastContainer />
-    </div>
+      </>
   );
 };
 

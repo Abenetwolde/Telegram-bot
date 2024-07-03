@@ -14,7 +14,7 @@ interface AuthState {
 }
 const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
 const initialState: AuthState = {
-    token: null,
+    token: JSON.parse(localStorage.getItem('token')),
     user: storedUser && storedUser || {
         id: null,
         email: null,

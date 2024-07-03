@@ -3,7 +3,7 @@ export const isSuperAdmin = (req:any, res:Response, next:NextFunction) => {
     if (!req.user) {
         return res.status(401).json({ message: 'Unauthorized' });
       }
-    if (req?.user?.role !== 'SUPERADMIN') {
+    if (req?.user?.role !== 'SuperAdmin') {
       return res.status(403).json({ message: 'Access denied' });
     }
     next();

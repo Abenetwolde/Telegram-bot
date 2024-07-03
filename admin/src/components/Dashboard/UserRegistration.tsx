@@ -92,9 +92,9 @@ const UserRegistration = ({ refOne, range, setRange, open, setOpen, filter, hand
         <YAxis />
         <Tooltip content={<CustomTooltip label={undefined} payload={undefined} />} />
         <Legend onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
-        <Bar dataKey="frombotcount" stackId="a" fill="#00E7FF" name="From Bot" fillOpacity={opacity.frombotcount} />
-        <Bar dataKey="fromchannelcount" stackId="a" fill="#7091F5" name="From Channel" fillOpacity={opacity.fromchannelcount} />
-        <Bar dataKey="frominvitation" stackId="a" fill="#FA541C" name="From Invitation" fillOpacity={opacity.frominvitation} />
+        <Bar dataKey="frombotcount" stackId="a" fill="#00E7FF" name="Bot" fillOpacity={opacity.frombotcount} />
+        <Bar dataKey="fromchannelcount" stackId="a" fill="#7091F5" name="Channel" fillOpacity={opacity.fromchannelcount} />
+        <Bar dataKey="frominvitation" stackId="a" fill="#FA541C" name="Refferal" fillOpacity={opacity.frominvitation} />
       </BarChart>
     </ResponsiveContainer>
   </Card>

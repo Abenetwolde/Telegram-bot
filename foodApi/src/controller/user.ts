@@ -23,16 +23,11 @@ const generateToken = (user:any) => {
     const { email, password, first_name, last_name, role } = req.body;
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new User({
-        email,
-        password: hashedPassword,
-        first_name,
-        last_name,
-        role,
-      });
+      const newUser = new User({...req.body, password:hashedPassword,});
       const user = await newUser.save();
       res.status(201).json(user);
     } catch (error:any) {
+        console.log("error",error)
       res.status(400).json({ error: error.message });
     }
   };
@@ -157,13 +152,13 @@ exports.updateUserDetails = async (req: Request, res: Response) => {
 exports.deleteAuser = async (req: Request, res: Response) => {
     console.log("hit the delete user api")
     try {
-        let user = await User.findOne({ telegramid: req.params.telegramid });
+        let user = await User.findById(req.params.telegramid );
 
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found!' });
         }
 
-        user = await User.findByIdAndDelete(user._id).lean();
+        user = await User.findByIdAndDelete(req.params.telegramid).lean();
 
         if (!user) {
             return res.status(400).json({ success: false, message: 'User deletion failed!' });
@@ -196,7 +191,7 @@ export const getAllAuser = async (req: Request, res: Response) => {
 
         // Build the query object
         let query: any = {};
-        if (search) {
+        if (search!=='') {
             query.first_name = { $regex: search, $options: 'i' }; // Case-insensitive search
         }
         if (joinMethod) {
@@ -458,12 +453,12 @@ if(interval==="perWeek"||interval==="perMonth"){
         const formattedCounts = newUserCounts.map(({ _id, newUserCounts }) => {
             const counts:any = { frombotcount: 0, fromchannelcount: 0 ,frominvitation:0};
             newUserCounts.forEach(({ from, count }:any) => {
-                if (from === 'BOT') {
+                if (from === 'Bot') {
                     counts.frombotcount += count;
-                } else if (from === 'CHANNEL') {
+                } else if (from === 'Channel') {
                     counts.fromchannelcount += count;
                 }
-                else if (from === 'INVITATION') {
+                else if (from === 'Refferal') {
                     counts.frominvitation += count;
                 }
             });

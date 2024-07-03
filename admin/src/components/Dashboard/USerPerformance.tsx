@@ -109,11 +109,7 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
         });
         return value;
     };
-    const handleChangeSearch = (event) => {
-        // Your search handler function
-        const value = event.target.value;
-        console.log(value); // Replace with actual search handling logic
-    };
+ 
     const tableData = isFalse ? data?.users : data;
     console.log("Table data",tableData)
     return (
