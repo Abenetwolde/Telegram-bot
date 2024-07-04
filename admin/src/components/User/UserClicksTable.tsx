@@ -17,9 +17,17 @@ import {
     TablePagination,
     TableRow,
     TextField,
+    Drawer,
+    IconButton,
+    Typography,
+    List,
+    ListItem,
+    ListItemText,
+    Card,
+    CardHeader,
 } from '@mui/material';
 import { setPageClick, setPaginationDataClick, setRowsPerPageClick } from '../../redux/userSlice';
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useGetUserClicksQuery } from '../../redux/Api/User';
 import FilterButtonGroup from '../FilterButtonGroup';
 import Iconify from '../Iconify';
@@ -31,6 +39,8 @@ const UserClicksTable: React.FC = () => {
     const user = useSelector((state: any) => state.user);
     const [filter, setFilter] = useState('perMonth')
     const [search, setSearch] = useState('');
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
     const handleFiletr = (string) => {
         setFilter(string)
     }
@@ -62,7 +72,16 @@ const UserClicksTable: React.FC = () => {
 
     const sceneNames = data?.clicksPerScene.flatMap(item => item.userinformationperScene.map(scene => scene.sceneName)) || [];
     const uniqueSceneNames = Array.from(new Set(sceneNames));
+    const handleViewClick = (user: any) => {
+        setSelectedUser(user);
+        console.log("iser click when the user is click", user)
+        setDrawerOpen(true);
+    };
 
+    const handleDrawerClose = () => {
+        setDrawerOpen(false);
+        setSelectedUser(null);
+    };
     const columns = [
         {
             accessor: 'userInformation',
@@ -74,7 +93,7 @@ const UserClicksTable: React.FC = () => {
             Header: 'User Name',
             Cell: ({ value }: any) => <div>{value?.username}</div>,
         },
-        ...uniqueSceneNames.map(sceneName => ({
+        ...uniqueSceneNames.slice(0, 5).map(sceneName => ({
             accessor: sceneName,
             Header: sceneName,
             Cell: ({ value }: any) => value || 0,
@@ -84,7 +103,17 @@ const UserClicksTable: React.FC = () => {
             Header: 'Total',
             Cell: ({ value }: any) => <div>{value}</div>,
         },
+        // {
+        //     accessor: 'actions',
+        //     Header: 'Actions',
+        //     Cell: ({  row }: any) => (
+        //         <IconButton onClick={() => handleViewClick(row)}>
+        //             <VisibilityIcon />
+        //         </IconButton>
+        //     ),
+        // },
     ];
+
     const renderSkeleton = () => {
         return (
             <TableRow>
@@ -105,10 +134,12 @@ const UserClicksTable: React.FC = () => {
     };
 
     return (
-        <div>
-
+        <div className='mt-5'>
+             
+        <Card>
+        <CardHeader  title={"User Clicks Table"} />
             <Box mt={1}>
-                <Grid container py={5 }px={10} spacing={2} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Grid container py={5} px={10} spacing={2} sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Grid item xs={12} md={6} lg={6} xl={6} >
                         <TextField
                             size="small"
@@ -130,9 +161,9 @@ const UserClicksTable: React.FC = () => {
                         />
                     </Grid>
                     <Grid item xs={12} md={6} lg={6} xl={6} >
-                    <FilterButtonGroup handlefilter={handleFiletr} filter={filter} />
+                        <FilterButtonGroup handlefilter={handleFiletr} filter={filter} />
                     </Grid>
-                    
+
                 </Grid>
 
                 <TableContainer component={Paper}>
@@ -144,7 +175,10 @@ const UserClicksTable: React.FC = () => {
                                         {column.Header}
                                     </TableCell>
                                 ))}
+                                <TableCell className="p-2">Actions</TableCell>
                             </TableRow>
+                            
+
                         </TableHead>
                         <TableBody>
 
@@ -159,7 +193,13 @@ const UserClicksTable: React.FC = () => {
                                                     : column.Cell({ value: getSceneClicks(click.userinformationperScene, column.accessor) })}
                                             </TableCell>
                                         ))}
+                                                 <TableCell className="p-2">
+                                        <IconButton onClick={() => handleViewClick(click)}>
+                                            <VisibilityIcon />
+                                        </IconButton>
+                                        </TableCell>
                                     </TableRow>
+
                                 ))}
                         </TableBody>
                         <TablePagination
@@ -172,8 +212,35 @@ const UserClicksTable: React.FC = () => {
                         />
                     </Table>
                 </TableContainer>
-            </Box>
+                <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
+                    <Box sx={{ width: 350, p: 3 }}>
+                        <Typography variant="h6">User Clicks Detail</Typography>
+                        {selectedUser && (
+                            <List>
+                                <ListItem>
+                                    <ListItemText primary="First Name" secondary={selectedUser.userInformation.first_name} />
+                                </ListItem>
+                                <ListItem>
+                                    <ListItemText primary="Username" secondary={selectedUser.userInformation.username} />
+                                </ListItem>
 
+                                {uniqueSceneNames.map((sceneName) => (
+                                    <ListItem key={sceneName}>
+                                        <ListItemText
+                                            primary={sceneName}
+                                            secondary={getSceneClicks(selectedUser.userinformationperScene, sceneName)}
+                                        />
+                                    </ListItem>
+                                ))}
+                                      <ListItem>
+                                    <ListItemText primary="Total Clicks" secondary={selectedUser.totalClicks} />
+                                </ListItem>
+                            </List>
+                        )}
+                    </Box>
+                </Drawer>
+            </Box>
+            </Card>
         </div>
     );
 };

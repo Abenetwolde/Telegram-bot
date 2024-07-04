@@ -3,7 +3,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
+import { Card, CardHeader, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
 import { setPage, setPaginationData, setRowsPerPage } from '../../redux/userSlice';
 
 import { MutatingDots } from 'react-loader-spinner';
@@ -209,8 +209,10 @@ const UserTable: React.FC = () => {
             />
 
 
-
-            <div className="overflow-auto flex flex-col item-center justify-center shadow-xl">
+<div className='mt-5 p-3'>
+             
+             <Card>
+             <CardHeader  title={"Users Table"} />
             <UserFilter
         search={search}
         sortField={sortField}
@@ -277,7 +279,7 @@ const UserTable: React.FC = () => {
                 </Table>
             </TableContainer>
 
-
+            </Card>
 
 
 

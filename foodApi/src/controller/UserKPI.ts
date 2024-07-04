@@ -752,8 +752,8 @@ export const getUsersJoinedByMethodPerTimeInterval = async (req: Request, res: R
         // Initialize start and end dates based on the selected interval
         let startDate, endDate;
         switch (interval) {
-            case 'perDay':
-                const selectedDate = new Date();
+             case 'perDay':
+                 const selectedDate = new Date();
                 startDate = new Date(selectedDate);
                 startDate.setUTCHours(0, 0, 0, 0);
                 endDate = new Date(selectedDate);

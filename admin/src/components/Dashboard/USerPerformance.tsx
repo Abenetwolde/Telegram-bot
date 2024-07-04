@@ -154,7 +154,7 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {tableData.length ? tableData.map((item, index) => (
+                                {tableData?.length ? tableData.map((item, index) => (
                                     <TableRow key={index}>
                                         {columns.map((column) => (
                                             <TableCell key={column.accessor} className="p-2">
