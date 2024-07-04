@@ -1101,7 +1101,7 @@ export const getUserTotalClicksPerName = async (req: Request, res: Response) => 
 export const getUsersPerformance = async (req: Request, res: Response) => {
     // console.log("getUsersPerformance")
     try { 
-        console.log(req.query.page)
+        console.log(req.query)
         const { interval = 'perMonth', page = 1, limit, search = '' } = req.query;
         let usertimedata: any = []
         let userclickdata: any = []
@@ -1354,7 +1354,7 @@ usertimedata.forEach((userTimeDataItem: any) => {
 
         let filteredUsersWithScores = usersWithScores;
      
-        if (searchQuery) {
+        if (searchQuery!=='') {
             filteredUsersWithScores = usersWithScores.filter((user: any) => 
                 (user.user.user.first_name && user.user.user.first_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (user.user.user.last_name && user.user.user.last_name.toLowerCase().includes(searchQuery.toLowerCase())) ||

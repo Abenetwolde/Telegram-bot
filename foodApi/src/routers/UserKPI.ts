@@ -20,7 +20,7 @@ router.route('/get-user-time-spent-per-scene').get(GetTimeSpentPerScene);
 router.route('/get-users-total-clicks-per-name').get(getUserTotalClicksPerName);
 router.route('/get-users-performance').get(getUsersPerformance);
 router.route('/get-users-with-lottery-numbers').get(getUsersLotterandInvitedUserData);
-// GET /api/categories
-
+// GET /api/categories 
+ 
 
 export default router;

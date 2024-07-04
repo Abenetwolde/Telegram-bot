@@ -111,7 +111,7 @@ const UserPerformance: React.FC<UserPerformanceProps> = ({ data, loading, filter
     };
  
     const tableData = isFalse ? data?.users : data;
-    console.log("Table data",tableData)
+    console.log("Table data perfromsnce ",tableData)
     return (
         <div className='mt-5'>
 

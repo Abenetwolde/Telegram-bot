@@ -39,6 +39,7 @@ interface UserPerformance {
 }
 
 interface UserPerformanceResponse {
+  totalRows: number;
   page: number;
   totalUsers: number;
   currentPage: number;
@@ -46,7 +47,25 @@ interface UserPerformanceResponse {
   users: UserPerformance[];
 }
 
+interface UserClick {
+  telegramid: string;
+  userinformationperScene: { sceneName: string; totalClicks: number }[];
+  totalClicks: number;
+  userInformation: {
+    _id: string;
+    telegramid: string;
+    username: string;
+    first_name: string;
+  };
+}
 
+interface UserClickResponse {
+  clicksPerScene: UserClick[];
+  totalRecords: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
 export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({ baseUrl: process.env.DURL ,    prepareHeaders: (headers, { getState }) => {
@@ -86,7 +105,7 @@ export const userApi = createApi({
       invalidatesTags: (result, error, { _id }) => [{ type: 'User', id: _id }],
     }),
     getUsers:  builder.query<PaginatedResponse<User>, { page: number; pageSize: number; search : string; sortField: string;  sortOrder :string;  joinMethod :string;  role :string; }>({
-      query: ({ page = 0, pageSize = 10, search = '', sortField = 'createdAt', sortOrder = 'asc', joinMethod = '', role = '' }) => ({
+      query: ({ page = 1, pageSize = 10, search = '', sortField = 'createdAt', sortOrder = 'asc', joinMethod = '', role = '' }) => ({
         url: `user/getallusers`,
         params: {
           page,
@@ -103,12 +122,12 @@ export const userApi = createApi({
           ? [...result?.users?.map(({ _id }) => ({ type: 'User', id: _id } as const)), { type: 'User', id: 'LIST' }]
           : [{ type: 'User', id: 'LIST' }],
     }),
-    getUserPerformance: builder.query<UserPerformanceResponse, { page: number; pageSize: number; search: string; sortField: string; sortOrder: string; joinMethod: string; role: string }>({
-      query: ({ page = 0, pageSize = 10, search = '', interval = 'perMonth',  }) => ({
+    getUserPerformance: builder.query<UserPerformanceResponse, { page: number; limit: number; search: string; interval : string; }>({
+      query: ({ page = 1, limit = 4, search = '', interval = 'perMonth',  }) => ({
         url: `kpi/get-users-performance`,
         params: {
           page,
-          pageSize,
+          limit,
           search,
           interval
           
@@ -119,7 +138,22 @@ export const userApi = createApi({
           ? [...result?.users?.map(({ user }) => ({ type: 'User', id: user.user.telegramid } as const)), { type: 'User', id: 'PERFORMANCE' }]
           : [{ type: 'User', id: 'PERFORMANCE' }],
     }),
-}),
+    getUserClicks: builder.query<UserClickResponse, { page: number; pageSize: number;  interval: string;search:string }>({
+      query: ({ page = 1, pageSize = 5, interval = 'perMonth',search='' }) => ({
+        url: `kpi/get-users-total-clicks-per-name`,
+        params: {
+          page,
+          pageSize,
+          search,
+          interval
+        },
+      }),
+      providesTags: (result) =>
+        result
+          ? [...result.clicksPerScene.map(({ telegramid }) => ({ type: 'User', id: telegramid } as const)), { type: 'User', id: 'CLICKS' }]
+          : [{ type: 'User', id: 'CLICKS' }],
+    }),
+  }),
 });
 
 export const {
@@ -128,4 +162,5 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useGetUserPerformanceQuery,
+  useGetUserClicksQuery,
 } = userApi;
