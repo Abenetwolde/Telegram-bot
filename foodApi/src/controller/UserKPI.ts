@@ -828,7 +828,7 @@ console.log(formattedResult)
 export const GetTimeSpentPerScene = async (req: Request, res: Response) => {
     console.log("GetTimeSpentPerScene user kpi ");
     try {
-        const { interval = 'perMonth', search = '', page = 1, pageSize = 10 } = req.query;
+        const { interval = 'perMonth', search = '', page = 1, pageSize = 5 } = req.query;
 
         // Get the current date
         const currentDate = new Date();

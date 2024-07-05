@@ -26,15 +26,15 @@ import {
     Card,
     CardHeader,
 } from '@mui/material';
-import { setPageClick, setPaginationDataClick, setRowsPerPageClick } from '../../redux/userSlice';
+import { setPageTime,setRowsPerPageTime,setPaginationDataTime } from '../../redux/userSlice';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { useGetUserClicksQuery } from '../../redux/Api/User';
+import { useGetUserClicksQuery, useGetUserTimesQuery } from '../../redux/Api/User';
 import FilterButtonGroup from '../FilterButtonGroup';
 import Iconify from '../Iconify';
 // import { useGetUserClicksQuery } from '../redux/Api/User';
 // import LoadingIndicator from './LoadingIndicator';
 
-const UserClicksTable: React.FC = () => {
+const UserTimesTable: React.FC = () => {
     const dispatch = useDispatch();
     const user = useSelector((state: any) => state.user);
     const [filter, setFilter] = useState('perMonth')
@@ -49,33 +49,34 @@ const UserClicksTable: React.FC = () => {
         // setPage(0);
     };
 
-    const { data, error, isLoading } = useGetUserClicksQuery({
-        page: user.clickpage + 1,
-        pageSize: user.clickrowsPerPage,
+    const { data, error, isLoading } = useGetUserTimesQuery({
+        page: user.timepage + 1,
+        pageSize: user.timerowsPerPage,
         search,
         interval: filter
     });
 
     useEffect(() => {
         if (data) {
-            dispatch(setPaginationDataClick({ totalPages: data.totalPages, totalRows: data.totalRecords }));
+            dispatch(setPaginationDataTime({ totalPages: data.totalPages, totalRows: data.totalRecords }));
         }
     }, [data, dispatch]);
 
     const handleChangePage = (_event: unknown, newPage: number) => {
-        dispatch(setPageClick(newPage));
         console.log("iser newPage when the user is newPage", newPage)
+        dispatch(setPageTime(newPage));
+
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(setRowsPerPageClick(parseInt(event.target.value, 10)));
+        dispatch(setRowsPerPageTime(parseInt(event.target.value, 10)));
     };
 
-    const sceneNames = data?.clicksPerScene?.flatMap(item => item.userinformationperScene.map(scene => scene.sceneName)) || [];
+    const sceneNames = data?.timeSpentPerScene?.flatMap(item => item?.scenes.map(scene => scene.sceneName)) || [];
     const uniqueSceneNames = Array.from(new Set(sceneNames));
     const handleViewClick = (user: any) => {
         setSelectedUser(user);
-      
+        console.log("iser click when the user is click", user)
         setDrawerOpen(true);
     };
 
@@ -85,34 +86,37 @@ const UserClicksTable: React.FC = () => {
     };
     const columns = [
         {
-            accessor: 'userInformation',
+            accessor: 'user',
             Header: 'First Name',
-            Cell: ({ value }: any) => <div>{value?.first_name}</div>,
-        },
-        {
-            accessor: 'userInformation',
-            Header: 'User Name',
-            Cell: ({ value }: any) => <div>{value?.username}</div>,
-        },
-        ...uniqueSceneNames.slice(0, 4).map(sceneName => ({
+            Cell: ({ value }: any) => (
+              <div className="flex items-center">
+                {value?.first_name}
+              </div>
+            ),
+          },
+          {
+              accessor: 'user',
+              Header: 'User Name',
+              Cell: ({ value }: any) => (
+                <div className="flex items-center">
+                  {value?.username}
+                </div>
+              ),
+            },
+            ...sceneNames.slice(0, 4).map(sceneName => ({
             accessor: sceneName,
             Header: sceneName,
-            Cell: ({ value }: any) => value || 0,
+            Cell: ({ value }: any) => value.toFixed(2) || 0,
         })),
         {
-            accessor: 'totalClicks',
+            accessor: 'totalSpentTimeInMinutes',
             Header: 'Total',
-            Cell: ({ value }: any) => <div>{value}</div>,
-        },
-        // {
-        //     accessor: 'actions',
-        //     Header: 'Actions',
-        //     Cell: ({  row }: any) => (
-        //         <IconButton onClick={() => handleViewClick(row)}>
-        //             <VisibilityIcon />
-        //         </IconButton>
-        //     ),
-        // },
+            Cell: ({ value }: any) => (
+              <div className="flex items-center">
+                {`${value.toFixed(2)} min`}
+              </div>
+            ),
+          },
     ];
 
     const renderSkeleton = () => {
@@ -129,16 +133,19 @@ const UserClicksTable: React.FC = () => {
             </TableRow>
         );
     };
-    const getSceneClicks = (userinformationperScene: any[], sceneName: string) => {
-        const scene = userinformationperScene.find(scene => scene.sceneName === sceneName);
-        return scene ? scene.totalClicks : 0;
+    const getSceneDuration = (scenes: any[], sceneName: string) => {
+        const scene = scenes.find(scene => scene.sceneName === sceneName);
+        return scene ? scene.totalDuration : 0;
     };
-
+    const getSceneTime = (userinformationperScene: any[], sceneName: string) => {
+        const scene = userinformationperScene.find(scene => scene.sceneName === sceneName);
+        return scene ? scene.totalDuration.toFixed(2) : 0;
+    };
     return (
         <div className='mt-5'>
              
         <Card>
-        <CardHeader  title={"User Clicks Table"} />
+        <CardHeader  title={"User Time Spent Table"} />
             <Box mt={1}>
                 <Grid container py={5} px={10} spacing={2} sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Grid item xs={12} md={6} lg={6} xl={6} >
@@ -185,13 +192,13 @@ const UserClicksTable: React.FC = () => {
 
                             {isLoading
                                 ? Array.from(new Array(user.rowsPerPage)).map((_, index) => renderSkeleton())
-                                : data?.clicksPerScene.map((click) => (
-                                    <TableRow key={click.telegramid}>
+                                : data?.timeSpentPerScene?.map((click) => (
+                                    <TableRow key={click._id}>
                                         {columns.map((column) => (
                                             <TableCell key={column.accessor}>
-                                                {column.accessor === 'userInformation' || column.accessor === 'totalClicks'
+                                                {column.accessor === 'user' || column.accessor === 'totalSpentTimeInMinutes'
                                                     ? column.Cell({ value: click[column.accessor as keyof typeof click] })
-                                                    : column.Cell({ value: getSceneClicks(click.userinformationperScene, column.accessor) })}
+                                                    : column.Cell({ value: getSceneDuration(click.scenes, column.accessor) })}
                                             </TableCell>
                                         ))}
                                                  <TableCell className="p-2">
@@ -205,9 +212,9 @@ const UserClicksTable: React.FC = () => {
                         </TableBody>
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25]}
-                            count={user.clicktotalRows}
-                            rowsPerPage={user.clickrowsPerPage}
-                            page={user.clickpage}
+                            count={user.timetotalRows}
+                            rowsPerPage={user.timerowsPerPage}
+                            page={user.timepage}
                             onPageChange={handleChangePage}
                             onRowsPerPageChange={handleChangeRowsPerPage}
                         />
@@ -219,22 +226,22 @@ const UserClicksTable: React.FC = () => {
                         {selectedUser && (
                             <List>
                                 <ListItem>
-                                    <ListItemText primary="First Name" secondary={selectedUser.userInformation.first_name} />
+                                    <ListItemText primary="First Name" secondary={selectedUser?.user?.first_name} />
                                 </ListItem>
                                 <ListItem>
-                                    <ListItemText primary="Username" secondary={selectedUser.userInformation.username} />
+                                    <ListItemText primary="Username" secondary={selectedUser?.user?.username} />
                                 </ListItem>
 
                                 {uniqueSceneNames.map((sceneName) => (
                                     <ListItem key={sceneName}>
                                         <ListItemText
                                             primary={sceneName}
-                                            secondary={getSceneClicks(selectedUser.userinformationperScene, sceneName)}
+                                            secondary={getSceneTime(selectedUser.scenes, sceneName)}
                                         />
                                     </ListItem>
                                 ))}
                                       <ListItem>
-                                    <ListItemText primary="Total Clicks" secondary={selectedUser.totalClicks} />
+                                    <ListItemText primary="Total Time" secondary={selectedUser.totalSpentTimeInMinutes} />
                                 </ListItem>
                             </List>
                         )}
@@ -246,4 +253,4 @@ const UserClicksTable: React.FC = () => {
     );
 };
 
-export default UserClicksTable;
+export default UserTimesTable;

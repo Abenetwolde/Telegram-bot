@@ -17,6 +17,7 @@ import { setPerformancePage, setPerformancePaginationData, setPerformanceRowsPer
 import { RootState } from "@reduxjs/toolkit/query";
 import UserClickTable from "../components/Dashboard/UserClickTable";
 import UserClicksTable from "../components/User/UserClicksTable";
+import UserTimesTable from "../components/User/UserTimesTable";
 // fetchUsers
 const UserPage = () => {
 
@@ -123,7 +124,8 @@ const UserPage = () => {
         </Box>
 
         <UserTable />
-   <UserClicksTable/>
+        <UserClicksTable />
+        <UserTimesTable />
         <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
           <div ref={performanceSectionRef}>
 

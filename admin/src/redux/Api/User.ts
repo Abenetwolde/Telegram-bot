@@ -66,6 +66,25 @@ interface UserClickResponse {
   currentPage: number;
   pageSize: number;
 }
+interface UserTime {
+  _id: string;
+  scenes: { sceneName: string; totalDuration: number }[];
+  totalSpentTimeInMinutes: number;
+  user: {
+    _id: string;
+    telegramid: string;
+    username: string;
+    first_name: string;
+  };
+}
+
+interface UserTimeResponse {
+  timeSpentPerScene: UserTime[];
+  totalRecords: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
 export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({ baseUrl: process.env.DURL ,    prepareHeaders: (headers, { getState }) => {
@@ -153,6 +172,21 @@ export const userApi = createApi({
           ? [...result.clicksPerScene.map(({ telegramid }) => ({ type: 'User', id: telegramid } as const)), { type: 'User', id: 'CLICKS' }]
           : [{ type: 'User', id: 'CLICKS' }],
     }),
+    getUserTimes: builder.query<UserTimeResponse, { page: number; pageSize: number;  interval: string;search:string }>({
+      query: ({ page = 1, pageSize = 5, interval = 'perMonth',search='' }) => ({
+        url: `kpi/get-user-time-spent-per-scene`,
+        params: {
+          page,
+          pageSize,
+          search,
+          interval
+        },
+      }),
+      providesTags: (result) =>
+        result
+          ? [...result.timeSpentPerScene.map(({ _id }) => ({ type: 'User', id: _id } as const)), { type: 'User', id: 'TIMES' }]
+          : [{ type: 'User', id: 'TIMES' }],
+    }),
   }),
 });
 
@@ -163,4 +197,5 @@ export const {
   useDeleteUserMutation,
   useGetUserPerformanceQuery,
   useGetUserClicksQuery,
+  useGetUserTimesQuery
 } = userApi;

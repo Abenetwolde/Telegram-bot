@@ -13,6 +13,14 @@ interface UserState {
   performanceRowsPerPage: number;
   performanceTotalPages: number;
   performanceTotalRows: number;
+  clickpage:number,
+  clickrowsPerPage:number,
+  clicktotalPages:number,
+  clicktotalRows:number,
+  timepage:number,
+  timerowsPerPage:number,
+  timetotalPages:number,
+ timetotalRows:number,
 }
 
 const initialState: UserState = {
@@ -24,6 +32,14 @@ const initialState: UserState = {
   performanceRowsPerPage: 10,
   performanceTotalPages: 0,
   performanceTotalRows: 0,
+  clickpage:0,
+  clickrowsPerPage:10,
+  clicktotalPages:0,
+  clicktotalRows:0,
+  timepage:0,
+  timerowsPerPage:10,
+  timetotalPages:0,
+ timetotalRows:0,
 };
 
 const userSlice = createSlice({
@@ -51,17 +67,27 @@ const userSlice = createSlice({
       state.performanceTotalRows = action.payload.totalRows;
     },
     setPageClick(state, action: PayloadAction<number>) {
-      state.page = action.payload;
+      state.clickpage = action.payload;
     },
     setRowsPerPageClick(state, action: PayloadAction<number>) {
-      state.rowsPerPage = action.payload;
+      state.clickrowsPerPage = action.payload;
     },
     setPaginationDataClick(state, action: PayloadAction<{ totalPages: number; totalRows: number }>) {
-      state.totalPages = action.payload.totalPages;
-      state.totalRows = action.payload.totalRows;
+      state.clicktotalPages = action.payload.totalPages;
+      state.clicktotalRows = action.payload.totalRows;
+    },
+    setPageTime(state, action: PayloadAction<number>) {
+      state.timepage = action.payload;
+    },
+    setRowsPerPageTime(state, action: PayloadAction<number>) {
+      state.timerowsPerPage = action.payload;
+    },
+    setPaginationDataTime(state, action: PayloadAction<{ totalPages: number; totalRows: number }>) {
+      state.timetotalPages = action.payload.totalPages;
+      state.timetotalRows = action.payload.totalRows;
     },
   },
 });
 
-export const { setPage, setRowsPerPage, setPaginationData, setPerformancePage, setPerformanceRowsPerPage, setPerformancePaginationData,setPageClick,setPaginationDataClick,setRowsPerPageClick } = userSlice.actions;
+export const { setPage, setRowsPerPage, setPaginationData, setPerformancePage, setPerformanceRowsPerPage, setPerformancePaginationData,setPageClick,setPaginationDataClick,setRowsPerPageClick ,setPageTime,setRowsPerPageTime,setPaginationDataTime } = userSlice.actions;
 export default userSlice.reducer;
