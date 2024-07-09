@@ -14,6 +14,7 @@ import category from './routers/category';
 import order from './routers/order';
 import payment from './routers/payment';
 import useKpi from './routers/UserKPI';
+import feedback from './routers/feedback';
 import passport from 'passport';
 // import mongoose from 'mongoose';
 import path from 'path';
@@ -45,6 +46,7 @@ app.use('/api/category', category);
 app.use('/api/order', order);
 app.use('/api/payment', payment);
 app.use('/api/kpi', useKpi);
+app.use('/api/feedback', feedback);
 connectToDatabase()
    
 app.listen(7000, () => {
