@@ -88,8 +88,19 @@ const FeedBackPage: React.FC = () => {
         },
         {
             accessor: 'feedback',
-            Header: 'User Name',
+            Header: 'Feeback',
             Cell: ({ value }: any) => <div>{value}</div>,
+        },
+  
+        {
+            accessor: 'isRead',
+            Header: 'isRead',
+            Cell: ({ value }: any) => <div>{value? 'Yes' : 'No'}</div>,
+        },
+        {
+            accessor: 'isReply',
+            Header: 'isReply',
+            Cell: ({ value }: any) => <div>{value? 'Yes' : 'No'}</div>,
         },
 
         // {

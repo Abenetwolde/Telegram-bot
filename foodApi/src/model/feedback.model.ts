@@ -10,6 +10,14 @@ const feedbackSchema = new mongoose.Schema({
     type:Boolean,
     default:false
   },
+  isReply:{
+    type:Boolean,
+    default:false
+  },
+  reply:{
+    type: String,
+
+  },
   createdAt: { type: Date, default: Date.now },
   // Other feedback details...
 });

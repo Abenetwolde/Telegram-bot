@@ -20,7 +20,26 @@ export const getAllFeedbacks = async (req: Request, res: Response) => {
         return res.status(404).json({ error: 'Feedback not found' });
       }
   
-      feedback.isRead = !feedback.isRead;
+      feedback.isRead = true;
+      await feedback.save();
+  
+      res.status(200).json(feedback);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+  export const replyTheFeedback = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const {reply}=req.body
+      const feedback = await Feedback.findById(id).populate('user','telegramid');
+  
+      if (!feedback) {
+        return res.status(404).json({ error: 'Feedback not found' });
+      }
+  
+      feedback.isReply = true;
+      feedback.reply = reply;
       await feedback.save();
   
       res.status(200).json(feedback);
