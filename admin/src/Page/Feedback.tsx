@@ -30,7 +30,7 @@ import {
 import { setPageClick, setPaginationDataClick, setRowsPerPageClick } from '../../redux/userSlice';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Iconify from '../components/Iconify';
-import { useGetAllFeedBackQuery } from '../redux/Api/feedback';
+import { useGetAllFeedBackQuery, useGetUpdateFeedbackStatusMutation, useReplyFeedbackMutation } from '../redux/Api/feedback';
 // import { useGetUserClicksQuery } from '../redux/Api/User';
 // import LoadingIndicator from './LoadingIndicator';
 
@@ -42,6 +42,8 @@ const FeedBackPage: React.FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
     const [reply, setReply] = useState('');
+    const  [replyFeedback,{isLoading}] = useReplyFeedbackMutation();
+    const  [UpdateFeedbackStatus,/* {isLoading}:editViewLoading */] = useGetUpdateFeedbackStatusMutation();
     const handleFiletr = (string) => {
         setFilter(string)
     }
@@ -50,7 +52,7 @@ const FeedBackPage: React.FC = () => {
         // setPage(0);
     };
 
-    const { data, error, isLoading } = useGetAllFeedBackQuery();
+    const { data, error } = useGetAllFeedBackQuery();
 
 
 
@@ -77,48 +79,52 @@ const FeedBackPage: React.FC = () => {
     // };
     const columns = [
         {
-            accessor: 'user',
-            Header: 'First Name',
-            Cell: ({ value }: any) => <div>{value?.first_name}</div>,
+          id: 'firstName',
+          label: 'First Name',
+          render: (feedback: any) => <TableCell>{feedback.user.first_name}</TableCell>,
         },
         {
-            accessor: 'user',
-            Header: 'User Name',
-            Cell: ({ value }: any) => <div>{value?.username}</div>,
+          id: 'userName',
+          label: 'User Name',
+          render: (feedback: any) => <TableCell>{feedback.user.username}</TableCell>,
         },
         {
-            accessor: 'feedback',
-            Header: 'Feeback',
-            Cell: ({ value }: any) => <div>{value}</div>,
-        },
-  
-        {
-            accessor: 'isRead',
-            Header: 'isRead',
-            Cell: ({ value }: any) => <div>{value? 'Yes' : 'No'}</div>,
+          id: 'feedback',
+          label: 'Feedback',
+          render: (feedback: any) => <TableCell>{feedback.feedback}</TableCell>,
         },
         {
-            accessor: 'isReply',
-            Header: 'isReply',
-            Cell: ({ value }: any) => <div>{value? 'Yes' : 'No'}</div>,
+          id: 'isRead',
+          label: 'isRead',
+          render: (feedback: any) => <TableCell>{feedback.isRead ? 'Yes' : 'No'}</TableCell>,
         },
-
-        // {
-        //     accessor: 'actions',
-        //     Header: 'Actions',
-        //     Cell: ({  row }: any) => (
-        //         <IconButton onClick={() => handleViewClick(row)}>
-        //             <VisibilityIcon />
-        //         </IconButton>
-        //     ),
-        // },
-    ];
-
+        {
+          id: 'isReply',
+          label: 'isReply',
+          render: (feedback: any) => <TableCell>{feedback.isReply ? 'Yes' : 'No'}</TableCell>,
+        },
+        {
+          id: 'reply',
+          label: 'Reply',
+          render: (feedback: any) => <TableCell>{feedback.reply}</TableCell>,
+        },
+        {
+          id: 'actions',
+          label: 'Actions',
+          render: (feedback: any) => (
+            <TableCell>
+              <IconButton onClick={() => handleViewClick(feedback)}>
+                <VisibilityIcon />
+              </IconButton>
+            </TableCell>
+          ),
+        },
+      ];
     const renderSkeleton = () => {
         return (
             <TableRow>
                 {columns.map((column) => (
-                    <TableCell key={column.accessor}>
+                    <TableCell>
                         <Skeleton height={30} variant="text" />
                     </TableCell>
                 ))}
@@ -128,9 +134,13 @@ const FeedBackPage: React.FC = () => {
             </TableRow>
         );
     };
-    const handleViewClick = (feedback: any) => {
+    const handleViewClick =async (feedback: any) => {
+
+
         setSelectedFeedback(feedback);
         setDrawerOpen(true);
+        await UpdateFeedbackStatus({id:feedback?._id}).unwrap()
+
     };
 
     const handleDrawerClose = () => {
@@ -139,9 +149,14 @@ const FeedBackPage: React.FC = () => {
         setReply('');
     };
 
-    const handleSendReply = () => {
+    const handleSendReply = async(id: any, reply: string) => {
+        console.log("reply",reply)
+    const data={ id,reply }
+            await replyFeedback(data).unwrap();
+            setReply('');
+       
         // Implement the logic to send the reply
-        console.log('Reply sent:', reply);
+        console.log('Reply sent:', id);
         setReply('');
     };
 
@@ -181,36 +196,25 @@ const FeedBackPage: React.FC = () => {
 
                     <TableContainer component={Paper}>
                         <Table>
-                            <TableHead>
-                                <TableRow>
-                                    {columns.map((column) => (
-                                        <TableCell key={column.accessor}>
-                                            {column.Header}
-                                        </TableCell>
-                                    ))}
-                                    <TableCell className="p-2">Actions</TableCell>
-                                </TableRow>
-
-
-                            </TableHead>
+                        <TableHead>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableCell key={column.id}>{column.label}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
                             <TableBody>
 
                                 {isLoading
                                     ? Array.from(new Array(7)).map((_, index) => renderSkeleton())
                                     : data?.map((feedback) => (
                                         <TableRow key={feedback._id}>
-                                            {columns.map((column) => (
-                                                <TableCell key={column.accessor}>
-                                                     {column.Cell({ value: feedback[column.accessor] })}
-
-                                                </TableCell>
-                                            ))}
-                                            <TableCell className="p-2">
-                                                <IconButton onClick={() => handleViewClick(feedback)}>
-                                                    <VisibilityIcon />
-                                                </IconButton>
-                                            </TableCell>
-                                        </TableRow>
+                                        {columns.map((column) => (
+                                          <React.Fragment key={column.id}>
+                                            {column.render(feedback)}
+                                          </React.Fragment>
+                                        ))}
+                                      </TableRow>
 
                                     ))}
                             </TableBody>
@@ -244,6 +248,7 @@ const FeedBackPage: React.FC = () => {
                                 label="Reply"
                                 multiline
                                 rows={4}
+                                                        //    value={selectedFeedback?.feedback? selectedFeedback?.feedback:reply}
                                 value={reply}
                                 onChange={(e) => setReply(e.target.value)}
                                 variant="outlined"
@@ -251,7 +256,8 @@ const FeedBackPage: React.FC = () => {
                                 sx={{ mt: 2 }}
                             />
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                                <Button variant="contained" color="primary" onClick={handleSendReply}>
+                                <Button variant="contained" color="primary" onClick={() => handleSendReply(selectedFeedback?._id, reply)}>
+
                                     Send
                                 </Button>
                             </Box>

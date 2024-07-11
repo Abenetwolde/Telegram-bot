@@ -8,16 +8,27 @@ export const feedbackApiSlice = createApi({
   }),
   endpoints: (builder) => ({
     getAllFeedBack: builder.query<any, void>({
-        query: () => 'feedback/feedbacks/',
+      query: () => 'feedback/feedbacks/',
+      providesTags: ['Feedback'],
+    }),
+    getUpdateFeedbackStatus: builder.mutation({
+      query: ({ id }) => ({
+        url: `feedback/feedbacks/${id}/isRead`,
+        method: 'PUT',
       }),
-      getUpdateFeedbackStatus: builder.mutation({
-        query: ({ id }) => ({
-          url: `feedback/feedbacks/${id}/isRead`,
-          method: 'put',
+      invalidatesTags: [{ type: 'Feedback', id: 'LIST' }],
+    }),
+    replyFeedback: builder.mutation({
 
-        }),
+      query: (data) => ({
+        url: `feedback/feedbacks/reply/${data.id}`,
+        method: 'POST',
+        body: data.reply,
       }),
+      invalidatesTags: [{ type: 'Feedback', id: 'LIST' }],
+    }),
   }),
+  tagTypes: ['Feedback'],
 });
 
-export const { useGetAllFeedBackQuery ,useGetUpdateFeedbackStatusMutation} = feedbackApiSlice;
+export const { useGetAllFeedBackQuery, useGetUpdateFeedbackStatusMutation, useReplyFeedbackMutation } = feedbackApiSlice;

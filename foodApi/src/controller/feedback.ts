@@ -29,16 +29,19 @@ export const getAllFeedbacks = async (req: Request, res: Response) => {
     }
   };
   export const replyTheFeedback = async (req: Request, res: Response) => {
+    console.log("replyTheFeedback",req.body)
+    console.log("replyTheFeedback",req.params)
     try {
       const { id } = req.params;
       const {reply}=req.body
       const feedback = await Feedback.findById(id).populate('user','telegramid');
-  
+
       if (!feedback) {
         return res.status(404).json({ error: 'Feedback not found' });
       }
   
       feedback.isReply = true;
+      feedback.isRead = true;
       feedback.reply = reply;
       await feedback.save();
   
