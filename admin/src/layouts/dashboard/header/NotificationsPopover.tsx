@@ -28,13 +28,14 @@ import { IconButtonAnimate } from '../../../components/animate';
 import { useGetAllFeedBackQuery, useGetUpdateFeedbackStatusMutation } from '../../../redux/Api/feedback';
 
 export default function NotificationsPopover() {
-  const { data: feedbacks, isLoading } = useGetAllFeedBackQuery();
+  const { data: feedbacks, isLoading } = useGetAllFeedBackQuery({ page:1, limit: 5, search:'' });
   const [notifications, setNotifications] = useState([]);
   const [updateFeedbackStatus] = useGetUpdateFeedbackStatusMutation();
 const navigation =useNavigate()
+
   useEffect(() => {
     if (feedbacks) {
-      const formattedFeedbacks = feedbacks.map((feedback) => ({
+      const formattedFeedbacks = feedbacks?.feedbacks?.map((feedback) => ({
         id: feedback._id,
         title: feedback.user.first_name,
         description: feedback.feedback,
@@ -47,7 +48,10 @@ const navigation =useNavigate()
   }, [feedbacks]);
 
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
-
+  // if(isLoading){
+  //   return <div>Loading...</div>
+  // }
+   
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {

@@ -26,11 +26,13 @@ import {
     Card,
     CardHeader,
     Button,
+    useTheme,
 } from '@mui/material';
 import { setPageClick, setPaginationDataClick, setRowsPerPageClick } from '../../redux/userSlice';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Iconify from '../components/Iconify';
 import { useGetAllFeedBackQuery, useGetUpdateFeedbackStatusMutation, useReplyFeedbackMutation } from '../redux/Api/feedback';
+import Label from '../components/Label';
 // import { useGetUserClicksQuery } from '../redux/Api/User';
 // import LoadingIndicator from './LoadingIndicator';
 
@@ -38,12 +40,15 @@ const FeedBackPage: React.FC = () => {
     const dispatch = useDispatch();
     const user = useSelector((state: any) => state.user);
     const [filter, setFilter] = useState('perMonth')
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [search, setSearch] = useState('');
+
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
     const [reply, setReply] = useState('');
-    const  [replyFeedback,{isLoading}] = useReplyFeedbackMutation();
-    const  [UpdateFeedbackStatus,/* {isLoading}:editViewLoading */] = useGetUpdateFeedbackStatusMutation();
+    const [replyFeedback, { isLoading }] = useReplyFeedbackMutation();
+    const [UpdateFeedbackStatus,/* {isLoading}:editViewLoading */] = useGetUpdateFeedbackStatusMutation();
     const handleFiletr = (string) => {
         setFilter(string)
     }
@@ -52,74 +57,59 @@ const FeedBackPage: React.FC = () => {
         // setPage(0);
     };
 
-    const { data, error } = useGetAllFeedBackQuery();
+    const { data, isLoading: loadingForFeedback } = useGetAllFeedBackQuery({ page: page + 1, limit: rowsPerPage, search });
 
+    const theme = useTheme();
+    const isLight = theme.palette.mode === 'light';
 
-
-    // const handleChangePage = (_event: unknown, newPage: number) => {
-    //     dispatch(setPageClick(newPage));
-    //     console.log("iser newPage when the user is newPage", newPage)
-    // };
-
-    // const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     dispatch(setRowsPerPageClick(parseInt(event.target.value, 10)));
-    // };
-
-    // const sceneNames = data?.clicksPerScene?.flatMap(item => item.userinformationperScene.map(scene => scene.sceneName)) || [];
-    // const uniqueSceneNames = Array.from(new Set(sceneNames));
-    // const handleViewClick = (user: any) => {
-    //     setSelectedUser(user);
-
-    //     setDrawerOpen(true);
-    // };
-
-    // const handleDrawerClose = () => {
-    //     setDrawerOpen(false);
-    //     setSelectedUser(null);
-    // };
     const columns = [
         {
-          id: 'firstName',
-          label: 'First Name',
-          render: (feedback: any) => <TableCell>{feedback.user.first_name}</TableCell>,
+            id: 'firstName',
+            label: 'First Name',
+            render: (feedback: any) => <TableCell>{feedback.user.first_name}</TableCell>,
         },
         {
-          id: 'userName',
-          label: 'User Name',
-          render: (feedback: any) => <TableCell>{feedback.user.username}</TableCell>,
+            id: 'userName',
+            label: 'User Name',
+            render: (feedback: any) => <TableCell>{feedback.user.username}</TableCell>,
         },
         {
-          id: 'feedback',
-          label: 'Feedback',
-          render: (feedback: any) => <TableCell>{feedback.feedback}</TableCell>,
+            id: 'feedback',
+            label: 'Feedback',
+            render: (feedback: any) => <TableCell>{feedback.feedback}</TableCell>,
         },
         {
-          id: 'isRead',
-          label: 'isRead',
-          render: (feedback: any) => <TableCell>{feedback.isRead ? 'Yes' : 'No'}</TableCell>,
+            id: 'isRead',
+            label: 'isRead',
+            render: (feedback: any) => <TableCell>
+                <Label
+                    variant={isLight ? 'ghost' : 'filled'}
+                    color={(feedback?.isRead ? 'success' : 'warning')}>
+                    {feedback?.isRead ? 'Yes' : 'No'}
+                </Label></TableCell>,
         },
         {
-          id: 'isReply',
-          label: 'isReply',
-          render: (feedback: any) => <TableCell>{feedback.isReply ? 'Yes' : 'No'}</TableCell>,
+            id: 'isReply',
+            label: 'isReply',
+            render: (feedback: any) => <TableCell>  <Label
+                variant={isLight ? 'ghost' : 'filled'}
+                color={(feedback?.isReply ? 'success' : 'warning')}>
+                {feedback?.isReply ? 'Yes' : 'No'}
+            </Label></TableCell>,
         },
+
         {
-          id: 'reply',
-          label: 'Reply',
-          render: (feedback: any) => <TableCell>{feedback.reply}</TableCell>,
+            id: 'actions',
+            label: 'Actions',
+            render: (feedback: any) => (
+                <TableCell>
+                    <IconButton onClick={() => handleViewClick(feedback)}>
+                        <VisibilityIcon />
+                    </IconButton>
+                </TableCell>
+            ),
         },
-        {
-          id: 'actions',
-          label: 'Actions',
-          render: (feedback: any) => (
-            <TableCell>
-              <IconButton onClick={() => handleViewClick(feedback)}>
-                <VisibilityIcon />
-              </IconButton>
-            </TableCell>
-          ),
-        },
-      ];
+    ];
     const renderSkeleton = () => {
         return (
             <TableRow>
@@ -134,13 +124,21 @@ const FeedBackPage: React.FC = () => {
             </TableRow>
         );
     };
-    const handleViewClick =async (feedback: any) => {
+    const handleViewClick = async (feedback: any) => {
 
 
         setSelectedFeedback(feedback);
         setDrawerOpen(true);
-        await UpdateFeedbackStatus({id:feedback?._id}).unwrap()
+        await UpdateFeedbackStatus({ id: feedback?._id }).unwrap()
 
+    };
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
     };
 
     const handleDrawerClose = () => {
@@ -149,15 +147,11 @@ const FeedBackPage: React.FC = () => {
         setReply('');
     };
 
-    const handleSendReply = async(id: any, reply: string) => {
-        console.log("reply",reply)
-    const data={ id,reply }
-            await replyFeedback(data).unwrap();
-            setReply('');
-       
-        // Implement the logic to send the reply
-        console.log('Reply sent:', id);
+    const handleSendReply = async (id: any, reply: string) => {
+
+        await replyFeedback({ id, reply }).unwrap();
         setReply('');
+
     };
 
 
@@ -196,36 +190,37 @@ const FeedBackPage: React.FC = () => {
 
                     <TableContainer component={Paper}>
                         <Table>
-                        <TableHead>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableCell key={column.id}>{column.label}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
+                            <TableHead>
+                                <TableRow>
+                                    {columns.map((column) => (
+                                        <TableCell key={column.id}>{column.label}</TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
                             <TableBody>
 
-                                {isLoading
+                                {loadingForFeedback
                                     ? Array.from(new Array(7)).map((_, index) => renderSkeleton())
-                                    : data?.map((feedback) => (
+                                    : data?.feedbacks?.map((feedback) => (
                                         <TableRow key={feedback._id}>
-                                        {columns.map((column) => (
-                                          <React.Fragment key={column.id}>
-                                            {column.render(feedback)}
-                                          </React.Fragment>
-                                        ))}
-                                      </TableRow>
+                                            {columns.map((column) => (
+                                                <React.Fragment key={column.id}>
+                                                    {column.render(feedback)}
+                                                </React.Fragment>
+                                            ))}
+                                        </TableRow>
 
                                     ))}
                             </TableBody>
-                            {/* <TablePagination
+                            <TablePagination
                                 rowsPerPageOptions={[5, 10, 25]}
-                                count={user.clicktotalRows}
-                                rowsPerPage={user.clickrowsPerPage}
-                                page={user.clickpage}
-                                onPageChange={null}
-                                onRowsPerPageChange={null}
-                            /> */}
+
+                                count={data?.total || 0}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
                         </Table>
                     </TableContainer>
                     <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
@@ -242,14 +237,17 @@ const FeedBackPage: React.FC = () => {
                                     <ListItem>
                                         <ListItemText primary="Feedback" secondary={selectedFeedback.feedback} />
                                     </ListItem>
+                                    {selectedFeedback.reply && <ListItem>
+                                        <ListItemText primary="Reply" secondary={selectedFeedback.reply} />
+                                    </ListItem>}
                                 </List>
                             )}
                             <TextField
                                 label="Reply"
                                 multiline
                                 rows={4}
-                                                        //    value={selectedFeedback?.feedback? selectedFeedback?.feedback:reply}
-                                value={reply}
+                                value={selectedFeedback?.reply ? selectedFeedback?.reply : reply}
+                                // value={reply}
                                 onChange={(e) => setReply(e.target.value)}
                                 variant="outlined"
                                 fullWidth

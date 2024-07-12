@@ -1,14 +1,74 @@
 import { Request, Response } from 'express';
  import Feedback from '../model/feedback.model';
 
-export const getAllFeedbacks = async (req: Request, res: Response) => {
-    try {
-      const feedbacks = await Feedback.find().populate('user', 'first_name username');
-      res.status(200).json(feedbacks);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+ export const getAllFeedbacks = async (req:Request, res:Response) => {
+  const { page = 1, limit = 10, search = '' }:any = req.query;
+console.log(req.query)
+  try {
+    const matchQuery = search
+      ? {
+          $or: [
+            { 'user.first_name': { $regex: search, $options: 'i' } },
+            { 'user.username': { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const feedbacks = await Feedback.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      { $match: matchQuery },
+      {  $sort:{
+        createdAt:-1
+      }},
+      { $skip: (page - 1) * limit },
+      { $limit: Number(limit) },
+      {
+        $project: {
+          _id: 1,
+          feedback: 1,
+          isRead: 1,
+          isReply: 1,
+          reply: 1,
+          createdAt: 1,
+          'user.first_name': 1,
+          'user.username': 1,
+        },
+      },
+
+    ]);
+
+    const total = await Feedback.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      { $match: matchQuery },
+      { $count: 'total' },
+    ]);
+
+    res.status(200).json({
+      feedbacks,
+      total: total[0] ? total[0].total : 0,
+      page: Number(page),
+      pages: Math.ceil((total[0] ? total[0].total : 0) / limit),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
   
   // Controller to update the isRead value of a feedback
   export const updateIsRead = async (req: Request, res: Response) => {
@@ -29,8 +89,7 @@ export const getAllFeedbacks = async (req: Request, res: Response) => {
     }
   };
   export const replyTheFeedback = async (req: Request, res: Response) => {
-    console.log("replyTheFeedback",req.body)
-    console.log("replyTheFeedback",req.params)
+
     try {
       const { id } = req.params;
       const {reply}=req.body
