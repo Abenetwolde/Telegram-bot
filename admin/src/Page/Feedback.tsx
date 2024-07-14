@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // import { RootState } from '../redux/store';
 import {
     Box,
@@ -28,11 +30,11 @@ import {
     Button,
     useTheme,
 } from '@mui/material';
-import { setPageClick, setPaginationDataClick, setRowsPerPageClick } from '../../redux/userSlice';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Iconify from '../components/Iconify';
 import { useGetAllFeedBackQuery, useGetUpdateFeedbackStatusMutation, useReplyFeedbackMutation } from '../redux/Api/feedback';
 import Label from '../components/Label';
+
 // import { useGetUserClicksQuery } from '../redux/Api/User';
 // import LoadingIndicator from './LoadingIndicator';
 
@@ -47,8 +49,8 @@ const FeedBackPage: React.FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
     const [reply, setReply] = useState('');
-    const [replyFeedback, { isLoading }] = useReplyFeedbackMutation();
-    const [UpdateFeedbackStatus,/* {isLoading}:editViewLoading */] = useGetUpdateFeedbackStatusMutation();
+    const [replyFeedback, { isLoading :sendingLoading}] = useReplyFeedbackMutation();
+    const [UpdateFeedbackStatus] = useGetUpdateFeedbackStatusMutation();
     const handleFiletr = (string) => {
         setFilter(string)
     }
@@ -71,12 +73,17 @@ const FeedBackPage: React.FC = () => {
         {
             id: 'userName',
             label: 'User Name',
-            render: (feedback: any) => <TableCell>{feedback.user.username}</TableCell>,
+            render: (feedback: any) => <TableCell>{          <Label
+                variant={isLight ? 'ghost' : 'filled'}
+                color={"info"}>
+
+                {`${feedback?.user?.username?`@ ${feedback?.user?.username} `:'no username'}`}
+            </Label>}</TableCell>,
         },
         {
             id: 'feedback',
             label: 'Feedback',
-            render: (feedback: any) => <TableCell>{feedback.feedback}</TableCell>,
+            render: (feedback: any) => <TableCell>{feedback?.feedback.length>20?`${feedback?.feedback?.slice(0, 40)}...`:feedback.feedback}</TableCell>,
         },
         {
             id: 'isRead',
@@ -148,12 +155,16 @@ const FeedBackPage: React.FC = () => {
     };
 
     const handleSendReply = async (id: any, reply: string) => {
-
-        await replyFeedback({ id, reply }).unwrap();
-        setReply('');
-
+        try {
+            await replyFeedback({ id, reply }).unwrap();
+            setReply('');
+            toast.success('Feedback has been sent successfully');
+            setDrawerOpen(false);
+        } catch (error) {
+            toast.error('Failed to send feedback');
+            console.error('Error sending reply:', error);
+        }
     };
-
 
     return (
         <div className='mt-5'>
@@ -213,9 +224,7 @@ const FeedBackPage: React.FC = () => {
                                     ))}
                             </TableBody>
                             <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-
-                                count={data?.total || 0}
+                                rowsPerPageOptions={[5, 10, 25]}    count={data?.total || 0}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}
@@ -237,7 +246,7 @@ const FeedBackPage: React.FC = () => {
                                     <ListItem>
                                         <ListItemText primary="Feedback" secondary={selectedFeedback.feedback} />
                                     </ListItem>
-                                    {selectedFeedback.reply && <ListItem>
+                                    {selectedFeedback?.reply && <ListItem>
                                         <ListItemText primary="Reply" secondary={selectedFeedback.reply} />
                                     </ListItem>}
                                 </List>
@@ -256,13 +265,14 @@ const FeedBackPage: React.FC = () => {
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                                 <Button variant="contained" color="primary" onClick={() => handleSendReply(selectedFeedback?._id, reply)}>
 
-                                    Send
+                                   {sendingLoading?'Sending...':'Send'} 
                                 </Button>
                             </Box>
                         </Box>
                     </Drawer>
                 </Box>
             </Card>
+            <ToastContainer/>
         </div>
     );
 };

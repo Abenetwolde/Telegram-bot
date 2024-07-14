@@ -26,7 +26,6 @@ export const feedbackApiSlice = createApi({
       // invalidatesTags: [{ type: 'Feedback', id: 'LIST' }],
     }),
     replyFeedback: builder.mutation({
-
       query: (data) => ({
         url: `feedback/feedbacks/reply/${data.id}`,
         method: 'POST',
