@@ -13,6 +13,7 @@ import { orderSliceApi } from '../redux/Api/Order';
 import { authApiSlice } from '../redux/Api/Auth';
 import { userApi } from '../redux/Api/User';
 import { feedbackApiSlice } from '../redux/Api/feedback';
+import { userKpiApi } from '../redux/Api/userKpiSlice';
 // import { orderSliceApi } from '../redux/Api/Order';
 
 const store = configureStore({
@@ -27,10 +28,10 @@ const store = configureStore({
     [authApiSlice.reducerPath]: authApiSlice.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [feedbackApiSlice.reducerPath]: feedbackApiSlice.reducer,
-
+    [userKpiApi.reducerPath]: userKpiApi.reducer,
   },
 
-   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(orderSliceApi.middleware,authApiSlice.middleware,userApi.middleware,feedbackApiSlice.middleware),
+   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(orderSliceApi.middleware,authApiSlice.middleware,userApi.middleware,feedbackApiSlice.middleware,userKpiApi.middleware ),
 
 });
 

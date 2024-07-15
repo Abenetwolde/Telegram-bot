@@ -38,8 +38,8 @@ const navigation =useNavigate()
       const formattedFeedbacks = feedbacks?.feedbacks?.map((feedback) => ({
         id: feedback._id,
         title: feedback.user.first_name,
-        description: feedback.feedback,
-        avatar: feedback.user.first_name[0],
+        description: feedback?.feedback,
+        avatar: feedback?.user.first_name[0],
         createdAt: feedback.createdAt,
         isUnRead: !feedback.isRead,
       }));

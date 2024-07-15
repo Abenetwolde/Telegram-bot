@@ -274,11 +274,11 @@ export const NewuserCustomRange = async (req: Request, res: Response): Promise<v
         const formattedCounts = newUserCounts.map(({ _id, newUserCounts }) => {
             const counts: any = { frombotcount: 0, fromchannelcount: 0, frominvitation: 0 };
             newUserCounts.forEach(({ from, count }: any) => {
-                if (from === 'BOT') {
+                if (from === 'Bot') {
                     counts.frombotcount += count;
-                } else if (from === 'CHANNEL') {
+                } else if (from === 'Channel') {
                     counts.fromchannelcount += count;
-                } else if (from === 'INVITATION') {
+                } else if (from === 'Refferal') {
                     counts.frominvitation += count;
                 }
             });

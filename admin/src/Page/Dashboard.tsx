@@ -18,7 +18,7 @@ import LanguagePieChart from '../components/Dashboard/LanguagePieChart';
 import UserSpentTime from '../components/Dashboard/SpentTime';
 import UserClicks from '../components/Dashboard/userClicks';
 import UsersSpentTimePerScene from '../components/Dashboard/UsersSpentTimePerScene';
-import UserRegistration from '../components/Dashboard/UserRegistration';
+
 import LanguageDistributionCard from '../components/Dashboard/LanguageDistributionCard';
 import TotalCountCardGrid from '../components/Dashboard/TotalCountCardGrid';
 import UserClicksChart from '../components/Dashboard/UserClicksChart';
@@ -38,21 +38,8 @@ import UserRegister from '../components/Cards/User/UserRegister';
 // import UsersClick from '../components/Cards/User/UserClick';
 import UsersSpentTime from '../components/Cards/User/UserSpentTime';
 import UsersClickperMonth from '../components/Cards/User/UsersClick';
-const CustomTooltip = ({ label, payload }) => {
-  const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
+import UserRegistration from '../components/Dashboard/UserRegistration';
 
-  return (
-    <div className="bg-white border border-gray-300 p-2">
-      <p className="font-semibold">Date: {label}</p>
-      {payload.map((entry, index) => (
-        <p key={index} className="text-sm" style={{ color: entry.color }}>
-          {entry.name}: {entry.value}
-        </p>
-      ))}
-      <p className="font-semibold">Total: {total}</p>
-    </div>
-  );
-};
 const CHART_HEIGHT = 372;
 const LEGEND_HEIGHT = 72;
 
@@ -74,7 +61,6 @@ const ChartWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const CHART_DATA = [4344, 5435, 1443, 4443];
 const Dashboard = () => {
   const theme = useTheme()
   const [open, setOpen] = useState(false);
@@ -86,19 +72,8 @@ const Dashboard = () => {
     }
   ]);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isOrderLoading, setIsOrderLoading] = useState(true);
-  const [iscancelOrderLoading, setIsCancelOrderLoading] = useState(true);
 
-  const [totalUserCount, setTotalUserCount] = useState<number | undefined>(0);
-  const [totalOrderCount, setTotalOrderCount] = useState<number | undefined>(undefined);
-  const [totalCancelOrderCount, setTotalCancelOrderCount] = useState<number | undefined>(undefined);
-  const [newOrderData, setNewOrderData] = useState([]);
-  const [newCancelOrderData, setNewCancelOrderData] = useState([]);
-  const [userCounts, setUserCounts] = useState([]);
-  const [opacity, setOpacity] = useState({ frombotcount: 1, fromchannelcount: 1, frominvitation: 1 });
   const [languageData, setLanguageData] = useState(null);
-  const [filter, setFilter] = useState('perYear');
   const [filterClick, setfilterClick] = useState("perMonth"); // Initialize the state with the default value
   const [filterScene, setfilterScene] = useState("perMonth");
   const [userRegisteringWay, setuserRegisteringWay] = useState([]);
@@ -136,10 +111,7 @@ const Dashboard = () => {
   };
 
   const refOne = useRef(null)
-  const handleMouseEnter = (o) => {
-    const { dataKey } = o;
-    setOpacity(prevOpacity => ({ ...prevOpacity, [dataKey]: 0.5 }));
-  };
+
   useEffect(() => {
 
     document.addEventListener("keydown", hideOnEscape, true)
@@ -161,62 +133,10 @@ const Dashboard = () => {
     }
   }
 
-  const handleMouseLeave = (o) => {
-    const { dataKey } = o;
-    setOpacity(prevOpacity => ({ ...prevOpacity, [dataKey]: 1 }));
-  };
-
-
-  useEffect(() => {
-    console.log("start" + range[0].startDate, "end" + range[0].endDate)
-    const fetchData = async () => {
-      try {
-        const response = await api.post<any, any>('user/getuserrange', {
-
-          startDate: range[0].startDate,
-          endDate: range[0].endDate
-
-        });
-
-        await setUserCounts(response.data.newUserCounts);
-        setTotalUserCount(response.data.totalUsers)
-
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    fetchData();
-  }, [range]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get(`user/getnewuser?interval=${filter}`);
-        const data = response.data.newUserCounts;
-        // setUserCounts([]);
-        setUserCounts(data);
-        // await setUserCounts(response.data.newUserCounts);
-
-        setTotalUserCount(response.data.totalUsers)
-
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-    fetchData();
-  }, [filter])
 
 
 
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
-    //  setRange([]);
-  };
 
-  const handlefilterScene = (string) => {
-    setfilterScene(string);
-    //  setRange([]);
-  };
   const handleFilterUserTimeTable = (string) => {
     setFilterUserTimeTable(string);
     //  setRange([]);
@@ -249,7 +169,7 @@ const Dashboard = () => {
     fetchData();
   }, []);
   
-  console.log(userRegisteringWay, "skdoskfopk user ")
+ 
   const userJoiningWay = Object.entries(userRegisteringWay).map(([key, value]) => {
     let name;
 
@@ -412,21 +332,7 @@ const Dashboard = () => {
 
         <Grid container ref={userregister}spacing={3} direction={{ xs: 'column', lg: 'row' }} width="100%">
         <Grid item xs={12} md={8} lg={8}>
-          <UserRegistration
-            refOne={refOne}
-            range={range}
-            setRange={setRange}
-            open={open}
-            setOpen={setOpen}
-            filter={filter}
-            handleFilterChange={handleFilterChange}
-            totalUserCount={totalUserCount}
-            userCounts={userCounts}
-            handleMouseEnter={handleMouseEnter}
-            handleMouseLeave={handleMouseLeave}
-            opacity={opacity}
-            CustomTooltip={CustomTooltip}
-          />
+          <UserRegistration/>
         </Grid>
         <Grid item xs={12} md={4} lg={4}>
           <LanguageDistributionCard
