@@ -4,7 +4,7 @@ import { Card, Typography, Box, TextField, InputAdornment, IconButton, FormContr
 import { DateRangePicker } from 'react-date-range';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
-import { addDays, format } from 'date-fns';
+import { addDays, format, startOfMonth } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 
 import { useGetNewUserQuery, useGetUserRangeMutation } from '../../redux/Api/userKpiSlice';
@@ -24,12 +24,12 @@ const CustomTooltip = ({ label, payload }) => {
   );
 };
 const UserRegistration = () => {
-  const [filter, setFilter] = useState('perYear');
-  const [loading, setLoading] = useState(false); // Ne
+  const [filter, setFilter] = useState('perMonth');
+  const [loadingRange, setLoading] = useState(false); 
   const [range, setRange] = useState([
     {
-      startDate: new Date(),
-      endDate: addDays(new Date(), 7),
+      startDate: startOfMonth(new Date()),
+      endDate: new Date(),
       key: 'selection'
     }
   ]);
@@ -40,7 +40,14 @@ const UserRegistration = () => {
   const [totalUserCount, setTotalUserCount] = useState(0);
 
   const [getUserRange] = useGetUserRangeMutation();
-  const { data: newUserCounts, refetch: refetchNewUser } = useGetNewUserQuery(filter/* ,{ skip: !filter } */);
+  // const { data: newUserCounts,isLoading, refetch: refetchNewUser } = useGetNewUserQuery(filter/* ,{ skip: !filter } */);
+  const { data: newUserCounts, isLoading: isLoadingNewUser, refetch: refetchNewUser } = useGetNewUserQuery(filter, {
+    refetchOnMountOrArgChange: true, 
+  });
+  // const { data: newUserCounts, refetch: refetchNewUser } = useGetNewUserQuery(filter, {
+  //   refetchOnMountOrArgChange: true, // Ensure data refetching on component mount or filter change
+  // });
+console.log('why it is not show me the data after nagating from the other pages to this page.........', newUserCounts)
 
 
   useEffect(() => {
@@ -52,8 +59,8 @@ const UserRegistration = () => {
           endDate: range[0].endDate,
         }).unwrap();
 
-        setUserCounts(response.newUserCounts);
-        setTotalUserCount(response.totalUsers);
+        setUserCounts(response?.newUserCounts);
+        setTotalUserCount(response?.totalUsers);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -104,7 +111,7 @@ const UserRegistration = () => {
     const { dataKey } = o;
     setOpacity({ ...opacity, [dataKey]: 1 });
   };
-
+  const loading = loadingRange || isLoadingNewUser;
 return(
   <Card className='p-3 mt-10'>
   <Box sx={{ mb: 3, textAlign: 'left' }}>
@@ -113,7 +120,7 @@ return(
   <Box display="flex" justifyContent="flex-end" mb={2}>
     <Box width="260px" mr={2} gap={5}>
       <Box ref={refOne} position="relative">
-        {loading ? (
+      {loading ? (
           <Skeleton variant="rectangular" width="100%" height={40} />
         ) : (
           <TextField
@@ -216,7 +223,7 @@ return(
     </>
      
     ) : (
-      <BarChart data={userCounts}>
+      <BarChart data={userCounts??userCounts}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           dataKey="_id"

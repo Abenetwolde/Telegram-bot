@@ -90,9 +90,7 @@ const Dashboard = () => {
   const [userperformance, setDataUserperformance] = useState<any[]>([]);
   const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
   const [filterUserPerformanceTable, setFilterUserPerformance] = useState('perMonth');
-  const [carduserRegistration, setUserRegistration] = useState<any[]>([]);
-  const [userSpentHeader, setUsersTimeHeader] = useState<any[]>([]);
-  const [userClcikHeader, setUserClcikHeader] = useState<any[]>([]);
+
   const handlefilterClickChange = (newFilter) => {
     setfilterClick(newFilter);
 
@@ -250,43 +248,7 @@ const Dashboard = () => {
         setLoadingUserPerformance(false);
       });
   }, [filterUserPerformanceTable]);
-  useEffect(() => {
-    // setLoadingUserPerformance(true);
-    // Fetch data from the API
-    api.get(`/kpi/get-user-time-spent-month`) // Replace with your actual API endpoint
-      .then(response => {
-        setUsersTimeHeader(response.data);
-        // setLoadingUserPerformance(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        // setLoadingUserPerformance(false);
-      });
-  }, []);
-  useEffect(() => {
 
-    api.get(`/kpi/get-user-stats`) // Replace with your actual API endpoint
-      .then(response => {
-        setUserRegistration(response.data);
-        // setLoadingUserPerformance(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      
-      });
-  }, []);
-  useEffect(() => {
-
-    api.get(`/kpi/get-user-time-click-month`) // Replace with your actual API endpoint
-      .then(response => {
-        setUserClcikHeader(response.data);
-        // setLoadingUserPerformance(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      
-      });
-  }, []);
   const chartOptions = merge(BaseOptionChart(), {
     colors: [
       theme.palette.primary.main,
@@ -317,16 +279,15 @@ const Dashboard = () => {
   const anotherComponentRef = useRef(null);
   return (
     <Container maxWidth={themeStretch ? false : 'xl'}>
-  
         <Grid container spacing={2}>
-          <Grid lg={4} item  justifyContent="center">
-            <UserRegister anotherComponentRef={userregister} data={carduserRegistration} />
+          <Grid lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
+            <UserRegister anotherComponentRef={userregister}  />
           </Grid>
-          <Grid lg={4} item  justifyContent="center">
-            <UsersSpentTime anotherComponentRef={anotherComponentRef} data={userSpentHeader} />
+          <Grid lg={4}md={4} xl={4} xs={12} item  justifyContent="center">
+            <UsersSpentTime anotherComponentRef={anotherComponentRef} />
           </Grid>
-          <Grid lg={4} item  justifyContent="center">
-           <UsersClickperMonth anotherComponentRef={anotherComponentRef} data={userClcikHeader}/>
+          <Grid lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
+           <UsersClickperMonth anotherComponentRef={anotherComponentRef}/>
           </Grid>
         </Grid>
 
@@ -336,7 +297,6 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} md={4} lg={4}>
           <LanguageDistributionCard
-            languageData={languageData}
           />
         </Grid>
       </Grid>

@@ -22,7 +22,20 @@ export const userKpiApi = createApi({
     getNewUser: builder.query({
       query: (interval) => `user/getnewuser?interval=${interval}`,
     }),
+    getUserRegistrationCard: builder.query({
+      query: () => `/kpi/get-user-stats`,
+    }),  
+     getUserTimeSpentCard: builder.query({
+      query: () => `/kpi/get-user-time-spent-month`,
+    }),
+    getUserCLickCard: builder.query({
+      query: () => `/kpi/get-user-time-click-month`,
+    }),
+    getLanguageStats: builder.query({
+      query: () => 'user/language-stats',
+    }),
+
   }),
 });
 
-export const { useGetUserRangeMutation, useGetNewUserQuery } = userKpiApi;
+export const { useGetUserRangeMutation, useGetNewUserQuery, useGetUserRegistrationCardQuery,useGetUserTimeSpentCardQuery, useGetUserCLickCardQuery, useGetLanguageStatsQuery } = userKpiApi;

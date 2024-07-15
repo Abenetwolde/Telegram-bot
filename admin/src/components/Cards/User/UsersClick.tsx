@@ -1,10 +1,10 @@
 
 import ReactApexChart from 'react-apexcharts';
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Card, Typography, Stack, useTheme } from '@mui/material';
+import { Box, Card, Typography, Stack, useTheme, Skeleton } from '@mui/material';
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
-
+import { useGetUserCLickCardQuery } from '../../../redux/Api/userKpiSlice';
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   width: 24,
@@ -18,7 +18,8 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
   backgroundColor: alpha(theme.palette.success.main, 0.16),
 }));
 
-const UsersClickperMonth = ({anotherComponentRef, data }: any) => {
+const UsersClickperMonth = ({anotherComponentRef }: any) => {
+  const {data, isLoading,error}=useGetUserCLickCardQuery()
   const seriesData = data?.thisMonth?.flatMap((item) => item?.clicksByDate?.map((c) => c.totalProductClicks)) || [];
   const categoriesData = data?.thisMonth?.flatMap((item) => item?.clicksByDate?.map((c) => c.date)) || [];
 
@@ -70,9 +71,10 @@ const UsersClickperMonth = ({anotherComponentRef, data }: any) => {
      
         </Box>
         <Typography variant="h3" gutterBottom >
-          {fNumber(data?.totalClickThisMonth)}
+          { isLoading? <Skeleton/>:fNumber(data?.totalClickThisMonth)}
         </Typography>
         <Stack direction="row" alignItems="center">
+        {isLoading?<Skeleton variant="circular" width={30} height={30} />: 
           <IconWrapperStyle
             sx={{
               ...(data?.percentageChange < 0 && {
@@ -83,10 +85,10 @@ const UsersClickperMonth = ({anotherComponentRef, data }: any) => {
           >
             <Iconify width={16} height={16} icon={data?.percentageChange >= 0 ? 'eva:trending-up-fill' : 'eva:trending-down-fill'} sx={undefined} />
           </IconWrapperStyle>
-
+}
           <Typography variant="subtitle2" component="span">
-            {data?.percentageChange > 0 && '+'}
-            {fPercent(data?.percentageChange)}
+            {isLoading?<Skeleton variant="rectangular"/>:data?.percentageChange > 0 && '+'}
+            {isLoading?<Skeleton variant="rectangular"/>:fPercent(data?.percentageChange)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
             &nbsp;than last month
@@ -99,7 +101,8 @@ const UsersClickperMonth = ({anotherComponentRef, data }: any) => {
       </Box>
 
   <Box sx={{ width: '100%',pl:3 }} >
-      <ReactApexChart options={options} series={series} type="bar" width={"95%"} height={"80%"} />
+  {isLoading?<Skeleton variant="rectangular" width={"100%"} height={100} />:
+      <ReactApexChart options={options} series={series} type="bar" width={"95%"} height={"80%"} />}
       </Box>
     </Card>
   );

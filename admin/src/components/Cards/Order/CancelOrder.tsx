@@ -22,7 +22,6 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 const CancelOrder = ({anotherComponentRef}:any) => {
   const { data, error, isLoading } = useGetCancelOrdersQuery();
 
-
   const theme = useTheme()
   const options:any = {
     chart: {

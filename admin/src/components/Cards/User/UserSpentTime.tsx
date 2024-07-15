@@ -1,10 +1,10 @@
 
 import ReactApexChart from 'react-apexcharts';
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Card, Typography, Stack, useTheme } from '@mui/material';
+import { Box, Card, Typography, Stack, useTheme, Skeleton } from '@mui/material';
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
-
+import { useGetUserTimeSpentCardQuery } from '../../../redux/Api/userKpiSlice';
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   width: 24,
@@ -18,7 +18,9 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
   backgroundColor: alpha(theme.palette.success.main, 0.16),
 }));
 
-const UsersSpentTime = ({ anotherComponentRef, data }: any) => {
+const UsersSpentTime = ({ anotherComponentRef,  }: any) => {
+  
+  const {data, isLoading,error}=useGetUserTimeSpentCardQuery()
   const percent = 90
   const theme = useTheme()
   const options = {
@@ -64,16 +66,16 @@ const UsersSpentTime = ({ anotherComponentRef, data }: any) => {
             <Iconify width={30} height={30} icon={'fluent:phone-screen-time-20-regular'} sx={undefined} />
           </IconWrapperStyle>
           <Typography color={"text.secondary"} variant="subtitle2" paragraph>
-            Users Spend Time(min) per month
+            Users Spend Time per month
           </Typography>
         </Box>
 
         <Typography variant="h3" gutterBottom>
-          {fNumber(data?.totalTimeSpentThisMonth)}'
+        {isLoading? <Skeleton/>:fNumber(data?.totalTimeSpentThisMonth)}min
         </Typography>
 
         <Stack direction="row" alignItems="center">
-          <IconWrapperStyle
+        {isLoading?<Skeleton variant="circular" width={30} height={30} />:   <IconWrapperStyle
             sx={{
               ...(data?.percentageChange < 0 && {
                 color: 'error.main',
@@ -83,10 +85,10 @@ const UsersSpentTime = ({ anotherComponentRef, data }: any) => {
           >
             <Iconify width={16} height={16} icon={data?.percentageChange >= 0 ? 'eva:trending-up-fill' : 'eva:trending-down-fill'} sx={undefined} />
           </IconWrapperStyle>
-
+}
           <Typography variant="subtitle2" component="span">
-            {data?.percentageChange > 0 && '+'}
-            {fPercent(data?.percentageChange)}
+            {isLoading?<Skeleton variant="rectangular"/>:data?.percentageChange > 0 && '+'}
+            {isLoading?<Skeleton variant="rectangular"/>:fPercent(data?.percentageChange)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
             &nbsp;than last month
@@ -98,7 +100,8 @@ const UsersSpentTime = ({ anotherComponentRef, data }: any) => {
         </Typography>
       </Box>
       <Box sx={{ width: '100%', pl: 3 }} >
-        <ReactApexChart options={options} series={series} type="line" width={"95%"} height={"80%"} />
+      {isLoading?<Skeleton variant="rectangular" width={"100%"} height={100} />:
+        <ReactApexChart options={options} series={series} type="line" width={"95%"} height={"80%"} />}
       </Box>
 
     </Card>

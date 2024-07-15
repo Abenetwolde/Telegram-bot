@@ -1,10 +1,10 @@
 
 import ReactApexChart from 'react-apexcharts';
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Card, Typography, Stack, useTheme } from '@mui/material';
+import { Box, Card, Typography, Stack, useTheme, Skeleton } from '@mui/material';
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
-
+import {  useGetUserRegistrationCardQuery } from '../../../redux/Api/userKpiSlice';
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   width: 24,
   height: 24,
@@ -17,7 +17,13 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
   backgroundColor: alpha(theme.palette.success.main, 0.16),
 }));
 
-const UserRegister = ({anotherComponentRef, data }: any) => {
+const UserRegister = ({anotherComponentRef }: any) => {
+const {data, isLoading,error}=useGetUserRegistrationCardQuery()
+
+if(error)
+  {
+     <p>Error</p>
+  }
   const percent = 90
   const theme = useTheme()
   const options = {
@@ -55,6 +61,7 @@ const UserRegister = ({anotherComponentRef, data }: any) => {
       <Box sx={{ flexGrow: 1 }}>
 
         <Box sx={{ display: 'flex', }}>
+
           <IconWrapperStyle
             sx={{
                 color: 'warning.main',
@@ -64,16 +71,17 @@ const UserRegister = ({anotherComponentRef, data }: any) => {
           >
             <Iconify width={30} height={30} icon={'mdi:register'} sx={undefined} />
           </IconWrapperStyle>
+
           <Typography  color={"text.secondary"}variant="subtitle2" paragraph>
           New User per month
         </Typography>
         </Box>
         <Typography variant="h3" gutterBottom>
-          {fNumber(data?.totalUsers)}
+           {isLoading? <Skeleton/>:fNumber(data?.totalUsers)}
         </Typography>
 
         <Stack direction="row" alignItems="center">
-          <IconWrapperStyle
+        {isLoading?<Skeleton variant="circular" width={30} height={30} />:  <IconWrapperStyle
             sx={{
               ...(data?.percentageChange < 0 && {
                 color: 'error.main',
@@ -83,10 +91,10 @@ const UserRegister = ({anotherComponentRef, data }: any) => {
           >
             <Iconify width={16} height={16} icon={data?.percentageChange >= 0 ? 'eva:trending-up-fill' : 'eva:trending-down-fill'} sx={undefined} />
           </IconWrapperStyle>
-
+}
           <Typography variant="subtitle2" component="span">
-            {data?.percentageChange > 0 && '+'}
-            {fPercent(data?.percentageChange)}
+            {isLoading?<Skeleton variant="rectangular"/>:data?.percentageChange > 0 && '+'}
+            {isLoading?<Skeleton variant="rectangular"/>:fPercent(data?.percentageChange)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
             &nbsp;than last month
@@ -98,7 +106,8 @@ const UserRegister = ({anotherComponentRef, data }: any) => {
         </Typography>
       </Box>
       <Box sx={{ width: '100%',pl:3 }} >
-      <ReactApexChart options={options} series={series} type="area"width={"95%"} height={"80%"} />
+      {isLoading?<Skeleton variant="rectangular" width={"100%"} height={100} />:
+      <ReactApexChart options={options} series={series} type="area"width={"95%"} height={"80%"} />}
       </Box>
       
     </Card>
