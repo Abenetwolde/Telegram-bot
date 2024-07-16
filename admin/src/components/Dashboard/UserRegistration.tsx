@@ -8,6 +8,7 @@ import { addDays, format, startOfMonth } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 
 import { useGetNewUserQuery, useGetUserRangeMutation } from '../../redux/Api/userKpiSlice';
+import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -25,6 +26,7 @@ const CustomTooltip = ({ label, payload }) => {
 };
 const UserRegistration = () => {
   const [filter, setFilter] = useState('perMonth');
+  const [ref, isVisible] = useIntersectionObserver();
   const [loadingRange, setLoading] = useState(false); 
   const [range, setRange] = useState([
     {
@@ -44,10 +46,6 @@ const UserRegistration = () => {
   const { data: newUserCounts, isLoading: isLoadingNewUser, refetch: refetchNewUser } = useGetNewUserQuery(filter, {
     refetchOnMountOrArgChange: true, 
   });
-  // const { data: newUserCounts, refetch: refetchNewUser } = useGetNewUserQuery(filter, {
-  //   refetchOnMountOrArgChange: true, // Ensure data refetching on component mount or filter change
-  // });
-console.log('why it is not show me the data after nagating from the other pages to this page.........', newUserCounts)
 
 
   useEffect(() => {
@@ -68,7 +66,7 @@ console.log('why it is not show me the data after nagating from the other pages 
     };
 
     fetchData();
-  }, [range, getUserRange]);
+  }, [range, getUserRange,isVisible, refetchNewUser]);
   useEffect(() => {
     document.addEventListener("keydown", hideOnEscape, true)
     document.addEventListener("click", hideOnClickOutside, true)
@@ -79,6 +77,11 @@ console.log('why it is not show me the data after nagating from the other pages 
       setTotalUserCount(newUserCounts?.totalUsers);
     }
   }, [newUserCounts]);
+  useEffect(() => {
+    if (isVisible) {
+      refetchNewUser();
+    }
+  }, [isVisible, refetchNewUser]);
   const hideOnEscape = (e) => {
     // console.log(e.key)
     if (e.key === "Escape") {
@@ -113,7 +116,10 @@ console.log('why it is not show me the data after nagating from the other pages 
   };
   const loading = loadingRange || isLoadingNewUser;
 return(
-  <Card className='p-3 mt-10'>
+  <div ref={ref}>
+
+
+  <Card  className='p-3 mt-10'>
   <Box sx={{ mb: 3, textAlign: 'left' }}>
   <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={`New User Registraton`}  sx={{ mb: 3 }} />
 </Box>
@@ -240,6 +246,7 @@ return(
     )}
   </ResponsiveContainer>
 </Card>
+</div>
 )
 }
 

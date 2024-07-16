@@ -34,8 +34,32 @@ export const userKpiApi = createApi({
     getLanguageStats: builder.query({
       query: () => 'user/language-stats',
     }),
+    getPerformance: builder.query<any, any>({
+      query: ({ page = 1, limit = 10, search = '', interval = 'perMonth' }) => ({
+        url: `/kpi/get-users-performance`,
+        params: {
+          page,
+          limit,
+          search,
+          interval
+        },
+      }),
+    }),
+    getUserSpentTimeRange: builder.mutation({
+      query: ({ startDate, endDate }) => ({
+        url: 'kpi/get-user-spent-range',
+        method: 'GET',
+        body: { startDate, endDate },
+      }),
+    }),
+    getUserSpentTimeInterval: builder.query({
+      query: (interval) => `kpi/get-user-spent-time?interval=${interval}`,
+    }),
+    getUserJoinedByMethod: builder.query({
+      query: () => 'kpi/get-user-joined-by-method',
+    }),
 
   }),
 });
 
-export const { useGetUserRangeMutation, useGetNewUserQuery, useGetUserRegistrationCardQuery,useGetUserTimeSpentCardQuery, useGetUserCLickCardQuery, useGetLanguageStatsQuery } = userKpiApi;
+export const { useGetUserRangeMutation, useGetNewUserQuery, useGetUserRegistrationCardQuery,useGetUserTimeSpentCardQuery, useGetUserCLickCardQuery, useGetLanguageStatsQuery, useGetPerformanceQuery, useGetUserSpentTimeRangeMutation, useGetUserSpentTimeIntervalQuery, useGetUserJoinedByMethodQuery  } = userKpiApi;

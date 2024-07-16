@@ -39,6 +39,7 @@ import UserRegister from '../components/Cards/User/UserRegister';
 import UsersSpentTime from '../components/Cards/User/UserSpentTime';
 import UsersClickperMonth from '../components/Cards/User/UsersClick';
 import UserRegistration from '../components/Dashboard/UserRegistration';
+import UserJoinFromCard from '../components/Dashboard/UserJoinFromCard';
 
 const CHART_HEIGHT = 372;
 const LEGEND_HEIGHT = 72;
@@ -87,9 +88,6 @@ const Dashboard = () => {
   const [loadingdatauserClick, setLoadinguserClick] = useState(true);
   const [filterUserClickTable, setFilterUserClickTable] = useState('perMonth');
 
-  const [userperformance, setDataUserperformance] = useState<any[]>([]);
-  const [loadingUserPerformance, setLoadingUserPerformance] = useState(true);
-  const [filterUserPerformanceTable, setFilterUserPerformance] = useState('perMonth');
 
   const handlefilterClickChange = (newFilter) => {
     setfilterClick(newFilter);
@@ -101,10 +99,6 @@ const Dashboard = () => {
   };
   const handleFilterUserClickTable = (newFilter) => {
     setFilterUserClickTable(newFilter);
-
-  };
-  const handleFilterUserPerformanceTable = (newFilter) => {
-    setFilterUserPerformance(newFilter);
 
   };
 
@@ -235,19 +229,7 @@ const Dashboard = () => {
       });
   }, [filterUserClickTable]);
 
-  useEffect(() => {
-    setLoadingUserPerformance(true);
-    // Fetch data from the API
-    api.get(`/kpi/get-users-performance?interval=${filterUserPerformanceTable}&limit=3`) // Replace with your actual API endpoint
-      .then(response => {
-        setDataUserperformance(response.data?.users);
-        setLoadingUserPerformance(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        setLoadingUserPerformance(false);
-      });
-  }, [filterUserPerformanceTable]);
+
 
   const chartOptions = merge(BaseOptionChart(), {
     colors: [
@@ -302,11 +284,19 @@ const Dashboard = () => {
       </Grid>
 
       <Grid container spacing={3} mt={5}>
+        <Grid item xs={12} md={6} lg={8} width="100%" textAlign="center">
+        <UserSpentTime /> 
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={4} width="100%" textAlign="center">
+
+        <UserJoinFromCard />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
-
-          <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false} handelSearch={undefined} handelLimit={undefined} handelPage={undefined} />
-
-
+          <UserPerformance isFalse={false} />
         </Grid>
 
         <Grid item xs={12} md={4} lg={4} width="100%" textAlign="center">
@@ -319,8 +309,6 @@ const Dashboard = () => {
           </Card>
         </Grid>
       </Grid>
-
-
       <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
         <Grid item xs={12} md={6} lg={12} width="100%" textAlign="center">
 
