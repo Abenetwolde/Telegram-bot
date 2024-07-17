@@ -6,7 +6,7 @@ import User from './model/user.model'; // Adjust the path to your User model
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: 'your_jwt_secret', // Use a secure secret key in production
-};
+}; 
 
 const configurePassport = () => {
   passport.use(

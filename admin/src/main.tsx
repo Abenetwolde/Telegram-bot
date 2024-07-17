@@ -24,7 +24,7 @@ import store from './app/store.ts';
 // highlight
 // import './utils/highlight';
 
-
+import BreadcrumbComponent from './components/BreadcrumbComponent.tsx';
 
 
 
@@ -37,9 +37,11 @@ import store from './app/store.ts';
 
 ReactDOM.render(
   <Provider store={store}>
+
     <SettingsProvider>
       <CollapseDrawerProvider>
         <BrowserRouter>
+        {/* <BreadcrumbComponent/> */}
           <App />
         </BrowserRouter>
       </CollapseDrawerProvider>

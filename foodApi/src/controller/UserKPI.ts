@@ -392,7 +392,7 @@ export const GetUSerSpentTime = async (req: Request, res: Response) => {
                 {
                     $group: {
                         _id: {
-                            date: { $dateToString: { format: "%Y-%m-%d", date: "$scene.date" } },
+                            date: { $dateToString: { format: "%m-%d", date: "$scene.date" } },
 
                         },
                         totalDuration: {
@@ -660,7 +660,7 @@ export const totalNumberofClicks = async (req: Request, res: Response) => {
 
                     {
                         $group: {
-                            _id: { $dateToString: { format: "%Y-%m-%d", date: "$clicks.date" } },
+                            _id: { $dateToString: { format: "%d", date: "$clicks.date" } },
                             totalProductClicks: { $sum: '$clicks.count' }
                         }
                     },

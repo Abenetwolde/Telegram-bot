@@ -40,6 +40,8 @@ import UsersSpentTime from '../components/Cards/User/UserSpentTime';
 import UsersClickperMonth from '../components/Cards/User/UsersClick';
 import UserRegistration from '../components/Dashboard/UserRegistration';
 import UserJoinFromCard from '../components/Dashboard/UserJoinFromCard';
+import BreadcrumbComponent from '../components/BreadcrumbComponent';
+import TopUsersClick from '../components/Dashboard/TopUsersClick';
 
 const CHART_HEIGHT = 372;
 const LEGEND_HEIGHT = 72;
@@ -89,10 +91,7 @@ const Dashboard = () => {
   const [filterUserClickTable, setFilterUserClickTable] = useState('perMonth');
 
 
-  const handlefilterClickChange = (newFilter) => {
-    setfilterClick(newFilter);
 
-  };
   const handlefilterTimePerScenceClickChange = (newFilter) => {
     setfilterScene(newFilter);
 
@@ -133,61 +132,8 @@ const Dashboard = () => {
     setFilterUserTimeTable(string);
     //  setRange([]);
   };
-  useEffect(() => {
-    console.log("start" + range[0].startDate, "end" + range[0].endDate)
-    const fetchData = async () => {
-      try {
-        const response = await api.get<any, any>('user/language-stats');
-        setLanguageData(response.data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
 
-    fetchData();
-  }, []);
-  useEffect(() => {
 
-    const fetchData = async () => {
-      try {
-        const response = await api.get<any, any>('kpi/get-user-joined-by-method');
-        setuserRegisteringWay(response?.data?.formattedResult);
-        console.log("user joining ways ", response.data)
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-  
- 
-  const userJoiningWay = Object.entries(userRegisteringWay).map(([key, value]) => {
-    let name;
-
-    // Convert keys to a more readable format if necessary
-    switch (key) {
-      case 'BOT':
-        name = 'Bot';
-        break;
-      case 'CHANNEL':
-        name = 'Channel';
-        break;
-      case 'INVITATION':
-        name = 'Invitation';
-        break;
-      default:
-        name = key;
-    }
-
-    return {
-      name: name,
-      value: value
-    };
-  });
-  console.log(userJoiningWay)
-  const labelforJoinUser: any = userJoiningWay.map((m) => m.name)
-  const valueforJoinUser: any = userJoiningWay.map((m) => m.value)
   useEffect(() => {
     // Fetch data from the API
     api.get('/kpi/get-users-with-lottery-numbers') // Replace with your actual API endpoint
@@ -231,36 +177,14 @@ const Dashboard = () => {
 
 
 
-  const chartOptions = merge(BaseOptionChart(), {
-    colors: [
-      theme.palette.primary.main,
-      theme.palette.chart.blue[0],
-      theme.palette.chart.violet[0],
-      theme.palette.chart.yellow[0],
-    ],
-    labels: labelforJoinUser,
-    stroke: { colors: [theme.palette.background.paper] },
-    legend: { floating: true, horizontalAlign: 'center' },
-    dataLabels: { enabled: true, dropShadow: { enabled: false } },
-    tooltip: {
-      fillSeriesColor: false,
-      y: {
-        formatter: (seriesName) => Number(seriesName),
-        title: {
-          formatter: (seriesName) => `${seriesName}`,
-        },
-      },
-    },
-    plotOptions: {
-      pie: { donut: { labels: { show: false } } },
-    },
-  });
+
   const { themeStretch } = useSettings();
   const COLORSd = ['#0088FE', '#00C49F', '#FF8042'];
   const userregister = useRef(null);
   const anotherComponentRef = useRef(null);
   return (
     <Container maxWidth={themeStretch ? false : 'xl'}>
+    
         <Grid container spacing={2}>
           <Grid lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
             <UserRegister anotherComponentRef={userregister}  />
@@ -295,20 +219,54 @@ const Dashboard = () => {
       </Grid>
 
       <Grid container spacing={3} mt={5}>
-        <Grid item xs={12} md={8} lg={8} width="100%" textAlign="center">
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
           <UserPerformance isFalse={false} />
         </Grid>
 
-        <Grid item xs={12} md={4} lg={4} width="100%" textAlign="center">
-
-          <Card>
-            <CardHeader title="User Join From" />
-            <ChartWrapperStyle dir="ltr">
-              <ReactApexChart type="pie" series={valueforJoinUser} options={chartOptions} height={280} />
-            </ChartWrapperStyle>
-          </Card>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <UserClicksChart
+            />
         </Grid>
       </Grid>
+      
+      <Grid container spacing={3} mt={5}>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <UserClicksSection
+        />
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <UserClicksChart
+            />
+        </Grid>
+      </Grid>
+
+      
+      <Grid container spacing={3} mt={5}>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <UserPerformance isFalse={false} />
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <TopUsersClick
+        />
+       
+        </Grid>
+      </Grid>
+      
+      <Grid container spacing={3} mt={5}>
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <TopUsersClick
+        />
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <UserClicksChart
+            />
+        </Grid>
+      </Grid>
+
+
       <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
         <Grid item xs={12} md={6} lg={12} width="100%" textAlign="center">
 
@@ -379,52 +337,6 @@ const Dashboard = () => {
       <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
 
-          <Card
-            sx={{
-              width: '100%',
-              mb: { xs: 5, lg: 2 },
-              mt: { xs: 5, lg: 2 },
-              height: 'auto',
-              borderRadius: '16px',
-              boxShadow: 3,
-              p: 2,
-              textAlign: 'center'
-            }}
-          >
-            <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: 'left' }}>
-              User Join From
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-
-              {userJoiningWay !== null ? <PieChart >
-                <Pie
-                  dataKey="value"
-                  isAnimationActive={true}
-                  data={userJoiningWay}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  fill="#8884d8"
-                  label
-                >
-                  {userJoiningWay.map((entry, index) => (
-                    <Cell key={`cell-${index}`} style={{ outline: 'none' }} stroke="none" strokeWidth={1} fill={COLORSd[index]} />
-                  ))}
-                </Pie>
-                <Legend
-                  verticalAlign="bottom"
-                  align="center"
-                  wrapperStyle={{ flexGrow: 1 }}
-                  iconSize={15}
-                  iconType="square"
-                  layout="horizontal"
-                  formatter={(value, entry) => <span style={{ color: entry.color }}>{value}</span>}
-                />
-                <Tooltip />
-              </PieChart> : <LoadingIndicator />}
-            </ResponsiveContainer>
-          </Card>
-
         </Grid>
 
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
@@ -452,33 +364,8 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-    
 
-      <Grid container display="flex" /* spacing={4} */ flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={2}>
-        <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">
-          <ResponsiveContainer>
-            <UserSpentTime />
-          </ResponsiveContainer>
-        </Grid>
-      </Grid>
 
-      <Grid container spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" mt={5}>
-        <UserClicksSection
-          filterScene={filterScene}
-          handlefilterScene={handlefilterTimePerScenceClickChange}
-        />
-      </Grid>
-
-      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={25}>
-        <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">
-          <ResponsiveContainer>
-            <UserClicksChart
-              filterClick={filterClick}
-              handlefilterClickChange={handlefilterClickChange}
-            />
-          </ResponsiveContainer>
-        </Grid>
-      </Grid>
 
 
 

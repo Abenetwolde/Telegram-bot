@@ -1,16 +1,19 @@
 // redux/slices/userKpiSlice.js
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { useGetUserClicksQuery } from './User';
 
 export const userKpiApi = createApi({
   reducerPath: 'userKpiApi',
-  baseQuery: fetchBaseQuery({baseUrl: process.env.DURL ,    prepareHeaders: (headers, { getState }) => {
-    const token = getState().auth.token;
-    console.log("token from the sate ",token)
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`);
-    }
-    return headers;
-  }, }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: process.env.DURL, prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth.token;
+      console.log("token from the sate ", token)
+      if (token) {
+        headers.set('authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     getUserRange: builder.mutation({
       query: ({ startDate, endDate }) => ({
@@ -24,8 +27,8 @@ export const userKpiApi = createApi({
     }),
     getUserRegistrationCard: builder.query({
       query: () => `/kpi/get-user-stats`,
-    }),  
-     getUserTimeSpentCard: builder.query({
+    }),
+    getUserTimeSpentCard: builder.query({
       query: () => `/kpi/get-user-time-spent-month`,
     }),
     getUserCLickCard: builder.query({
@@ -58,8 +61,16 @@ export const userKpiApi = createApi({
     getUserJoinedByMethod: builder.query({
       query: () => 'kpi/get-user-joined-by-method',
     }),
+    getUserClcik: builder.query({
+      query: (filter) => `kpi/get-user-clicks?interval=${filter}`,
+    }),
+    getTimePerScene: builder.query({
+      query: (filter) => `/kpi/get-user-spent-per-scene-name?interval=${filter} `,
+    }),
 
   }),
 });
 
-export const { useGetUserRangeMutation, useGetNewUserQuery, useGetUserRegistrationCardQuery,useGetUserTimeSpentCardQuery, useGetUserCLickCardQuery, useGetLanguageStatsQuery, useGetPerformanceQuery, useGetUserSpentTimeRangeMutation, useGetUserSpentTimeIntervalQuery, useGetUserJoinedByMethodQuery  } = userKpiApi;
+export const { useGetUserRangeMutation,
+  useGetNewUserQuery, useGetUserRegistrationCardQuery, useGetUserTimeSpentCardQuery, useGetUserCLickCardQuery, useGetLanguageStatsQuery, useGetPerformanceQuery, useGetUserSpentTimeRangeMutation, useGetUserSpentTimeIntervalQuery, useGetUserJoinedByMethodQuery,useGetUserClcikQuery, useGetTimePerSceneQuery
+} = userKpiApi;

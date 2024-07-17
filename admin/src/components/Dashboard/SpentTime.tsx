@@ -38,8 +38,8 @@ const UserSpentTime = () => {
       setLoading(true); // Start loading
       try {
         const data = await getTimeRange({
-          startDate: range[0].startDate,
-          endDate: range[0].endDate,
+          startDate: range[0]?.startDate,
+          endDate: range[0]?.endDate,
         }).unwrap();
 
         setUserTime(data?.userTime);
@@ -63,36 +63,38 @@ const UserSpentTime = () => {
       setTotalTime(intervalData?.totalDurationInMinutes);
     }
   }, [intervalData]);
-  const series =userTime ? [{
+  // const series = userTime ? [{
+  //   name: 'Time Spent',
+  //   data: userTime.map(item => item?.totalDurationInMinutes),
+  // }] : [];
+  const series = userTime ? [{
     name: 'Time Spent',
-    data: userTime?.map(item => [item._id, item.totalDurationInMinutes]),
-   
-
+    data: userTime.map(item => ({
+      x: item._id, // Format the date
+      y: item.totalDurationInMinutes
+    })),
   }] : [];
-console.log("userTime?.userTime?",series)
-  // const totalSpent = rangeData ? rangeData?.totalDurationInMinutes : intervalData ? intervalData?.totalDurationInMinutes : 0;
-
   const [options] = useState({
     chart: {
       type: 'area',
       zoom: {
-        autoScaleYaxis: true,
+        autoScaleYaxis: false,
       },
     },
-    annotations: {
-      yaxis: [{
-        y: 30,
-        borderColor: '#999',
-        label: {
-          show: true,
-          text: 'Daily Goal',
-          style: {
-            color: "#fff",
-            background: '#00E396',
-          },
-        },
-      }],
-    },
+    // annotations: {
+    //   yaxis: [{
+    //     y: 30,
+    //     borderColor: '#999',
+    //     label: {
+    //       show: true,
+    //       text: 'Daily Goal',
+    //       style: {
+    //         color: "#fff",
+    //         background: '#00E396',
+    //       },
+    //     },
+    //   }],
+    // },
     dataLabels: {
       enabled: false,
     },
@@ -101,26 +103,23 @@ console.log("userTime?.userTime?",series)
       style: 'hollow',
     },
     xaxis: {
-      type: 'datetime',
-      tickAmount: 6,
-      labels: {
-        formatter: function (val) {
-          return new Date(val).toLocaleDateString();
-        },
-      },
+  type: 'categories',
+      // categories: categories,
     },
     yaxis: {
       labels: {
         formatter: function (val) {
-          return val.toFixed(2) + ' minutes';
+          return val + ' min';
         },
       },
     },
-    tooltip: {
-      x: {
-        format: 'dd MMM yyyy',
-      },
-    },
+    // tooltip: {
+    //   x: {
+    //     formatter: function (val) {
+    //       return val; // Display the ID directly
+    //     },
+    //   },
+    // },
     fill: {
       type: 'gradient',
       gradient: {
@@ -155,7 +154,7 @@ console.log("userTime?.userTime?",series)
   };
   const loading = loadingRange || intervalLoading;
   return (
-    <Card ref={ref} className='p-3 mt-10'>
+    <Card ref={ref} className='p-3 mt-5'>
       <Box sx={{ mb: 3, textAlign: 'left' }}>
         <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={`Users Total Time Spent`} />
       </Box>
@@ -232,7 +231,7 @@ console.log("userTime?.userTime?",series)
             value={filter}
             onChange={handleFilterChange}
           >
-            <MenuItem value="perDay">Per Day</MenuItem>
+            {/* <MenuItem value="perDay">Per Day</MenuItem> */}
             <MenuItem value="perWeek">Per Week</MenuItem>
             <MenuItem value="perMonth">Per Month</MenuItem>
             <MenuItem value="perYear">Per Year</MenuItem>
