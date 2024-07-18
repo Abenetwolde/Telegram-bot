@@ -40,7 +40,7 @@ const navigation =useNavigate()
         title: feedback.user.first_name,
         description: feedback?.feedback,
         avatar: feedback?.user.first_name[0],
-        createdAt: feedback.createdAt,
+        createdAt: feedback.acreatedAt,
         isUnRead: !feedback.isRead,
       }));
       setNotifications(formattedFeedbacks);
@@ -210,7 +210,7 @@ function NotificationItem({ notification, onClick }) {
             }}
           >
             <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
-            {fToNow(notification.createdAt)}
+            {fToNow(notification?.createdAt)}
           </Typography>
         }
       />
