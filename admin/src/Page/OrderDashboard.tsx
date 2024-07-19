@@ -419,49 +419,6 @@ const OrderDashboard = () => {
       </Grid>
 
 
-      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
-        <Grid item xs={12} md={6} lg={12} width="100%" textAlign="center">
-
-          <Card
-            sx={{
-              width: '100%',
-              mb: { xs: 5, lg: 2 },
-              mt: { xs: 5, lg: 2 },
-              height: 'auto',
-              borderRadius: '16px',
-              boxShadow: 3,
-              p: 2,
-              textAlign: 'center'
-            }}
-          >
-
-     
-
-
-          </Card>
-
-        </Grid>
-
-        <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">
-
-          <Card
-            sx={{
-              width: '100%',
-              mb: { xs: 5, lg: 2 },
-              mt: { xs: 5, lg: 2 },
-              height: 'auto',
-              borderRadius: '16px',
-              boxShadow: 3,
-              p: 2,
-              textAlign: 'center'
-            }}
-          >
-
-          </Card>
-
-        </Grid>
-      </Grid>
-
 
 
 

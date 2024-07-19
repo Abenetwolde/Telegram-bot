@@ -2,15 +2,15 @@ import PropTypes from 'prop-types';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import { Box, Card, CardHeader, Typography, Stack, useTheme, Grid, Skeleton, Divider } from '@mui/material';
-import { useGetUserClicksQuery } from '../../redux/Api/User';
+import { useGetUserTimesQuery } from '../../redux/Api/User';
 import { useEffect } from 'react';
 import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
 import Iconify from '../Iconify';
-// utils
- const TopUsersClick=()=>{
-    const navigate=useNavigate()
+
+export default function TopUsersTime() {
+  const navigate = useNavigate();
   const [ref, isVisible] = useIntersectionObserver();
-  const { data, isLoading, error, refetch } = useGetUserClicksQuery(
+  const { data, isLoading, error, refetch } = useGetUserTimesQuery(
     { page: 1, pageSize: 3, interval: 'perMonth', search: '' },{refetchOnMountOrArgChange: true, },
     { skip: !isVisible }
   );
@@ -20,43 +20,47 @@ import Iconify from '../Iconify';
       refetch();
     }
   }, [isVisible, refetch]);
+
   const handleViewMoreClick = () => {
     navigate('/dashboard/users');
   };
+
   if (isLoading) {
     return (
       <Grid item xs={12} lg={12} textAlign="center">
-        <Card ref={ref} className="p-4">
+        <Card className="p-4">
           <Skeleton variant="text" width={200} height={40} />
           <Stack mt={1}>
             {[...Array(3)].map((_, i) => (
               <Skeleton key={i} variant="rectangular" width="100%" height={60} sx={{ mb: 2 }} />
             ))}
           </Stack>
-    
         </Card>
       </Grid>
     );
   }
 
   return (
-    <Card ref={ref} className="p-4">
-      <CardHeader title="Top 3 Users Click" />
+    <div  ref={ref} >
+
+   
+    <Card className="p-4">
+      <CardHeader title="Top 3 Users Time Spent" />
       <Stack mt={1}>
-        <Grid container  justifyContent="space-between"spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs   justifyContent="space-between">
-            <Typography textAlign={"left"} variant="body1" >
+        <Grid container justifyContent="space-between" spacing={2} sx={{ mb: 2 }}>
+          <Grid item xs>
+            <Typography textAlign="left" variant="body1">
               Users
             </Typography>
           </Grid>
           <Grid item>
-            <Typography variant="body1" >
-              Clicks
+            <Typography variant="body1">
+              Time Spent (minutes)
             </Typography>
           </Grid>
         </Grid>
-        {data?.clicksPerScene?.map((product, i) => (
-          <ProductItem key={i} product={product} />
+        {data?.timeSpentPerScene?.map((user, i) => (
+          <UserItem key={i} user={user} />
         ))}
       </Stack>
       <Divider sx={{ borderStyle: 'dashed', borderColor: 'grey.300', my: 2 }} />
@@ -70,25 +74,17 @@ import Iconify from '../Iconify';
         </Typography>
       </Box>
     </Card>
+    </div>
   );
 }
 
 // ----------------------------------------------------------------------
 
-ProductItem.propTypes = {
-  product: PropTypes.shape({
-    userInformation: PropTypes.shape({
-      first_name: PropTypes.string,
-      username: PropTypes.string,
-    }).isRequired,
-    totalClicks: PropTypes.number.isRequired,
-    icon: PropTypes.string,
-  }).isRequired,
-};
 
-function ProductItem({ product }) {
-  const { userInformation, totalClicks } = product;
-  const { first_name, username } = userInformation;
+
+const  UserItem=({ user }) =>{
+  const { user: userInfo, totalSpentTimeInMinutes } = user;
+  const { first_name, username } = userInfo;
   const theme = useTheme();
 
   return (
@@ -112,21 +108,20 @@ function ProductItem({ product }) {
             {first_name.charAt(0)}
           </Box>
           <Box>
-            <Typography variant="body2" sx={{ fontWeight: 'text.secondary' }}>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
               {first_name}
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {username&&`@${username}`}
+              {username && `@${username}`}
             </Typography>
           </Box>
         </Box>
       </Grid>
       <Grid item>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {totalClicks}
+          {totalSpentTimeInMinutes.toFixed(2)}
         </Typography>
       </Grid>
     </Grid>
   );
 }
-export default TopUsersClick;

@@ -69,7 +69,7 @@ console.log(req.query)
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-  
+   
   // Controller to update the isRead value of a feedback
   export const updateIsRead = async (req: Request, res: Response) => {
     try {

@@ -42,6 +42,7 @@ import UserRegistration from '../components/Dashboard/UserRegistration';
 import UserJoinFromCard from '../components/Dashboard/UserJoinFromCard';
 import BreadcrumbComponent from '../components/BreadcrumbComponent';
 import TopUsersClick from '../components/Dashboard/TopUsersClick';
+import TopUsersTime from '../components/Dashboard/TopUsersTime';
 
 const CHART_HEIGHT = 372;
 const LEGEND_HEIGHT = 72;
@@ -197,6 +198,10 @@ const Dashboard = () => {
           </Grid>
         </Grid>
 
+
+
+
+
         <Grid container ref={userregister}spacing={3} direction={{ xs: 'column', lg: 'row' }} width="100%">
         <Grid item xs={12} md={8} lg={8}>
           <UserRegistration/>
@@ -220,18 +225,8 @@ const Dashboard = () => {
 
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-          <UserPerformance isFalse={false} />
-        </Grid>
-
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-        <UserClicksChart
-            />
-        </Grid>
-      </Grid>
-      
-      <Grid container spacing={3} mt={5}>
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-        <UserClicksSection
+          {/* <UserPerformance isFalse={false} /> */}
+          <UserClicksSection
         />
         </Grid>
 
@@ -240,19 +235,8 @@ const Dashboard = () => {
             />
         </Grid>
       </Grid>
-
       
-      <Grid container spacing={3} mt={5}>
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-          <UserPerformance isFalse={false} />
-        </Grid>
 
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-        <TopUsersClick
-        />
-       
-        </Grid>
-      </Grid>
       
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
@@ -261,114 +245,35 @@ const Dashboard = () => {
         </Grid>
 
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-        <UserClicksChart
+        <TopUsersTime
             />
+            
         </Grid>
+
+    
+    
+
+   
       </Grid>
 
-
-      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
-        <Grid item xs={12} md={6} lg={12} width="100%" textAlign="center">
-
-          <Card
-            sx={{
-              width: '100%',
-              mb: { xs: 5, lg: 2 },
-              mt: { xs: 5, lg: 2 },
-              height: 'auto',
-              borderRadius: '16px',
-              boxShadow: 3,
-              p: 2,
-              textAlign: 'center'
-            }}
-          >
-
-            <Grid ref={anotherComponentRef} container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-              <Grid item xs={12} md={5}>
-                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                  User Spent Time Per Scene
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={7}>
-                <FilterButtonGroup handlefilter={handleFilterUserTimeTable} filter={filterUserTimeTable} />
-              </Grid>
-            </Grid>
-
-            <ResponsiveContainer width="100%" height={300}>
-              <UserSpentTimeTable data={datauserspentperscene} loading={loadingdataspenttimescene} />
-            </ResponsiveContainer>
-          </Card>
-
-        </Grid>
-
-        <Grid item xs={12} md={12} lg={12} width="100%" textAlign="center">
-
-          <Card
-            sx={{
-              width: '100%',
-              mb: { xs: 5, lg: 2 },
-              mt: { xs: 5, lg: 2 },
-              height: 'auto',
-              borderRadius: '16px',
-              boxShadow: 3,
-              p: 2,
-              textAlign: 'center'
-            }}
-          >
-            <Grid container display={'flex'} spacing={2} alignItems={'center'} justifyContent={'space-between'} width={'auto'}>
-              <Grid item xs={12} md={5}>
-                <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: { xs: 'center', md: 'left' } }}>
-                  User Click Per Scene
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={7}>
-                <FilterButtonGroup handlefilter={handleFilterUserClickTable} filter={filterUserTimeTable} />
-              </Grid>
-            </Grid>
-            <ResponsiveContainer width="100%" height={300}>
-              <UserClickTable data={datauserclcik} loading={loadingdatauserClick} />
-            </ResponsiveContainer>
-          </Card>
-
-        </Grid>
-      </Grid>
-
-
-      <Grid container display="flex" spacing={4} flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" minWidth="100%" mt={5}>
+      
+      <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-
+          <UserPerformance isFalse={false} />
         </Grid>
 
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-
-          <Card
-            sx={{
-              width: '100%',
-              mb: { xs: 5, lg: 2 },
-              mt: { xs: 5, lg: 2 },
-              height: 'auto',
-              borderRadius: '16px',
-              boxShadow: 3,
-              p: 2,
-              textAlign: 'center'
-            }}
-          >
-            <Typography sx={{ color: 'text.primary', fontSize: 'subtitle1.fontSize', textAlign: 'left' }}>
-              User Lottery Numbers
-            </Typography>
+        <Card className="p-4">      
+          <Box sx={{ mb: 3, textAlign: 'left' }}>
+               <CardHeader title="    User Lottery Numbers" />
+               </Box>
             <ResponsiveContainer width="100%" height={300}>
               <UserLottery data={data} loading={loading} />
             </ResponsiveContainer>
           </Card>
-
         </Grid>
       </Grid>
-
-
-
-
-
-
+   
     </Container >
   );
 };

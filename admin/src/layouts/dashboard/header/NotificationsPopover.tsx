@@ -19,6 +19,7 @@ import {
   ListItemButton,
 } from '@mui/material';
 // utils
+// import { fToNow } from '../../../utils/formatTime';
 import { fToNow } from '../../../utils/formatTime';
 // components
 import Iconify from '../../../components/Iconify';
@@ -40,7 +41,7 @@ const navigation =useNavigate()
         title: feedback.user.first_name,
         description: feedback?.feedback,
         avatar: feedback?.user.first_name[0],
-        createdAt: feedback.acreatedAt,
+        createdAt: feedback.createdAt,
         isUnRead: !feedback.isRead,
       }));
       setNotifications(formattedFeedbacks);
@@ -211,6 +212,7 @@ function NotificationItem({ notification, onClick }) {
           >
             <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
             {fToNow(notification?.createdAt)}
+  
           </Typography>
         }
       />
