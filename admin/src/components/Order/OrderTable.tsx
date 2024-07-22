@@ -3,14 +3,16 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
-import { setRowsPerPageAndFetch, setPageAndFetch } from '../../redux/orderSlice';
+import { Card, CardHeader, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
+import {  setPaginationData, setPage, setRowsPerPage } from '../../redux/orderSlice';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { MutatingDots } from 'react-loader-spinner';
 // import EditProdcut from './EditProdcut';
 import { Product } from '../../types/product';
 import EditOrder from './EditOrder';
+import FilterOrder from './FilterOrder';
+import { useGetAllOrdersQuery } from '../../redux/Api/Order';
 
 // import DeleteProduct from './DeleteProduct';
 // import DeleteUser from '../User/DeleteUser';
@@ -21,6 +23,14 @@ const OrderTable: React.FC = () => {
     const [deleteRow, setDeletedRow] = useState<| null>(null);
     const [editedRow, setEditedRow] = useState<| null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+    const [orderNumber, setSearch] = useState<number>();
+    const [sortField, setSortField] = useState('createdAt');
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [orderStatus, setOrderStatus] = useState('');
+    const [paymentType, setPaymentType] = useState('');
+    const [paymentStatus, setPaymentStatus] = useState('');
+    // const [page, setPage] = useState(0);
+    // const [rowsPerPage, setRowsPerPage] = useState(10);
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'pending':
@@ -34,6 +44,24 @@ const OrderTable: React.FC = () => {
             default:
                 return '';
         }
+    };
+    // const {data:orderData,isLoading, error, refetch}=useGetAllOrdersQuery({ page: page+1 , pageSize: rowsPerPage})
+    // if(isLoading){
+    //     return <div className="flex justify-center items-center h-screen">Loading...</div>
+    // }
+    const renderSkeleton = () => {
+        return (
+            <TableRow>
+                {columns.map((column) => (
+                    <TableCell>
+                        <Skeleton height={30} variant="text" />
+                    </TableCell>
+                ))}
+                <TableCell>
+                    <Skeleton height={30} variant="text" />
+                </TableCell>
+            </TableRow>
+        );
     };
     const columns = [
         { Header: 'OrderId', accessor: '_id' },
@@ -89,38 +117,7 @@ const OrderTable: React.FC = () => {
                 </div>
             ),
         },
-        // {
-        //     accessor: 'orderItems',
-        //     Header: 'Product Images',
-
-        //     Cell: ({ value }: any) => (
-        //         <div className="flex items-center">
-        //             <div className="flex items-center gap-2">
-        //                 {value.map((p: any, index: number) => (
-
-
-        //                     p.product?.images.slice(0, 1).map((p) => <img
-        //                         key={index}
-        //                         src={p.imageUrl}
-        //                         alt={`Product Image ${index}`}
-        //                         className="rounded-full h-8 w-8 object-cover"
-        //                     />
-
-        //                     )))}
-        //             </div>
-        //         </div>
-        //     ),
-        // },
-
-        // {
-        //     accessor: 'orderItems.product.price',
-        //     Header: 'Price',
-        //     Cell: ({ value }: any) => (
-        //         <div className="flex items-center">
-        //             {value}
-        //         </div>
-        //     ),
-        // },
+      
 
 
         {
@@ -220,32 +217,60 @@ const OrderTable: React.FC = () => {
         //   },
 
     ];
+
+ 
     const dispatch = useDispatch();
-    const categoryState = useSelector((state: RootState) => state.order);
-    console.log('Categories:', categoryState.data);
+    const order = useSelector((state: RootState) => state.order);
+    const { data, error, isLoading, refetch } = useGetAllOrdersQuery({
+        page: order.page + 1, // Convert 0-based to 1-based indexing for the backend
+        pageSize: order.rowsPerPage, 
+        orderNumber, 
+        // sortField, 
+        sortOrder, 
+         orderStatus, 
+        paymentType,
+        paymentStatus
+    });
+
+    useEffect(() => {
+        if (data) {
+            dispatch(setPaginationData({ totalPages: data.totalPages, totalRows: data.count }));
+        }
+    }, [data, dispatch]);
 
     const handleChangePage = (_event: unknown, newPage: number) => {
-        //@ts-ignore
-        dispatch(setPageAndFetch(newPage));
+        dispatch(setPage(newPage));
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        //@ts-ignore
-        dispatch(setRowsPerPageAndFetch(parseInt(event.target.value, 10)));
+        dispatch(setRowsPerPage(parseInt(event.target.value, 10)));
+        dispatch(setPage(0)); // Reset to first page
     };
     const handleEditClick = (rowData: any) => {
         setEditedRow(rowData);
-        console.log("row data", rowData)
+      
         setIsEditModalOpen(true);
     };
     const handlEDeleteClick = (rowData: any) => {
         setDeleteModalOpen(true);
-        console.log("ro data for delete.......", rowData)
+
         setDeletedRow(rowData)
     };
     const handleCloseEditModal = () => {
         setIsEditModalOpen(false);
         setEditedRow(null);
+    };
+    const handleOrderStatus = (e) => {
+        setOrderStatus(e.target.value)
+        refetch()
+    };
+    const handlePaymentMethod = (e) => {
+        setPaymentType(e.target.value)
+        refetch()
+    };
+    const handlePaymentStatus = (e) => {
+        setPaymentStatus(e.target.value)
+        refetch()
     };
     const getProductValue = (product: any, accessor: string) => {
         const keys = accessor.split('.'); // Split nested keys
@@ -260,11 +285,7 @@ const OrderTable: React.FC = () => {
     const theme = useTheme();
     const isTablet = useMediaQuery(theme.breakpoints.down('md')) // Adjust breakpoint as needed
 
-    // useEffect(() => {
-    //     dispatch(fetchCategoriesStart())
-    //     //@ts-ignore
-    //      dispatch(fetchCategories());
-    //   }, [dispatch]);
+
     return (
         <>
 
@@ -284,16 +305,25 @@ const OrderTable: React.FC = () => {
 
 
           
-                {
-                    !categoryState.loading ?
-                        (
-                        //  <Scrollbar>
+              
                         <div className="overflow-auto flex item-center justify-center shadow-xl">
-                            <TableContainer      sx={{
-                                width: { xs: '100%', md: isTablet ? '100%' : '1200px', lg: '1200px' },
-                                marginX: { xs: 1, md: isTablet ? 1 : 4, lg: 1 },
-                                flexGrow: 1
-                            }}component={Paper} className="overflow-auto mx-auto ">
+                              <Card>
+                              <CardHeader  title={"Orders Table"} />
+                              <FilterOrder
+                                            search={orderNumber}
+                                            paymentStatus={paymentStatus}
+                                            sortOrder={sortOrder}
+                                            orderStatus={orderStatus}
+                                            paymentType={paymentType}
+                                            // setPaymentType={setPaymentType}
+                                            handleSearchChange={(e) => setSearch(e.target.value)}
+                                            handleSortChange={(e) => setSortField(e.target.value)}
+                                            handleSortOrderChange={(e) => setSortOrder(e.target.value)}
+                                            handleOrderStatusChange={(e) => handleOrderStatus(e)}
+                                             handlePaymentTypeChange={(e) => handlePaymentMethod(e)}
+                                             handlePaymentStatusChange={(e) => handlePaymentStatus(e)}
+                              />
+                            <TableContainer component={Paper} className="overflow-auto mx-auto ">
                                 <Table sx={{ maxWidth: 1000 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
                                     <TableHead >
                                         <TableRow>
@@ -308,7 +338,9 @@ const OrderTable: React.FC = () => {
 
                                     <TableBody>
 
-                                        {categoryState?.data && categoryState?.data.map((product, index) => (
+                                          {isLoading
+                                    ? Array.from(new Array(7)).map((_, index) => renderSkeleton()):
+                                    data&& data?.orders.map((product, index) => (
                                             <TableRow
                                                 key={product._id}
                                                 // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
@@ -332,15 +364,16 @@ const OrderTable: React.FC = () => {
                                                 </TableCell>
                                             </TableRow>
                                         ))}
+                                        
                                     </TableBody>
 
                                     <TableFooter>
                                         <TableRow>
                                             <TablePagination
                                                 rowsPerPageOptions={[5, 10, 25]}
-                                                count={categoryState.totalRows}
-                                                rowsPerPage={categoryState.rowsPerPage}
-                                                page={categoryState.page}
+                                                count={order?.totalRows||0}
+                                                rowsPerPage={order?.rowsPerPage}
+                                                page={order?.page}
                                                 onPageChange={handleChangePage}
                                                 onRowsPerPageChange={handleChangeRowsPerPage}
                                                 className="mx-auto"
@@ -349,25 +382,11 @@ const OrderTable: React.FC = () => {
                                     </TableFooter>
                                 </Table>
                             </TableContainer>
+                            </Card>
                             </div>
-            ) :
+      
 
-            (
-            <div className="flex justify-center items-center h-full">
-                <MutatingDots
-                    height="100"
-                    width="100"
-                    color="#add8e6"  // Light Blue
-                    secondaryColor="#ffcccb"  // Light Red
-                    radius="12.5"
-                    ariaLabel="mutating-dots-loading"
-                    wrapperStyle={{}}
-                    wrapperClass=""
-                    visible={true}
-                />
 
-            </div>
-                        )}
 
 
             <div>

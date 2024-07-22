@@ -47,7 +47,7 @@ export const createOrder = async (req: Request, res: Response) => {
 };
 
 export const getOrders = async (req: Request, res: Response) => {
-    console.log("get all order")
+    console.log("get all order",req.query)
     try {
         const page = parseInt(req.query.page as string) || 1;
         const pageSize = parseInt(req.query.pageSize as string) || 10;
@@ -56,6 +56,7 @@ export const getOrders = async (req: Request, res: Response) => {
         const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
         const orderStatus = req.query.orderStatus ? req.query.orderStatus.toString() : '';
         const paymentType = req.query.paymentType ? req.query.paymentType.toString() : '';
+        const paymentStatus = req.query.paymentStatus ? req.query.paymentStatus.toString() : '';
         // const role = req.query.role ? req.query.role.toString() : '';
         let query: any = {};
         const searchNumber = parseInt(search, 10);
@@ -64,6 +65,9 @@ export const getOrders = async (req: Request, res: Response) => {
         }
         if (orderStatus) {
             query.orderStatus = orderStatus;
+        }
+        if (paymentStatus) {
+            query.paymentStatus = paymentStatus;
         }
         if (paymentType) {
             query.paymentType = paymentType;
@@ -78,9 +82,9 @@ export const getOrders = async (req: Request, res: Response) => {
         let filter: any = {};
  
         // Apply search filter if provided in the query parameters
-        if (typeof req.query.search === 'string') {
+        // if (typeof req.query.search === 'number') {
             filter.orderId = { $regex: req.query.search, $options: 'i' };
-        }
+        // }
 
         // Define the sorting criteria based on the 'sortBy' query parameter
         let sortQuery: any;
@@ -101,7 +105,7 @@ export const getOrders = async (req: Request, res: Response) => {
 
         // Calculate the number of orders to skip
         const skip = (page - 1) * pageSize;
-
+console.log("skip",skip)
         // Find the orders for the current page
         const orders = await Order.find(query)
             .populate({
@@ -126,10 +130,7 @@ export const getOrders = async (req: Request, res: Response) => {
 
 
         // Fetch user details for each order
-        const ordersWithUserDetails = await Promise.all(orders.map(async (order) => {
-            const user = await User.findOne({ telegramid: order.telegramid });
-            return { ...order.toObject(), user };
-        }));
+
         res.status(200).json({
             success: true,
             orders: orders,
@@ -138,6 +139,7 @@ export const getOrders = async (req: Request, res: Response) => {
             pageSize,
             totalPages,
         });
+        // console.log('orders',orders)
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error!' });

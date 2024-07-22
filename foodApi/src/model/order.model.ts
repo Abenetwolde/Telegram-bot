@@ -77,6 +77,7 @@ interface Order extends Document {
        default: 'pending',
     },
     orderfromtelegram: { type: Boolean, default: false },
+    
     createdAt: { type: Date, default: Date.now },
   });
 

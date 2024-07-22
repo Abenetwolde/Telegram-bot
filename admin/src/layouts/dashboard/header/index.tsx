@@ -23,6 +23,8 @@ import Image from "../../../components/Image";
 import NotificationsPopover from './NotificationsPopover';
 import PopoverMenu from './PopoverMenu';
 import { useState } from 'react';
+import LanguagePopover from './LanguagePopover';
+import { useTranslation } from 'react-i18next';
 
 // ----------------------------------------------------------------------
 
@@ -69,6 +71,7 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+  const { t } = useTranslation();
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -94,6 +97,7 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
         <NotificationsPopover />
+        <LanguagePopover />
           <IconButtonAnimate placement="right"onClick={handleClick} >
            
               <Image
@@ -104,9 +108,10 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
         
           </IconButtonAnimate>
           <PopoverMenu anchorEl={anchorEl} handleClose={handleClose} />
-          {/* <LanguagePopover />
-          <NotificationsPopover />
-          <ContactsPopover />*/}
+{/*   
+         <p className='text-blue-600'>{t('welcome')}</p> */}
+          {/* <NotificationsPopover /> */}
+          {/* <ContactsPopover /> */}
               
           {/* <AccountPopover />  */}
         </Stack>

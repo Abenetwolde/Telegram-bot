@@ -6,6 +6,9 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 import SvgIconStyle from '../../../components/SvgIconStyle';
 import Label from '../../../components/Label';
 import Iconify from '../../../components/Iconify';
+import { useTranslation } from 'react-i18next';
+const NavConfig = () => {
+const { t } = useTranslation();
 
 // ----------------------------------------------------------------------
 
@@ -27,13 +30,13 @@ const ICONS = {
   booking: getIcon('ic_booking'),
 };
 
-const navConfig = [
+ return [
   // // GENERAL
   // // ----------------------------------------------------------------------
   {
     subheader: 'analysis',
     items: [
-      { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.userdashboard },
+      { title: t('welcome'), path: PATH_DASHBOARD.general.app, icon: ICONS.userdashboard },
       { title: 'Order Dashboard', path: PATH_DASHBOARD.general.orderdashboard, icon: ICONS.orderdashboard },
     ]
   },
@@ -163,5 +166,6 @@ const navConfig = [
   //   ],
   // },
 ];
-
-export default navConfig;
+return navConfig;
+}
+export default NavConfig;
