@@ -21,6 +21,11 @@ const EditOrder: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedRow
     const [selectedOrderStatus, setSelectedOrderStatus] = useState<string>(editedRow?.orderStatus || '');
     const [selectedpaymentStatus, setpaymentStatus] = useState<string>(editedRow?.paymentStatus || '');
     const [updateOrderById, { isLoading }] = useUpdateOrderByIdMutation();
+    useEffect(() => {
+        setSelectedPaymentType(editedRow?.paymentType || '');
+        setSelectedOrderStatus(editedRow?.orderStatus || '');
+        setpaymentStatus(editedRow?.paymentStatus || '');
+      }, [editedRow]);
     const handleUpdate = async () => {
         try {
           const updatedOrder = {
@@ -29,7 +34,7 @@ const EditOrder: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedRow
             orderStatus: selectedOrderStatus,
             paymentStatus: selectedpaymentStatus,
           };
-    
+    console.log("update order", updatedOrder)
           const response = await updateOrderById(updatedOrder).unwrap();
     
           if (response.success) {

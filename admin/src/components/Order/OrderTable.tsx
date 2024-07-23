@@ -3,16 +3,18 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { Card, CardHeader, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
+import { Box, Card, CardHeader, Drawer, List, ListItem, ListItemText, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TextField, Typography } from '@mui/material';
 import {  setPaginationData, setPage, setRowsPerPage } from '../../redux/orderSlice';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { MutatingDots } from 'react-loader-spinner';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 // import EditProdcut from './EditProdcut';
 import { Product } from '../../types/product';
 import EditOrder from './EditOrder';
 import FilterOrder from './FilterOrder';
 import { useGetAllOrdersQuery } from '../../redux/Api/Order';
+import Label from '../Label';
+import { useNavigate } from 'react-router-dom';
 
 // import DeleteProduct from './DeleteProduct';
 // import DeleteUser from '../User/DeleteUser';
@@ -29,26 +31,12 @@ const OrderTable: React.FC = () => {
     const [orderStatus, setOrderStatus] = useState('');
     const [paymentType, setPaymentType] = useState('');
     const [paymentStatus, setPaymentStatus] = useState('');
-    // const [page, setPage] = useState(0);
-    // const [rowsPerPage, setRowsPerPage] = useState(10);
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'pending':
-                return 'bg-orange-400';
-            case 'completed':
-                return 'bg-green-400';
-            case 'cancelled':
-                return 'bg-red-400';
-            case 'delivered':
-                return 'bg-blue-400';
-            default:
-                return '';
-        }
-    };
-    // const {data:orderData,isLoading, error, refetch}=useGetAllOrdersQuery({ page: page+1 , pageSize: rowsPerPage})
-    // if(isLoading){
-    //     return <div className="flex justify-center items-center h-screen">Loading...</div>
-    // }
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
+
+    const theme = useTheme();
+    const navigate = useNavigate();
+    const isLight = theme.palette.mode === 'light';
     const renderSkeleton = () => {
         return (
             <TableRow>
@@ -64,7 +52,20 @@ const OrderTable: React.FC = () => {
         );
     };
     const columns = [
-        { Header: 'OrderId', accessor: '_id' },
+        // { Header: 'OrderId', accessor: '_id' },
+        {
+            accessor: 'orderNumber',
+            Header: 'Order Number',
+            Cell: ({ value }: any) => (
+                <div className="flex items-center">
+
+                    <span>
+                        {value&&value}
+                    </span>
+
+                </div>
+            ),
+        },
         {
             accessor: 'orderItems',
             Header: 'Product Name',
@@ -82,31 +83,19 @@ const OrderTable: React.FC = () => {
             accessor: 'user',
             Header: 'User Name',
             Cell: ({ value }: any) => (
-                <div className="flex items-center">
+       
+                <Label
+                    variant={isLight ? 'ghost' : 'filled'}
+                    color={"info"}>
 
-                    <span>
-                        {value?.username}
-                    </span>
-
-                </div>
+                    {`@${value?.username}`}
+                </Label>
             ),
         },
-        {
-            accessor: 'orderNumber',
-            Header: 'Order Number',
-            Cell: ({ value }: any) => (
-                <div className="flex items-center">
-
-                    <span>
-                        {value&&value}
-                    </span>
-
-                </div>
-            ),
-        },
+   
         {
             accessor: 'user',
-            Header: 'User First Name',
+            Header: 'First Name',
             Cell: ({ value }: any) => (
                 <div className="flex items-center">
 
@@ -122,7 +111,7 @@ const OrderTable: React.FC = () => {
 
         {
             accessor: 'totalPrice',
-            Header: 'TotalAmount',
+            Header: 'Total Amount(ETB)',
             Cell: ({ value }: any) => (
                 <div className="flex items-center">
                     <p>{value}</p>
@@ -131,11 +120,17 @@ const OrderTable: React.FC = () => {
         },
         {
             accessor: 'orderStatus',
-            Header: 'orderStatus',
+            Header: 'Order Status',
             Cell: ({ value }: any) => (
-                <div className={`flex items-center justify-center p-1 rounded-md text-white ${getStatusColor(value)}`}>
-                {value}
-            </div>
+                <Label
+                variant={isLight ? 'ghost' : 'filled'}
+                color={(value == 'completed' && 'success') ||
+                    (value == 'pending' && 'warning') ||
+                    (value == 'delivered' && 'info') ||
+                    'error'}      >
+
+                {value }
+            </Label>
     
             ),
         },
@@ -152,9 +147,14 @@ const OrderTable: React.FC = () => {
             accessor: 'paymentStatus',
             Header: 'Payment Status',
             Cell: ({ value }: any) => (
-                <div className={`flex items-center justify-center p-1 rounded-md text-white ${getStatusColor(value)}`}>
-                {value}
-            </div>
+                <Label
+                variant={isLight ? 'ghost' : 'filled'}
+                color={(value == 'completed' && 'success') ||
+                    (value == 'pending' && 'warning') ||
+                    'error'}      >
+
+                {value }
+            </Label>
     
             ),
         },
@@ -167,54 +167,7 @@ const OrderTable: React.FC = () => {
                 </div>
             ),
         },
-        {
-            accessor: 'shippingInfo',
-            Header: 'Note',
-            Cell: ({ value }: any) => (
-                <div className="flex items-center">
-                  {value?.note?.length > 20 ? (
-                    <div title={value?.note} className="flex items-center">
-                      {value?.note.slice(0, 20)}...
-                    </div>
-                  ) : (
-                    <div>{value?.note}</div>
-                  )}
-                </div>
-              ),
-        },
-        {
-            accessor: 'shippingInfo',
-            Header: 'Phone Number',
-            Cell: ({ value }: any) => (
-                <div className={`flex items-center`}>
-                    {value.phoneNo}
-                </div>
-            ),
-        },
-        {
-            accessor: 'shippingInfo',
-            Header: 'Address',
-            Cell: ({ value }: any) => (
-                <div className="flex items-center">
-                  {value?.location?.length > 20 ? (
-                    <div title={value.location} className="flex items-center">
-                      {value.location.slice(0, 20)}...
-                    </div>
-                  ) : (
-                    <div>{value?.location}</div>
-                  )}
-                </div>
-              ),
-        },
-        //   {
-        //     accessor: 'createdAt',
-        //     Header: 'createdAt',
-        //     Cell: ({ value }: any) => (
-        //       <div className={`flex items-center ${value ? 'text-green-500' : 'text-red-500'}`}>
-        //         {value ? 'Available' : 'Not Available'}
-        //       </div>
-        //     ),
-        //   },
+
 
     ];
 
@@ -282,9 +235,22 @@ const OrderTable: React.FC = () => {
 
         return value;
     };
-    const theme = useTheme();
-    const isTablet = useMediaQuery(theme.breakpoints.down('md')) // Adjust breakpoint as needed
 
+    const isTablet = useMediaQuery(theme.breakpoints.down('md')) // Adjust breakpoint as needed
+    const handleViewClick = async (order: any) => {
+
+
+        setSelectedOrder(order);
+        setDrawerOpen(true);
+        // await UpdateFeedbackStatus({ id: feedback?._id }).unwrap()
+
+    };
+    
+    const handleDrawerClose = () => {
+        setDrawerOpen(false);
+        setSelectedOrder(null);
+        
+    };
 
     return (
         <>
@@ -307,7 +273,7 @@ const OrderTable: React.FC = () => {
           
               
                         <div className="overflow-auto flex item-center justify-center shadow-xl">
-                              <Card>
+                              <Card className='p-5'elevation={2}>
                               <CardHeader  title={"Orders Table"} />
                               <FilterOrder
                                             search={orderNumber}
@@ -353,13 +319,13 @@ const OrderTable: React.FC = () => {
 
                                                 <TableCell className="p-2">
                                                     <div className="flex justify-between items-center gap-1">
-
+                                                    <button onClick={() => handleViewClick(product)} className="text-green-600 hover:bg-green-200 p-1 rounded-full bg-green-100">
+                                                        <VisibilityIcon />
+                                                        </button>
                                                         <button onClick={() => handleEditClick(product)} className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-blue-100">
                                                             <EditIcon />
                                                         </button>
-                                                        <button onClick={() => handlEDeleteClick(product)} className="text-red-600 hover:bg-red-200 p-1 rounded-full bg-red-100">
-                                                            <DeleteIcon />
-                                                        </button>
+                                                       
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -386,7 +352,62 @@ const OrderTable: React.FC = () => {
                             </div>
       
 
+                            <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
+                        <Box sx={{ width: 350, p: 3 }}>
+                            <Typography variant="h6">User Order Detail</Typography>
+                            {selectedOrder && (
+                                <List>
+                                     <ListItem>
+                                        <ListItemText primary="Order ID" secondary={selectedOrder?.orderNumber} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="First Name" secondary={selectedOrder?.user?.first_name} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="Username" secondary={selectedOrder?.user?.username} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="Total Amount(ETB)" secondary={selectedOrder?.totalPrice} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="Order Status" secondary={selectedOrder?.orderStatus} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="Payment Type" secondary={selectedOrder?.paymentType} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="Note" secondary={selectedOrder?.shippingInfo?.note} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="Phone Number" secondary={selectedOrder?.shippingInfo?.phoneNo} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="Address" secondary={selectedOrder?.shippingInfo?.location} />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText primary="createdAt" secondary={selectedOrder?.createdAt} />
+                                    </ListItem>
+                                </List>
+                            )}
+                            {/* <TextField
+                                label="Reply"
+                                multiline
+                                rows={4}
+                                value={selectedOrder?.reply ? selectedOrder?.reply : reply}
+                                // value={reply}
+                                onChange={(e) => setReply(e.target.value)}
+                                variant="outlined"
+                                fullWidth
+                                sx={{ mt: 2 }}
+                            /> */}
+                            {/* <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                                <Button variant="contained" color="primary" onClick={() => handleSendReply(selectedFeedback?._id, reply)}>
 
+                                   {sendingLoading?'Sending...':'Send'} 
+                                </Button>
+                            </Box> */}
+                        </Box>
+                    </Drawer>
 
 
             <div>

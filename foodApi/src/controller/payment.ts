@@ -11,19 +11,28 @@ export const getAllPayments = async (req: Request, res: Response) => {
       if (typeof req.query.search === 'string') {
           filter.orderId = { $regex: req.query.search, $options: 'i' };
       }
-
+      const sortField = req.query.sortField ? req.query.sortField.toString() : 'createdAt';
+      const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+      const orderStatus = req.query.orderStatus ? req.query.orderStatus.toString() : '';
+      const paymentType = req.query.paymentType ? req.query.paymentType.toString() : '';
+      const paymentStatus = req.query.paymentStatus ? req.query.paymentStatus.toString() : '';
       // Define the sorting criteria based on the 'sortBy' query parameter
-      let sortQuery: any;
-      switch (req.query.sortBy) {
-          case 'latest':
-              sortQuery = { createdAt: -1 };
-              break;
-          case 'oldest':
-              sortQuery = { createdAt: 1 };
-              break;
-          default:
-              sortQuery = {};
+      let query: any = {};
+  
+      if (orderStatus) {
+          query.orderStatus = orderStatus;
       }
+      if (paymentStatus) {
+          query.paymentStatus = paymentStatus;
+      }
+      if (paymentType) {
+          query.paymentType = paymentType;
+      }
+
+ 
+      // Build the sort object
+      const sort: any = {};
+      sort[sortField] = sortOrder;
 
       // Parse the page and pageSize query parameters
       const page = parseInt(req.query.page as string) || 1;
@@ -32,7 +41,7 @@ export const getAllPayments = async (req: Request, res: Response) => {
       // Calculate the number of orders to skip
       const skip = (page - 1) * pageSize;
       
-      const payments = await Payment.find(filter)
+      const payments = await Payment.find(query)
 
         // .populate('order').
         .populate({
@@ -41,12 +50,12 @@ export const getAllPayments = async (req: Request, res: Response) => {
         })
           .populate({
           path: 'order',
-          select: 'orderStatus -_id', // Include necessary user fields
+          select: 'orderStatus paymentStatus -_id', // Include necessary user fields
         })
 
         .skip(skip)
         .limit(pageSize)
-        .sort(sortQuery)
+        .sort(sort)
         
         const count = await Payment.countDocuments(filter)
         // Calculate the total number of pages

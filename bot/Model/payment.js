@@ -14,18 +14,18 @@ const paymentSchema = new mongoose.Schema({
     },
     shippingCharge: {
         type: Number,
-        required: false
+        // required: false
     },
     total_amount: {
         type: Number,
     },
     invoice_id: {
         type: String,
-        required: true
+        // required: true
     },
     telegram_payment_charge_id: {
         type: String,
-        required: true
+        // required: true
     },
     paymentType: {
         type: String,

@@ -47,11 +47,7 @@ const ICONS = {
       // { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
       { title: 'category', path: PATH_DASHBOARD.general.category, icon: ICONS.category },
       { title: 'Foods', path: PATH_DASHBOARD.general.foods, icon: ICONS.food },
-      { title: 'Orders', path: PATH_DASHBOARD.general.orders, icon: ICONS.order ,  info: (
-                <Label variant="outlined" color="error">
-                  +32
-                </Label>
-              ),},
+      { title: 'Orders', path: PATH_DASHBOARD.general.orders, icon: ICONS.order , },
       { title: 'Payments', path: PATH_DASHBOARD.general.payments, icon: ICONS.payment },
       
       // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics }, //todo uncommitted when ready

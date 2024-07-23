@@ -267,6 +267,7 @@ export const getOrderById = async (req: Request, res: Response) => {
 
 export const updateOrderById = async (req: Request, res: Response) => {
     try {
+        console.log("req.body................ ",req.body )
         const orderId = req.params.orderId;
         const updatedOrder = await Order.findByIdAndUpdate(
             orderId,

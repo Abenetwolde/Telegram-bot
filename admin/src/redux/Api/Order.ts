@@ -43,6 +43,7 @@ export const orderSliceApi = createApi({
         method: 'PUT',
         body: order,
       }),
+      invalidatesTags: (result, error, { _id }) => [{ type: 'ORDER', id: _id }],
     }),
 
     getCompletedOrders: builder.query<CompletedOrdersResponse, void>({

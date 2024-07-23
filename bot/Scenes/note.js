@@ -8,6 +8,7 @@ const apiUrl = 'http://localhost:5000';
 const UserKPI=require("../Model/KpiUser");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 const { updateClicks } = require("../Utils/calculateClicks");
+const { createPayment } = require("../Database/payment");
 const noteScene = new Scenes.BaseScene("NOTE_SCENE")
 noteScene.enter(async (ctx) => {
     const enterTime = new Date();
@@ -264,7 +265,22 @@ noteScene.action("make_order", async (ctx) => {
     const orderJson = JSON.stringify(order);
     const orderJsonParse = JSON.parse(orderJson);
 
-
+    const paymentData = {
+        telegramid:ctx.session.userid,
+        order: order?._id,
+        total_amount: order?.totalPrice,
+        paymentType:"Cash"
+      
+    }
+  
+    const paymentdata=JSON.parse(JSON.stringify(paymentData))
+    try {
+        const savedPayment = await createPayment(
+            paymentdata
+        ); 
+    } catch (error) {
+        console.log(error)
+    }
   const message=  await ctx.replyWithHTML(`Thank you for your order!\nPayment received for Order ID: <u>${orderJsonParse.orderNumber}</u>\n.Total Amount: <u>${order.totalPrice}</u> ETB\nThe product will be delivered to you soon.`,Markup.inlineKeyboard([
     Markup.button.callback(
       `View Your Order`,"showOrder")
