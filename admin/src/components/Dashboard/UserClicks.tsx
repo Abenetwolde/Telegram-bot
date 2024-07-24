@@ -7,7 +7,7 @@ import { useGetUserClcikQuery } from '../../redux/Api/userKpiSlice';
 const UserClicks = ({filter}:any) => {
   const {data, isLoading, error, refetch}:any =useGetUserClcikQuery(filter)
 
-console.log("data?.clicksByDate?.totalClicks" ,data?.clicksByDate[0]?.totalClicks)
+// console.log("data?.clicksByDate?.totalClicks" ,data?.clicksByDate[0]?.totalClicks)
 
 // 
   useEffect(() => {
@@ -15,7 +15,8 @@ console.log("data?.clicksByDate?.totalClicks" ,data?.clicksByDate[0]?.totalClick
   }, [filter]);
   const xAxis = data?.clicksByDate?.map(data => data?.clicksByDate?.map((d) => d?.date))
   const yAxis = data?.clicksByDate?.map(data => data?.clicksByDate?.map((d) => d?.totalProductClicks))
-
+const x_axis=xAxis&&xAxis[0]
+const y_axis=yAxis&&yAxis[0]
   return (
 
     <Box height={300}>
@@ -56,12 +57,12 @@ console.log("data?.clicksByDate?.totalClicks" ,data?.clicksByDate[0]?.totalClick
                 },
               },
               xaxis: {
-                categories: xAxis[0],
+                categories: x_axis,
               }
             }}
             series={[{
               name: 'Total Clicks',
-              data: yAxis[0],
+              data: y_axis,
             }]}
             type="line"
             height={"100%"}
