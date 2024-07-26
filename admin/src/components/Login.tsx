@@ -27,7 +27,7 @@ const handleSubmitLogin = async ({email, password}) => {
     if (userData.token) {
               dispatch(setUser(userData.user));
               dispatch(setToken(userData.token));
-              navigate("/dashboard/app");
+              navigate("/dashboard/user-analysis");
             } else {
              toast.error('Invalid credentials');
             }           

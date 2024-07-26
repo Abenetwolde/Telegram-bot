@@ -1,37 +1,53 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createCategory } from '../services/category';
-import { createCategorySuccess, /* fetchCategories */ } from '../redux/categorySlice';
+
 import { toast } from 'react-toastify';
-import { Button, TextField, Typography, useTheme } from "@mui/material";
-import ImageUploadComponent from './ImageUploadComponent';
-import ImageDisplayComponent from './ImageDisplayComponent';
+import { Box, Button, TextField, Typography, useTheme } from "@mui/material";
+
 import { styled } from '@mui/material/styles';
-
+import { useCreateCategoryMutation } from '../redux/Api/category';
 const NewCategoryForm: React.FC = () => {
+  const [ createCategory,{isLoading}]=useCreateCategoryMutation()
   const theme = useTheme();
-  const FormContainer = styled('div')(({ theme }) => ({
-    // backgroundColor: theme.palette.common.white,
-    marginBottom: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'start',
-    justifyContent: 'center',
-    margin: 'auto',
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '50%',
-    },
-  }));
-
-  const StyledForm = styled('form')(({ theme }) => ({
-    backgroundColor: theme.palette.background.default,
-    boxShadow: theme.shadows[3],
-    borderRadius: theme.shape.borderRadius,
-    padding: theme.spacing(3),
-    width: '100%',
-  }));
-
+  const FormContainer = ({ children }) => {
+    return (
+      <Box
+        sx={{
+          marginBottom: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'start',
+          justifyContent: 'center',
+          margin: 'auto',
+          width: '100%',
+          '@media (min-width: 960px)': {
+            width: '50%',
+          },
+          backgroundColor:theme.palette.background.paper
+        }}
+      >
+        {children}
+      </Box>
+    );
+  };
+  
+  const StyledForm = ({ children, onSubmit }) => {
+    return (
+      <Box
+        component="form"
+        onSubmit={onSubmit}
+        sx={{
+          boxShadow: 3,
+          borderRadius: 1,
+          padding: 3,
+          width: '100%',
+        }}
+      >
+        {children}
+      </Box>
+    );
+  };
+  
   const [name, setName] = useState<string>("");
   const [icon, setIcon] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -43,11 +59,13 @@ const NewCategoryForm: React.FC = () => {
     setLoading(true);
 
     try {
-      const newCategory = await createCategory(name, icon);
+      // const newCategory = await createCategory(name, icon);
       //   dispatch(fetchCategories());
+      const newCategory = await createCategory({name, icon}).unwrap();
       toast.success('Category created successfully!');
-      dispatch(createCategorySuccess(newCategory));
-      // other success handling, e.g., showing a success toast
+      setIcon('')
+      setName('')
+      // otsetIconher success handling, e.g., showing a success toast
     } catch (error) {
       toast.error('Failed to create category');
       // handle error, e.g., show error toast
@@ -62,7 +80,7 @@ const NewCategoryForm: React.FC = () => {
       <FormContainer>
         <StyledForm onSubmit={handleSubmit}>
         
-            <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary' ,mb:"10px"}  }>
+            <Typography variant="subtitle1" noWrap sx={{ color: 'text.secondary' ,mb:"10px"}  }>
               New Category
             </Typography>
             {/* <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', textAlign: 'left', marginBottom: '1rem', color: theme.palette.text.primary }}>New Category</h2> */}
@@ -94,7 +112,7 @@ const NewCategoryForm: React.FC = () => {
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button type="submit" variant="contained" color="primary" disabled={loading}>
-              {loading ? "Creating..." : "Create"}
+              {isLoading ? "Creating..." : "Create"}
             </Button>
           </div>
         </StyledForm>

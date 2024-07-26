@@ -25,12 +25,14 @@ import {
     ListItemText,
     Card,
     CardHeader,
+    useTheme,
 } from '@mui/material';
 import { setPageClick, setPaginationDataClick, setRowsPerPageClick } from '../../redux/userSlice';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useGetUserClicksQuery } from '../../redux/Api/User';
 import FilterButtonGroup from '../FilterButtonGroup';
 import Iconify from '../Iconify';
+import Label from '../Label';
 // import { useGetUserClicksQuery } from '../redux/Api/User';
 // import LoadingIndicator from './LoadingIndicator';
 
@@ -48,7 +50,9 @@ const UserClicksTable: React.FC = () => {
         setSearch(event.target.value);
         // setPage(0);
     };
+    const theme = useTheme();
 
+    const isLight = theme.palette.mode === 'light';
     const { data, error, isLoading } = useGetUserClicksQuery({
         page: user.clickpage + 1,
         pageSize: user.clickrowsPerPage,
@@ -92,7 +96,11 @@ const UserClicksTable: React.FC = () => {
         {
             accessor: 'userInformation',
             Header: 'User Name',
-            Cell: ({ value }: any) => <div>{value?.username}</div>,
+            Cell: ({ value }: any) =>        <Label
+            variant={isLight ? 'ghost' : 'filled'}
+            color={"info"}>
+            {`@ ${value?.username}`}
+        </Label>,
         },
         ...uniqueSceneNames.slice(0, 4).map(sceneName => ({
             accessor: sceneName,
@@ -153,8 +161,9 @@ const UserClicksTable: React.FC = () => {
                             InputProps={{
                                 startAdornment: <InputAdornment position="start">
                                     <Iconify
+                                    
                                         icon={'eva:search-fill'}
-                                        sx={{ color: 'text.disabled', width: 20, height: 20 }}
+                                        sx={{ color: 'text.info', width: 20, height: 20, }}
                                     />
                                 </InputAdornment>,
                             }}
@@ -196,7 +205,7 @@ const UserClicksTable: React.FC = () => {
                                         ))}
                                                  <TableCell className="p-2">
                                         <IconButton onClick={() => handleViewClick(click)}>
-                                            <VisibilityIcon />
+                                            <VisibilityIcon sx={{color:theme.palette.info.main}} />
                                         </IconButton>
                                         </TableCell>
                                     </TableRow>

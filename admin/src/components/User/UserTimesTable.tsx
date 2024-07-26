@@ -25,12 +25,14 @@ import {
     ListItemText,
     Card,
     CardHeader,
+    useTheme,
 } from '@mui/material';
 import { setPageTime,setRowsPerPageTime,setPaginationDataTime } from '../../redux/userSlice';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useGetUserClicksQuery, useGetUserTimesQuery } from '../../redux/Api/User';
 import FilterButtonGroup from '../FilterButtonGroup';
 import Iconify from '../Iconify';
+import Label from '../Label';
 // import { useGetUserClicksQuery } from '../redux/Api/User';
 // import LoadingIndicator from './LoadingIndicator';
 
@@ -48,7 +50,8 @@ const UserTimesTable: React.FC = () => {
         setSearch(event.target.value);
         // setPage(0);
     };
-
+    const theme = useTheme();
+    const isLight = theme.palette.mode === 'light';
     const { data, error, isLoading } = useGetUserTimesQuery({
         page: user.timepage + 1,
         pageSize: user.timerowsPerPage,
@@ -98,9 +101,11 @@ const UserTimesTable: React.FC = () => {
               accessor: 'user',
               Header: 'User Name',
               Cell: ({ value }: any) => (
-                <div className="flex items-center">
-                  {value?.username}
-                </div>
+                <Label
+                variant={isLight ? 'ghost' : 'filled'}
+                color={"info"}>
+                {`@ ${value?.username}`}
+            </Label>
               ),
             },
             ...sceneNames.slice(0, 4).map(sceneName => ({
@@ -203,7 +208,7 @@ const UserTimesTable: React.FC = () => {
                                         ))}
                                                  <TableCell className="p-2">
                                         <IconButton onClick={() => handleViewClick(click)}>
-                                            <VisibilityIcon />
+                                            <VisibilityIcon  sx={{color:theme.palette.info.main}}/>
                                         </IconButton>
                                         </TableCell>
                                     </TableRow>

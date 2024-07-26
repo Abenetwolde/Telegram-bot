@@ -85,7 +85,7 @@ const navigation =useNavigate()
         notification.id === id ? { ...notification, isUnRead: false } : notification
       )
     );
-    navigation('/dashboard/feedback')
+    navigation('/pages/feedback')
   };
 
   return (

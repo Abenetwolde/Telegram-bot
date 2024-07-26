@@ -77,15 +77,9 @@ export default function Router() {
       ),
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
-        { path: 'app', element: <Dashboard /> },
-        { path: 'order-dashboard', element: <OrderDashboard /> },
-        { path: 'category', element: <Category /> },
-        { path: 'foods', element: <ProdcutPage /> },
-        { path: 'orders', element: <OrdersPage /> },
-        { path: 'payments', element: <PaymentPage /> },
-        { path: 'users', element: <UsersPage /> },
-        { path: 'users/:path', element: <UsersPage /> },
-        { path: 'feedback', element: <FeedBackPage /> },
+        { path: 'user-analysis', element: <Dashboard /> },
+        { path: 'order-analysis', element: <OrderDashboard /> },
+
         // { path: 'ecommerce', element: <GeneralEcommerce /> },
         // { path: 'analytics', element: <GeneralAnalytics /> },
         // { path: 'banking', element: <GeneralBanking /> },
@@ -159,21 +153,28 @@ export default function Router() {
         // { path: 'kanban', element: <Kanban /> },
       ],
     },
+    {
+      path: 'pages',
+      element: (
+        // <RoledGuard>
+        //   <AuthGuard>
+        <DashboardLayout />
+        /* </AuthGuard>
+      </RoledGuard> */
+      ),
+      children: [
+        { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
+        { path: 'category', element: <Category /> },
+        { path: 'foods', element: <ProdcutPage /> },
+        { path: 'orders', element: <OrdersPage /> },
+        { path: 'payments', element: <PaymentPage /> },
+        { path: 'users', element: <UsersPage /> },
+        { path: 'users/:path', element: <UsersPage /> },
+        { path: 'feedback', element: <FeedBackPage /> },
 
-    // // Main Routes
-    // {
-    //   path: '*',
-    //   element: <LogoOnlyLayout />,
-    //   children: [
-    //     { path: 'coming-soon', element: <ComingSoon /> },
-    //     { path: 'maintenance', element: <Maintenance /> },
-    //     { path: 'pricing', element: <Pricing /> },
-    //     { path: 'payment', element: <Payment /> },
-    //     { path: '500', element: <Page500 /> },
-    //     { path: '404', element: <NotFound /> },
-    //     { path: '*', element: <Navigate to="/404" replace /> },
-    //   ],
-    // },
+      ],
+    },
+
     {
       path: '/',
       element: <DashboardLayout />,

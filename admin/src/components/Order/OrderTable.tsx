@@ -16,9 +16,6 @@ import { useGetAllOrdersQuery } from '../../redux/Api/Order';
 import Label from '../Label';
 import { useNavigate } from 'react-router-dom';
 
-// import DeleteProduct from './DeleteProduct';
-// import DeleteUser from '../User/DeleteUser';
-// import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 const OrderTable: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);

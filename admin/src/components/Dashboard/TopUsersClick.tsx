@@ -21,7 +21,7 @@ import Iconify from '../Iconify';
     }
   }, [isVisible, refetch]);
   const handleViewMoreClick = () => {
-    navigate('/dashboard/users');
+    navigate('/pages/users');
   };
   if (isLoading) {
     return (

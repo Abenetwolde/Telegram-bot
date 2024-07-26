@@ -1,27 +1,18 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-// @mui
 import { styled, useTheme } from '@mui/material/styles';
 import { Box, Stack, Drawer } from '@mui/material';
-// hooks
 import useResponsive from '../../../hooks/useResponsive';
 import useCollapseDrawer from '../../../hooks/useCollapseDrawer';
-// utils
 import cssStyles from '../../../utils/cssStyles';
-// config
 import { NAVBAR } from '../../../config';
-// components
 import Logo from '../../../components/Logo';
 import Scrollbar from '../../../components/Scrollbar';
 import { NavSectionVertical } from '../../../components/nav-section';
-//
 import getNavConfig from './NavConfig';
-// import NavbarDocs from './NavbarDocs';
 import NavbarAccount from './NavbarAccount';
 import CollapseButton from './CollapseButton';
-
-// ----------------------------------------------------------------------
 
 const RootStyle = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('lg')]: {
@@ -30,9 +21,9 @@ const RootStyle = styled('div')(({ theme }) => ({
       duration: theme.transitions.duration.shorter,
     }),
   },
+  
+  background: theme.palette.background.paper, // Ensure the RootStyle takes full viewport height
 }));
-
-// ----------------------------------------------------------------------
 
 NavbarVertical.propTypes = {
   isOpenSidebar: PropTypes.bool,
@@ -41,27 +32,24 @@ NavbarVertical.propTypes = {
 
 export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
   const theme = useTheme();
-
   const { pathname } = useLocation();
-
   const isDesktop = useResponsive('up', 'lg');
-
-  const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
-    useCollapseDrawer();
+  const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } = useCollapseDrawer();
 
   useEffect(() => {
     if (isOpenSidebar) {
       onCloseSidebar();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
   const navConfig = getNavConfig();
+
   const renderContent = (
-    <Scrollbar
+    <Box
       sx={{
-        background:theme.palette.background.paper,
-        height: 1,
-        '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
+        background: theme.palette.background.paper,
+       
+        '& .simplebar-content': { height: '100%', display: 'flex', flexDirection: 'column' },
       }}
     >
       <Stack
@@ -76,27 +64,18 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
       >
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Logo />
-
-          {isDesktop && !isCollapse && (
-            <CollapseButton onToggleCollapse={onToggleCollapse} collapseClick={collapseClick} />
-          )}
+          {isDesktop && !isCollapse && <CollapseButton onToggleCollapse={onToggleCollapse} collapseClick={collapseClick} />}
         </Stack>
-
         <NavbarAccount isCollapse={isCollapse} />
       </Stack>
-
       <NavSectionVertical navConfig={navConfig} isCollapse={isCollapse} />
-
       <Box sx={{ flexGrow: 1 }} />
-
-      {/* {!isCollapse && <NavbarDocs />} */}
-    </Scrollbar>
+    </Box>
   );
 
   return (
     <RootStyle
       sx={{
-        height: 'auto',
         width: {
           lg: isCollapse ? NAVBAR.DASHBOARD_COLLAPSE_WIDTH : NAVBAR.DASHBOARD_WIDTH,
         },
@@ -110,7 +89,6 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
           {renderContent}
         </Drawer>
       )}
-
       {isDesktop && (
         <Drawer
           open
@@ -122,6 +100,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
               width: NAVBAR.DASHBOARD_WIDTH,
               borderRightStyle: 'dashed',
               bgcolor: 'background.default',
+           // Ensure Drawer takes full viewport height
               transition: (theme) =>
                 theme.transitions.create('width', {
                   duration: theme.transitions.duration.standard,

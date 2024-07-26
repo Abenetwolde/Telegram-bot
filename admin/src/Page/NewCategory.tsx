@@ -2,12 +2,9 @@ import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
-import { fetchCategories, fetchCategoriesStart } from "../redux/categorySlice";
 import NewCategoryForm from "../components/NewCategory";
 import CategoryTable from "../components/CategoryTable";
 import { styled } from '@mui/material/styles';
-import BreadcrumbComponent from "../components/BreadcrumbComponent";
-import { Box } from "@mui/material";
 
 const Container = styled('div')({
   marginBottom: 8,
@@ -23,17 +20,12 @@ const Container = styled('div')({
 const NewCategory = () => {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(fetchCategoriesStart());
-    dispatch(fetchCategories());
-  }, [dispatch]);
+
 
   return (
     <div>
          
       <Container>
-
-      {/* <BreadcrumbComponent/> */}
         <NewCategoryForm />
       </Container>
       <div className="max-w-full overflow-x-auto">

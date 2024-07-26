@@ -221,7 +221,7 @@ const handleRowsPerPageChange = (event) => {
                 <Divider /> 
 
                 {!isFalse && <Box sx={{ p: 2, textAlign: 'right', border: 'none', outline: "none" }}>
-                    <Button onClick={() => navigate('/dashboard/users/performance')} sx={{
+                    <Button onClick={() => navigate('/pages/users/performance')} sx={{
                         '&:focus': {
                             outline: 'none',
                         },

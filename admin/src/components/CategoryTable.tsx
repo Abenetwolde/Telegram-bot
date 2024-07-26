@@ -3,19 +3,24 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../app/store';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
-import { setRowsPerPageAndFetch, setPageAndFetch,fetchCategories, fetchCategoriesStart } from '../redux/categorySlice';
+import { Box, Card, CardHeader, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
+import { setCategoryPage, setCategoryPaginationData, setCategoryRowsPerPage, } from '../redux/categorySlice';
 import { Category } from '../types/Category';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import EditModal from './EditModal';
-import {  MutatingDots } from 'react-loader-spinner';
+import { MutatingDots } from 'react-loader-spinner';
 // import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-
+import { useGetAllCategoriesQuery } from '../redux/Api/category';
 const CategoryTable: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
     const [deleteRow, setDeletedRow] = useState<Category | null>(null);
     const [editedRow, setEditedRow] = useState<Category | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+    const category = useSelector((state: RootState) => state.category);
+    const { data, isLoading, error } = useGetAllCategoriesQuery({
+        page: category.page + 1, // Convert 0-based to 1-based indexing for the backend
+        pageSize: category.rowsPerPage,
+    })
 
     const columns = [
         { Header: 'ID', accessor: '_id' },
@@ -34,13 +39,6 @@ const CategoryTable: React.FC = () => {
             Cell: ({ value }: any) => (
                 <div className="flex items-center">
 
-                    {/* {value && value.icon && typeof value.icon === 'string' ? (
-                <div className="w-5 h-5 rounded-full bg-gray-300 flex items-center justify-center mr-2">
-                  <img src={value.icon} alt="Category Icon" className="w-full h-full rounded-full" />
-                </div>
-              ) : (
-                value.icon
-              )} */}
                     {value && value}
 
                 </div>
@@ -48,27 +46,44 @@ const CategoryTable: React.FC = () => {
         },
 
     ];
+    const renderSkeleton = () => {
+        return (
+            <TableRow>
+                {columns.map((column) => (
+                    <TableCell>
+                        <Skeleton height={30} variant="text" />
+                    </TableCell>
+                ))}
+                <TableCell>
+                    <Skeleton height={30} variant="text" />
+                </TableCell>
+            </TableRow>
+        );
+    };
     const dispatch = useDispatch();
     const categoryState = useSelector((state: RootState) => state.category);
     console.log('Categories:', categoryState.data);
-  
+    useEffect(() => {
+        if (data) {
+            dispatch(setCategoryPaginationData({ totalPages: data.totalPages, totalRows: data.count }));
+        }
+    }, [data, dispatch]);
     const handleChangePage = (_event: unknown, newPage: number) => {
-          //@ts-ignore
-        dispatch(setPageAndFetch(newPage));
+        //@ts-ignore
+        dispatch(setCategoryPage(newPage));
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         //@ts-ignore
-        dispatch(setRowsPerPageAndFetch(parseInt(event.target.value, 10)));
+        dispatch(setCategoryRowsPerPage(parseInt(event.target.value, 10)));
     };
     const handleEditClick = (rowData: any) => {
         setEditedRow(rowData);
-        console.log("row data", rowData)
+
         setIsEditModalOpen(true);
     };
     const handlEDeleteClick = (rowData: any) => {
         setDeleteModalOpen(true);
-        console.log("ro data for delete.......", rowData)
         setDeletedRow(rowData)
     };
     const handleCloseEditModal = () => {
@@ -105,90 +120,75 @@ const CategoryTable: React.FC = () => {
                 handleClose={() => setDeleteModalOpen(false)}
                 deleteItemId={deleteRow}
             />
-            <div>
-                {
-                    !categoryState.loading ?
-                        (
-                            <TableContainer component={Paper} className="overflow-auto mt-10 ">
-                                <Table sx={{ maxWidth: 1300 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
-                                    <TableHead className=" !text-white">
-                                        <TableRow>
+            <div className="overflow-auto mt-10 flex item-center justify-center shadow-xl">
+                <Card className='p-5' elevation={2}>
+                    <Box sx={{ mb: 3, textAlign: 'left' }}>
+                        <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={`Categories Table`} />
+                    </Box>
+                    <TableContainer component={Paper} className="overflow-auto mt-10 ">
+                        <Table sx={{ maxWidth: 1300 }} aria-label="product table" className="border-collapse align-center justify-center mx-auto">
+                            <TableHead className=" !text-white">
+                                <TableRow>
+                                    {columns.map((column) => (
+                                        <TableCell key={column.accessor} className={`p-2 !text-m`}>
+                                            {column.Header}
+                                        </TableCell>
+                                    ))}
+                                    <TableCell className="p-2">Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+
+                            <TableBody>
+                                {isLoading
+                                    ? Array.from(new Array(4)).map((_, index) => renderSkeleton()) :
+                                    data?.categorys?.map((product, index) => (
+                                        <TableRow
+                                            key={product._id}
+                                        // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
+                                        >
                                             {columns.map((column) => (
-                                                <TableCell key={column.accessor} className={`p-2 !text-m`}>
-                                                    {column.Header}
+                                                <TableCell key={column.accessor} className={`p-2`}>
+                                                    {column.Cell ? column.Cell({ value: product[column.accessor as keyof Category] }) : getProductValue(product, column.accessor)}
                                                 </TableCell>
                                             ))}
-                                            <TableCell className="p-2">Actions</TableCell>
+
+                                            <TableCell className="p-2">
+                                                <div className="flex justify-between items-center gap-1">
+
+                                                    <button onClick={() => handleEditClick(product)} className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-blue-100">
+                                                        <EditIcon />
+                                                    </button>
+                                                    <button onClick={() => handlEDeleteClick(product)} className="text-red-600 hover:bg-red-200 p-1 rounded-full bg-red-100">
+                                                        <DeleteIcon />
+                                                    </button>
+                                                </div>
+                                            </TableCell>
                                         </TableRow>
-                                    </TableHead>
+                                    ))}
+                            </TableBody>
 
-                                    <TableBody>
-                               
-                                        {categoryState.data.map((product, index) => (
-                                            <TableRow
-                                                key={product._id}
-                                                // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
-                                            >
-                                                {columns.map((column) => (
-                                                    <TableCell key={column.accessor} className={`p-2`}>
-                                                        {column.Cell ? column.Cell({ value: product[column.accessor as keyof Category] }) : getProductValue(product, column.accessor)}
-                                                    </TableCell>
-                                                ))}
-                                              
-                                                <TableCell className="p-2">
-                                                    <div className="flex justify-between items-center gap-1">
-                                                         
-                                                        <button onClick={() => handleEditClick(product)} className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-blue-100">
-                                                            <EditIcon />
-                                                        </button>
-                                                        <button onClick={() => handlEDeleteClick(product)} className="text-red-600 hover:bg-red-200 p-1 rounded-full bg-red-100">
-                                                            <DeleteIcon />
-                                                        </button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-
-                                    <TableFooter>
-                                        <TableRow>
-                                            <TablePagination
-                                                rowsPerPageOptions={[5, 10, 25]}
-                                                count={categoryState.totalRows}
-                                                rowsPerPage={categoryState.rowsPerPage}
-                                                page={categoryState.page}
-                                                onPageChange={handleChangePage}
-                                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                                className="mx-auto"
-                                            />
-                                        </TableRow>
-                                    </TableFooter>
-                                </Table>
-                            </TableContainer>
-                        ) :
-
-                        (
-                            <div className="flex justify-center items-center h-full">
-                                <MutatingDots
-                                    height="100"
-                                    width="100"
-                                    color="#add8e6"  // Light Blue
-                                    secondaryColor="#ffcccb"  // Light Red
-                                    radius="12.5"
-                                    ariaLabel="mutating-dots-loading"
-                                    wrapperStyle={{}}
-                                    wrapperClass=""
-                                    visible={true}
-                                />
-
-                            </div>
-                        )}
-
-
-                <div>
-
-                </div>
+                            <TableFooter>
+                                <TableRow>
+                                    <TablePagination
+                                        rowsPerPageOptions={[5, 10, 25]}
+                                        count={category.totalRows}
+                                        rowsPerPage={category.rowsPerPage}
+                                        page={category.page}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                        className="mx-auto"
+                                    />
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
+                    </TableContainer>
+                </Card>
             </div>
+
+
+
+
+
         </>
     );
 };

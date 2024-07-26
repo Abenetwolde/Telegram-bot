@@ -1,26 +1,27 @@
 import React from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { DeleteConfirmationModalProps,ApiResponse  } from '../types/Category';
-import { deleteCategorySuccess } from '../redux/categorySlice';
 import { useDispatch } from 'react-redux';
-import api from '../services/api';
+
+import { useDeleteCategoryMutation } from '../redux/Api/category';
 const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
     isOpen,
     handleClose,
     deleteItemId,
   }) => {
-    const dispatch = useDispatch();
+
+    const [deleteCategory, {isLoading}, error]=useDeleteCategoryMutation()
   const handleConfirmDelete = async () => {
     try {
-      const response = await api.delete<ApiResponse>(
-        `category/deletecategorybyid/${deleteItemId?._id}`
-      );
-      if (response.data.success) {
+     const response=await deleteCategory({id:deleteItemId?._id})
+      // const response = await api.delete<ApiResponse>(
+      //   `category/deletecategorybyid/${deleteItemId?._id}`
+      // );
+      if (response) {
         toast.success(`${deleteItemId?.name}Category deleted successfully!`);
-        dispatch(deleteCategorySuccess(deleteItemId?._id??''));
+        // dispatch(deleteCategorySuccess(deleteItemId?._id??''));
       } else {
         toast.error('Failed to delete category');
       }
@@ -48,7 +49,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
           className="text-red-600 hover:bg-red-200 px-5 py-2 rounded-full bg-red-100 cursor-pointer"
           onClick={handleConfirmDelete}
         >
-          Confirm Delete
+        { isLoading? 'Deleting...':'Confirm Delete'}
         </div>
         <div
           onClick={handleClose}

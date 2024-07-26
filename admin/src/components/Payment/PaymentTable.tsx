@@ -231,7 +231,7 @@ const PaymentTable: React.FC = () => {
 
             <div className="overflow-auto flex item-center justify-center shadow-xl">
                 <Card className='p-5' elevation={2}>
-                    <CardHeader title={"Payments Table"} />
+                    <CardHeader sx={{mb:5}} title={"Payments Table"} />
                     {/* <FilterOrder
                                             search={orderNumber}
                                             paymentStatus={paymentStatus}

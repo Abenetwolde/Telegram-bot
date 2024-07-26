@@ -3,7 +3,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { Card, CardHeader, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
+import { Card, CardHeader, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TextField, useTheme } from '@mui/material';
 import { setPage, setPaginationData, setRowsPerPage } from '../../redux/userSlice';
 
 import { MutatingDots } from 'react-loader-spinner';
@@ -12,6 +12,7 @@ import { Product } from '../../types/product';
 import DeleteProduct from './DeleteUser';
 import { useGetUsersQuery } from '../../redux/Api/User';
 import UserFilter from './UserFilter.tsx';
+import Label from '../Label.tsx';
 // import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 const UserTable: React.FC = () => {
@@ -44,6 +45,8 @@ const UserTable: React.FC = () => {
     const handleRoleChange = (event) => {
         setRole(event.target.value);
     };
+    const theme = useTheme();
+    const isLight = theme.palette.mode === 'light';
     const columns = [
         // { Header: 'ID', accessor: '_id' , width:20},
         {
@@ -78,9 +81,11 @@ const UserTable: React.FC = () => {
             accessor: 'username',
             Header: 'User Name',
             Cell: ({ value }: any) => (
-                <div className="flex items-center">
-                    {value && value}
-                </div>
+                <Label
+                variant={isLight ? 'ghost' : 'filled'}
+                color={"info"}>
+                {`@ ${value}`}
+            </Label>
             ),
         },
         {
@@ -88,7 +93,7 @@ const UserTable: React.FC = () => {
             Header: 'Language',
             Cell: ({ value }: any) => (
                 <div className="flex items-center">
-                    {value && value}
+                    {value && value=='am'?'Amharic':'English'}
                 </div>
             ),
         },
@@ -96,20 +101,18 @@ const UserTable: React.FC = () => {
             accessor: 'from',
             Header: 'Registerd From',
             Cell: ({ value }: any) => (
-                <div className="flex items-center">
-                    {value && value}
-                </div>
+                <Label
+                variant={isLight ? 'ghost' : 'filled'}
+                color={(value == 'Bot' && 'success') ||
+                    (value == 'Channel' && 'warning') ||
+                    (value == 'Refferal' && 'info') ||
+                    'error'}      >
+
+                {value }
+            </Label>
             ),
         },
-        {
-            accessor: 'is_bot',
-            Header: 'Is Bot',
-            Cell: ({ value }: any) => (
-                <div className="flex items-center">
-                    {value && value ? "True" : "false"}
-                </div>
-            ),
-        },
+
         {
             accessor: 'role',
             Header: 'Role',

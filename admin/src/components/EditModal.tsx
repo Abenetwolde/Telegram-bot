@@ -3,22 +3,24 @@ import {toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { EditModalProps, EditApiResponse } from '../types/Category';
-import { updateCategorySuccess } from '../redux/categorySlice';
+
 import { useDispatch } from 'react-redux';
 import api from '../services/api';
-
+import { useUpdateCategoryMutation } from '../redux/Api/category';
 const EditModal: React.FC<EditModalProps> = ({ isOpen, handleClose, editedRow, setEditedRow }) => {
-    const dispatch = useDispatch();
+    const [updateCategory, {isLoading}]=useUpdateCategoryMutation()
     const handleUpdate = async () => {
         try {
-          // Make an API request to update the category by its ID
-          const response = await api.put<EditApiResponse, any>(`category/updatecategorybyid/${editedRow?._id}`, {
+          const  updatedData={
+            id:editedRow?._id,
             name: editedRow?.name,
             icon: editedRow?.icon,
-            // Add other properties as needed
-          });
-          if (response.data.success) {
-            dispatch(updateCategorySuccess(response.data.category));
+          }
+          const updateResponse=await updateCategory(updatedData).unwrap()
+ 
+          // });
+          if (updateResponse.success) {
+            // dispatch(updateCategorySuccess(response.data.category));
             toast.success("Category Update successfully!");
             // window.location.reload();
            
@@ -62,7 +64,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, handleClose, editedRow, s
             className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-green-100 px-5 py-2 cursor-pointer"
             onClick={handleUpdate}
           >
-            Update
+           { isLoading? 'Update...':'Update'}
           </div>
           <div
             onClick={handleClose}

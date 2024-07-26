@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
+import { Box, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
 import { MutatingDots } from 'react-loader-spinner';
 
 interface UserLotteryProps {
@@ -58,14 +58,24 @@ interface UserLotteryProps {
 
         return value;
     };
-
+    const renderSkeleton = () => {
+      return (
+          <TableRow>
+              {columns.map((column) => (
+                  <TableCell>
+                      <Skeleton height={30} variant="text" />
+                  </TableCell>
+              ))}
+              <TableCell>
+                  <Skeleton height={30} variant="text" />
+              </TableCell>
+          </TableRow>
+      );
+  };
 
     return (
         <>
-<div>
-      {
-        !loading ?
-          (
+
             <Box mt={1}>
               <TableContainer component={Paper} className="overflow-auto">
                 <Table sx={{ maxWidth: 1200 }} aria-label="user table" className="border-collapse align-center justify-center mx-auto">
@@ -80,7 +90,9 @@ interface UserLotteryProps {
                   </TableHead>
 
                   <TableBody>
-                    {data && data.map((product, index) => (
+                  {loading
+                                    ? Array.from(new Array(7)).map((_, index) => renderSkeleton()):
+                    data.map((product, index) => (
                       <TableRow key={product._id}>
                         {columns.map((column) => (
                           <TableCell key={column.accessor} className={`p-2`}>
@@ -95,25 +107,6 @@ interface UserLotteryProps {
               </TableContainer>
             </Box>
 
-          ) :
-
-          (
-            <div className="flex justify-center items-center h-full">
-              <MutatingDots
-                height="100"
-                width="100"
-                color="#add8e6"  // Light Blue
-                secondaryColor="#ffcccb"  // Light Red
-                radius="12.5"
-                ariaLabel="mutating-dots-loading"
-                wrapperStyle={{}}
-                wrapperClass=""
-                visible={true}
-              />
-            </div>
-          )
-      }
-    </div>
         </>
     );
 };
