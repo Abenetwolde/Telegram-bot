@@ -6,21 +6,24 @@ import 'react-toastify/dist/ReactToastify.css';
 import { DeleteProductResponse ,DeleteConfirmationProdcutModalProps} from '../../types/product';
 import { useDispatch } from 'react-redux';
 import api from '../../services/api';
-import { deleteProductSuccess, } from '../../redux/productSlice';
+
+import { useDeleteProductMutation } from '../../redux/Api/product';
 const DeleteProduct: React.FC<DeleteConfirmationProdcutModalProps> = ({
     isOpen,
     handleClose,
     deletedItem,
   }) => {
     const dispatch = useDispatch();
+    const [deleteProduct, {isLoading}]= useDeleteProductMutation()
   const handleConfirmDelete = async () => {
     try {
-      const response = await api.delete<DeleteProductResponse>(
-        `product/deleteproductbyid/${deletedItem?._id}`
-      );
-      if (response.data.success) {
+      // const response = await api.delete<DeleteProductResponse>(
+      //   `product/deleteproductbyid/${deletedItem?._id}`
+      // );
+    const response =await deleteProduct(deletedItem?._id)
+      if (response) {
         toast.success(`${deletedItem?.name} Product deleted successfully!`);
-        dispatch(deleteProductSuccess(deletedItem?._id??''));
+        
       } else {
         toast.error('Failed to delete category');
       }
@@ -48,7 +51,7 @@ const DeleteProduct: React.FC<DeleteConfirmationProdcutModalProps> = ({
           className="text-red-600 hover:bg-red-200 px-5 py-2 rounded-full bg-red-100 cursor-pointer"
           onClick={handleConfirmDelete}
         >
-          Confirm Delete
+         {isLoading?"Deleting...":"Delete" }
         </div>
         <div
           onClick={handleClose}

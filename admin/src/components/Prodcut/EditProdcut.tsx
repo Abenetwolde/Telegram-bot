@@ -6,10 +6,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
 import api from '../../services/api';
 import { Category, EditProdcutModalProps, UpdateProductResponse } from '../../types/product';
-import { updateProductSuccess } from '../../redux/productSlice';
+
 import { useEffect, useState } from 'react';
 import { ApiResponse } from '../../types/Category';
-
+import { useUpdateProductMutation } from '../../redux/Api/product';
+import { useGetAllCategoriesQuery } from '../../redux/Api/category';
 const EditProdcut: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedRow }) => {
     const dispatch = useDispatch();
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -20,6 +21,13 @@ const EditProdcut: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedR
     const [selectedImages, setSelectedImages] = useState<any>([]);
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [updateProduct, {isLoading:isLoadingUpdate}]=useUpdateProductMutation()
+    const { data:categoryData, isLoading:categoryLoading, error } = useGetAllCategoriesQuery({ page: 1, pageSize: 10 });
+    useEffect(() => {
+        if (categoryData) {
+          setCategories(categoryData.categorys);
+        }
+      }, [categoryData]);
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const files = e.target.files;
@@ -53,19 +61,19 @@ const EditProdcut: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedR
 
     const [highlightInput, setHighlightInput] = useState<string>('');
     // console.log("editedRow.images........",editedRow?.images)
-    useEffect(() => {
-        const fetchCategoryData = async () => {
-            try {
-                const categoryData: ApiResponse = await  api.get(`category/getcategories?&sortBy=latest`);;
-                setCategories(categoryData?.data?.categorys);
-                console.log( "category...............",categoryData?.data?.categorys)
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchCategoryData = async () => {
+    //         try {
+    //             const categoryData: ApiResponse = await  api.get(`category/getcategories?&sortBy=latest`);;
+    //             setCategories(categoryData?.data?.categorys);
+    //             console.log( "category...............",categoryData?.data?.categorys)
+    //         } catch (error) {
+    //             console.error('Error fetching categories:', error);
+    //         }
+    //     };
 
-        fetchCategoryData();
-    }, []);
+    //     fetchCategoryData();
+    // }, []);
     const handleUpload = async () => {
         if (selectedImages.length > 0) {
             setLoading(true);
@@ -75,7 +83,8 @@ const EditProdcut: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedR
             }
 
             try {
-                const response = await api.post('product/upload', formData);
+                // const response =await updateProduct()
+             const response = await api.post('product/upload', formData);
                 console.log('Images uploaded successfully!', response.data.imageUrl);
 
                 // Update editImage state with uploaded images
@@ -98,14 +107,16 @@ const EditProdcut: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedR
     const handleUpdate = async () => {
         try {
             // Make an API request to update the category by its ID
-            const response = await api.put<UpdateProductResponse, any>(`product/updateproductbyid/${editedRow?._id}`, {
-                ...editedRow,
-                category:selectedCategory?._id
+            // const response = await api.put<UpdateProductResponse, any>(`product/updateproductbyid/${editedRow?._id}`, {
+            //     ...editedRow,
+            //     category:selectedCategory?._id
 
-            });
-            if (response.data.success) {
-                dispatch(updateProductSuccess(response.data.product))
-
+            // });
+        
+            const response =await updateProduct({      ...editedRow,
+                category:selectedCategory?._id}).unwrap()
+            if (response.success) {
+              
                 toast.success("Prodcut Update successfully!");
                 // window.location.reload();
 
@@ -245,7 +256,7 @@ const EditProdcut: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedR
                     className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-green-100 px-5 py-2 cursor-pointer"
                     onClick={handleUpdate}
                 >
-                    Update
+                    {isLoadingUpdate?"Update...":"Update"}
                 </div>
                 <div
                     onClick={handleClose}

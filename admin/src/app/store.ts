@@ -16,6 +16,7 @@ import { feedbackApiSlice } from '../redux/Api/feedback';
 import { userKpiApi } from '../redux/Api/userKpiSlice';
 import { paymentApi } from '../redux/Api/payment';
 import { categoryApi } from '../redux/Api/category';
+import { productApi } from '../redux/Api/product';
 // import { orderSliceApi } from '../redux/Api/Order';
 
 const store = configureStore({
@@ -33,9 +34,10 @@ const store = configureStore({
     [userKpiApi.reducerPath]: userKpiApi.reducer,
     [paymentApi.reducerPath]: paymentApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
+    [productApi.reducerPath]: productApi.reducer,
   },
 
-   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(orderSliceApi.middleware,authApiSlice.middleware,userApi.middleware,feedbackApiSlice.middleware,userKpiApi.middleware , paymentApi.middleware,categoryApi.middleware),
+   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(orderSliceApi.middleware,authApiSlice.middleware,userApi.middleware,feedbackApiSlice.middleware,userKpiApi.middleware , paymentApi.middleware,categoryApi.middleware,productApi.middleware),
 
 });
 

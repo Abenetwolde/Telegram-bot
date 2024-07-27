@@ -4,17 +4,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 
 import CreateNewProdcut from "../components/Prodcut/CreateNewProdcut";
-import { fetchProduct, fetchProductStart } from "../redux/productSlice";
+
 import ProdcutTable from "../components/Prodcut/ProdcutTable";
 const ProdcutPage = () => {
 
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchProductStart())
-    //@ts-ignore
-    dispatch(fetchProduct());
-  }, [dispatch]);
 
   return (
     <div className="">

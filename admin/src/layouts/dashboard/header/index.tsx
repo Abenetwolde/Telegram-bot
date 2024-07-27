@@ -25,6 +25,7 @@ import PopoverMenu from './PopoverMenu';
 import { useState } from 'react';
 import LanguagePopover from './LanguagePopover';
 import { useTranslation } from 'react-i18next';
+import MyAvatar from '../../../components/MyAvatar';
 
 // ----------------------------------------------------------------------
 
@@ -100,11 +101,7 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
         <LanguagePopover />
           <IconButtonAnimate placement="right"onClick={handleClick} >
            
-              <Image
-                  disabledEffect
-                  src={`https://th.bing.com/th/id/OIP.fyCCXwkRz9vrY_TsNRq5rgHaHa?rs=1&pid=ImgDetMain`}
-                  sx={{width: 32, height: 32}}
-              />
+             <MyAvatar/>
         
           </IconButtonAnimate>
           <PopoverMenu anchorEl={anchorEl} handleClose={handleClose} />

@@ -3,21 +3,23 @@
 // utils
 // import createAvatar from '../utils/createAvatar';
 //
+import { useSelector } from 'react-redux';
 import Avatar from './Avatar';
+import createAvatar from '../utils/createAvatar';
 
 // ----------------------------------------------------------------------
 
 export default function MyAvatar({ ...other }) {
-  // const { user } = useAuth();
-const user=null
+  const user = useSelector((state: any) => state.auth.user);
+
   return (
     <Avatar
-      // src={user?.photoURL}
+      src={user?.photoURL}
       // alt={user?.displayName}
-      // color={user?.photoURL ? 'default' : createAvatar(user?.displayName).color}
+       color={user?.photoURL ? 'default' : createAvatar(user?.first_name).color}
       {...other}
     >
-      {/* {createAvatar(user?.displayName).name} */}
+      {createAvatar(user?.first_name).name}
     </Avatar>
   );
 }

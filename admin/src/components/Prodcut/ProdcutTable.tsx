@@ -3,22 +3,27 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { Avatar, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
-import { setRowsPerPageAndFetch, setPageAndFetch } from '../../redux/productSlice';
+import { Avatar, Card, CardHeader, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material';
+import {  setProductPaginationData, setProductPage, setProductRowsPerPage } from '../../redux/productSlice';
 
 import { MutatingDots } from 'react-loader-spinner';
 import EditProdcut from './EditProdcut';
 import { Product } from '../../types/product';
 import DeleteProduct from './DeleteProduct';
 import DeleteUser from '../User/DeleteUser';
+import { useGetAllProductQuery } from '../../redux/Api/product';
 // import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
-const ProdcutTable: React.FC = () => {
+const  ProdcutTable :React.FC =  () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
     const [deleteRow, setDeletedRow] = useState<| null>(null);
     const [editedRow, setEditedRow] = useState<| null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+    const product = useSelector((state: RootState) => state.product);
 
+const {data,isLoading, error}= useGetAllProductQuery({     
+    page: product?.page + 1, // Convert 0-based to 1-based indexing for the backend
+    pageSize: product?.rowsPerPage, })
     const columns = [
         // { Header: 'ID', accessor: '_id' },
         {
@@ -124,29 +129,24 @@ const ProdcutTable: React.FC = () => {
                 </div>
             ),
         },
-          {
-            accessor: 'available',
-            Header: 'Available',
-            Cell: ({ value }: any) => (
-              <div className={`flex items-center ${value ? 'text-green-500' : 'text-red-500'}`}>
-                {value ? 'Available' : 'Not Available'}
-              </div>
-            ),
-          },
+       
 
     ];
     const dispatch = useDispatch();
-    const categoryState = useSelector((state: RootState) => state.product);
-    console.log('Categories:', categoryState);
+    useEffect(() => {
+        if (data) {
+            dispatch(setProductPaginationData({ totalPages: data.totalPages, totalRows: data.count }));
+        }
+    }, [data, dispatch]);
 
     const handleChangePage = (_event: unknown, newPage: number) => {
         //@ts-ignore
-        dispatch(setPageAndFetch(newPage));
+        dispatch(setProductPage(newPage));
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         //@ts-ignore
-        dispatch(setRowsPerPageAndFetch(parseInt(event.target.value, 10)));
+        dispatch(setProductRowsPerPage(parseInt(event.target.value, 10)));
     };
     const handleEditClick = (rowData: any) => {
         setEditedRow(rowData);
@@ -173,11 +173,20 @@ const ProdcutTable: React.FC = () => {
         return value;
     };
 
-    // useEffect(() => {
-    //     dispatch(fetchCategoriesStart())
-    //     //@ts-ignore
-    //      dispatch(fetchCategories());
-    //   }, [dispatch]);
+    const renderSkeleton = () => {
+        return (
+            <TableRow>
+                {columns.map((column) => (
+                    <TableCell>
+                        <Skeleton height={30} variant="text" />
+                    </TableCell>
+                ))}
+                <TableCell>
+                    <Skeleton height={30} variant="text" />
+                </TableCell>
+            </TableRow>
+        );
+    };
     return (
         <>
 
@@ -195,10 +204,10 @@ const ProdcutTable: React.FC = () => {
          
 
             <div>
-                {
-                    !categoryState.loading ?
-                        (
+            
                         <div className="overflow-auto flex item-center justify-center shadow-xl">
+                        <Card className='p-5'elevation={2}>
+                        <CardHeader sx={{mb:5}} title={"Products Table"} />
                             <TableContainer component={Paper}sx={{ maxWidth: 1200 }} className="overflow-auto item-center justify-center">
                                 <Table  aria-label="product table" className="border-collapse align-center justify-center mx-auto">
                                     <TableHead >
@@ -214,7 +223,9 @@ const ProdcutTable: React.FC = () => {
 
                                     <TableBody>
 
-                                        {categoryState?.data && categoryState?.data.map((product, index) => (
+                                        { isLoading
+                                    ? Array.from(new Array(7)).map((_, index) => renderSkeleton()):
+                                    data?.products?.map((product, index) => (
                                             <TableRow
                                                 key={product._id}
                                                 // className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}
@@ -244,9 +255,9 @@ const ProdcutTable: React.FC = () => {
                                         <TableRow>
                                             <TablePagination
                                                 rowsPerPageOptions={[5, 10, 25]}
-                                                count={categoryState.totalRows}
-                                                rowsPerPage={categoryState.rowsPerPage}
-                                                page={categoryState.page}
+                                                count={product.totalRows}
+                                                rowsPerPage={product.rowsPerPage}
+                                                page={product.page}
                                                 onPageChange={handleChangePage}
                                                 onRowsPerPageChange={handleChangeRowsPerPage}
                                                 className="mx-auto"
@@ -255,25 +266,9 @@ const ProdcutTable: React.FC = () => {
                                     </TableFooter>
                                 </Table>
                             </TableContainer>
+                            </Card>
                             </div>
-                        ) :
-
-                        (
-                            <div className="flex justify-center items-center h-full">
-                                <MutatingDots
-                                    height="100"
-                                    width="100"
-                                    color="#add8e6"  // Light Blue
-                                    secondaryColor="#ffcccb"  // Light Red
-                                    radius="12.5"
-                                    ariaLabel="mutating-dots-loading"
-                                    wrapperStyle={{}}
-                                    wrapperClass=""
-                                    visible={true}
-                                />
-
-                            </div>
-                        )}
+                     
 
 
                 <div>
@@ -285,3 +280,7 @@ const ProdcutTable: React.FC = () => {
 };
 
 export default ProdcutTable;
+function dispatch(arg0: any) {
+    throw new Error('Function not implemented.');
+}
+

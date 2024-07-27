@@ -33,9 +33,9 @@ NavbarAccount.propTypes = {
 export default function NavbarAccount({ isCollapse }) {
   // const { user } = useAuth();
   const user = useSelector((state: any) => state.auth.user);
-  console.log("nsvbsr sccount",user)
+
   return (
-    <Link underline="none" color="inherit" component={RouterLink} to={PATH_DASHBOARD.user.account}>
+    <Link underline="none" color="inherit" component={RouterLink} to={PATH_DASHBOARD.analysis.userDashboard}>
       <RootStyle
         sx={{
           ...(isCollapse && {

@@ -14,7 +14,8 @@ import { getCategoryList } from '../../services/category';
 import { ApiResponse, CategoryApi } from '../../types/Category';
 import { Height } from '@mui/icons-material';
 import Button from '@mui/material/Button';
-
+import { useCreateProductMutation, useUploadImageProductMutation, useUploadVedioProductMutation } from '../../redux/Api/product';
+import { useGetAllCategoriesQuery } from '../../redux/Api/category';
 interface ImagePreview {
     file: File;
     preview: string;
@@ -41,6 +42,10 @@ const CreateNewProduct: React.FC = () => {
     const [imagesPreview, setImagesPreview] = useState([]);
     const [selectedVideo, setSelectedVideo] = useState<VideoPreview | null>(null);
     const [uploadedVideo, setUploadedVideo] = useState<any>(null);
+    const [ createProduct,{isLoading}]=useCreateProductMutation()
+    const [ uploadImageProduct,{isLoading:imageLoading}]=useUploadImageProductMutation()
+    const [ uploadVedioProduct,{isLoading:vedioLoading}]=useUploadVedioProductMutation()
+    const { data:categoryData, isLoading:categoryLoading, error } = useGetAllCategoriesQuery({ page: 1, pageSize: 10 });
     const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -49,7 +54,11 @@ const CreateNewProduct: React.FC = () => {
                 preview: URL.createObjectURL(file),
             });
         }
-    };
+    };  useEffect(() => {
+        if (categoryData) {
+          setCategories(categoryData.categorys);
+        }
+      }, [categoryData]);
 
     // Function to upload the selected video file
     const handleUploadVideo = async () => {
@@ -58,7 +67,8 @@ const CreateNewProduct: React.FC = () => {
             const formData = new FormData();
             formData.append('video', selectedVideo.file);
             try {
-                const response = await api.post('product/upload-video', formData);
+                const response =await uploadVedioProduct(formData)
+                // const response = await api.post('product/upload-video', formData);
                 setSelectedVideo(null)
                 setUploadedVideo(response.data.files[0]);
                 console.log("response.data", response.data.files[0]);
@@ -97,15 +107,6 @@ const CreateNewProduct: React.FC = () => {
         }
 
 
-        // const reader = new FileReader();
-
-        // reader.onload = () => {
-        //     if (reader.readyState === 2) {
-        //         setImagesPreview((oldImages) => [...oldImages, reader.result]);
-        //         setImages((oldImages) => [...oldImages, reader.result]);
-        //     }
-        // }
-        // reader.readAsDataURL(file);
 
     };
     const handleRemoveSelected = (index: number) => {
@@ -124,10 +125,12 @@ const CreateNewProduct: React.FC = () => {
             }
 
             try {
-                const response = await api.post('product/upload', formData);
-                console.log('Images uploaded successfully!', response.data.imageUrl);
-                // console.log("see uplader image",response.data)
-                setUploadedImages(response.data.imageUrl);
+                const imageresponse=await uploadImageProduct(formData)
+
+                // const response = await api.post('product/upload', formData);
+                // console.log('Images uploaded successfully!', response.data.imageUrl);
+                // // console.log("see uplader image",response.data)
+                setUploadedImages(imageresponse?.data?.imageUrl);
                 setSelectedImages([]);
                 toast.success('Images uploaded successfully!');
             } catch (error) {
@@ -155,19 +158,24 @@ const CreateNewProduct: React.FC = () => {
         };
         console.log(productData)
         console.log("images................", images)
-        const response = await createProduct(productData)
-        dispatch(createProductSuccess(response));
-        setSelectedImages("")
-        setUploadedImages("")
-        setSelectedVideo(null)
-        setUploadedVideo("")
-        // setHighlights("")
-        setHighlightInput("")
-        setName("")
-        setSelectedCategory
-        setCategories([])
-        setDescription('')
-        setPrice(0)
+        // const response = await createProduct(productData)
+        // dispatch(createProductSuccess(response));
+        const response =await createProduct(productData)
+        if(response){
+            toast.success('Product successfully!');
+            setSelectedImages("")
+            setUploadedImages("")
+            setSelectedVideo(null)
+            setUploadedVideo("")
+            // setHighlights("")
+            setHighlightInput("")
+            setName("")
+            setSelectedCategory
+            setCategories([])
+            setDescription('')
+            setPrice(0)
+        }
+       
 
     };
     const ClearValue = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -188,19 +196,7 @@ const CreateNewProduct: React.FC = () => {
 
 
     };
-    useEffect(() => {
-        const fetchCategoryData = async () => {
-            try {
-                const categoryData: ApiResponse = await api.get(`category/getcategories?&sortBy=latest`);;
-                setCategories(categoryData?.data?.categorys);
-                console.log("category...............", categoryData?.data?.categorys)
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
 
-        fetchCategoryData();
-    }, []);
 
     return (
         <>
@@ -306,7 +302,7 @@ const CreateNewProduct: React.FC = () => {
                                     )
                                 )}
                             </div>
-                            {loading && <div className='absolute top-10'>Loading...</div>}
+                            {imageLoading && <div className='absolute top-10'>Loading...</div>}
 
                             <div className='flex items-center justify-center gap-4 w-full'>
                                 {/* <label className="rounded font-medium text-center"> */}
@@ -320,7 +316,7 @@ const CreateNewProduct: React.FC = () => {
 
                                 <Button type="button" variant="contained"
                                     sx={{ height: '100%', padding: '12px 24px' }} onClick={handleUpload}>
-                                    Upload Images
+                                   {imageLoading? "Uploading...":"Upload"}
                                 </Button>
 
                             </div>
@@ -337,7 +333,7 @@ const CreateNewProduct: React.FC = () => {
                                         </video>
                                     </div>
                                 )}
-                                {vloading && <div>Loading...</div>}
+                                {vedioLoading && <div>Loading...</div>}
 
 
                                 <div className="flex gap-2 overflow-x-auto h-32 border rounded">
@@ -376,7 +372,7 @@ const CreateNewProduct: React.FC = () => {
 
                                 <Button type="button" variant="contained"
                                     sx={{ height: '100%', padding: '12px 24px' }} onClick={handleUploadVideo}>
-                                    Upload Video
+                                   { vedioLoading?"Uploading...":"Uplaod"}
                                 </Button>
 
                             </div>
@@ -391,7 +387,7 @@ const CreateNewProduct: React.FC = () => {
                                 className=" bg-green-400 text-white hover:bg-green-500 uppercase w-1/3 p-3 text-blue font-medium rounded shadow hover:shadow-lg cursor-pointer"
                                 value="Submit"
                             >
-                                Submit
+                                {isLoading?"Creating...":"Create"}
 
                             </Button>
                             <Button
