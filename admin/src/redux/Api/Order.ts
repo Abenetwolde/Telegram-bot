@@ -61,7 +61,12 @@ export const orderSliceApi = createApi({
       getTotalTransaction: builder.query<TransactionResponse, void>({
         query: () => '/order/get-total-transaction',
       }),
+      getOrderByStatus: builder.query({
+        query: (filterOfStatus) => `/order/getorderby-cancel-and-complated?interval=${filterOfStatus}`,
+      }),
   }),
 });
 
-export const { useGetCompletedOrdersQuery,useGetCancelOrdersQuery, useGetCashOrdersQuery , useGetOnlineOrdersQuery ,useGetTotalTransactionQuery, useGetAllOrdersQuery ,useUpdateOrderByIdMutation} = orderSliceApi;
+export const { useGetCompletedOrdersQuery,useGetCancelOrdersQuery, useGetCashOrdersQuery , useGetOnlineOrdersQuery ,useGetTotalTransactionQuery, useGetAllOrdersQuery ,useUpdateOrderByIdMutation,
+  useGetOrderByStatusQuery
+} = orderSliceApi;

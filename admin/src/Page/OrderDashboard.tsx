@@ -348,42 +348,25 @@ const OrderDashboard = () => {
   return (
     <Container maxWidth={themeStretch ? false : 'xl'}>
          <Grid container spacing={2}>
-          <Grid lg={4} item  justifyContent="center">
+          <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
             <ComplateOrder anotherComponentRef={anotherComponentRef} />
           </Grid>
-          <Grid lg={4} item  justifyContent="center">
+          <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
             <CancelOrder anotherComponentRef={anotherComponentRef}/>
           </Grid>
-          <Grid lg={4} item  justifyContent="center">
+          <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
          <CashOrder/>
           </Grid>
-          <Grid lg={4} item  justifyContent="center">
+          <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
          <OnlineOrder/>
           </Grid>
-          <Grid lg={4} item  justifyContent="center">
+          <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
          <TotalTransaction/>
           </Grid>
         </Grid>
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
           <AllOrderStatus OrderStatus={OrderStatus} handleFilterOFStatusChange={handleFilterOFStatusChange} filterOfStatus={filterOfStatus} />
-          {/* <UserPerformance data={userperformance} loading={loadingUserPerformance} filterUserPerformanceTable={filterUserPerformanceTable} handleFilterUserPerformanceTable={handleFilterUserPerformanceTable} isFalse={false}  /> */}
-
-
-        </Grid>
-        <Grid item columnSpacing={2} xs={12} md={6} lg={6} width="100%" textAlign="center">
-          <MemoizedCategoryClikced
-            data={categorybyClick}
-            handleFilterOFStatusChange={handleCategoryFilter}
-            filterOfStatus={categoryFilter} />
-
-        </Grid>
-        <Grid item columnSpacing={2} xs={12} md={6} lg={6} width="100%" textAlign="center">
-          <MemoizedProductClikced
-            data={productbyClick}
-            handleFilterOFStatusChange={handleProductFilter}
-            filterOfStatus={productFilter} />
-
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
           <MemoizedCancelAndComplatedOrder
@@ -416,6 +399,22 @@ const OrderDashboard = () => {
             filterOfStatus={filterProductsbyOrder} />
 
         </Grid>
+        <Grid item columnSpacing={2} xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <MemoizedCategoryClikced
+            data={categorybyClick}
+            handleFilterOFStatusChange={handleCategoryFilter}
+            filterOfStatus={categoryFilter} />
+
+        </Grid>
+        <Grid item columnSpacing={2} xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <MemoizedProductClikced
+            data={productbyClick}
+            handleFilterOFStatusChange={handleProductFilter}
+            filterOfStatus={productFilter} />
+
+        </Grid>
+      
+     
       </Grid>
 
 
