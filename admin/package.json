@@ -49,6 +49,7 @@
     "recharts": "^2.11.0",
     "sass": "^1.66.1",
     "simplebar-react": "^3.2.4",
+    "sortablejs": "^1.15.2",
     "stylis-plugin-rtl": "^2.1.1",
     "vite-tsconfig-paths": "^4.2.2"
   },

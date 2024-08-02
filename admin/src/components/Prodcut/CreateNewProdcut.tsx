@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ToastContainer, toast } from 'react-toastify';
@@ -9,7 +9,7 @@ import { createProduct } from '../../services/product';
 import { useDispatch } from 'react-redux';
 import { createProductSuccess, fetchProductSuccess } from '../../redux/productSlice';
 import { Category } from '../../types/product';
-import { Autocomplete, Typography } from '@mui/material';
+import { Autocomplete, Typography, useTheme } from '@mui/material';
 import { getCategoryList } from '../../services/category';
 import { ApiResponse, CategoryApi } from '../../types/Category';
 import { Height } from '@mui/icons-material';
@@ -24,6 +24,7 @@ interface VideoPreview {
     file: File;
     preview: string;
 }
+import Sortable from 'sortablejs';
 const CreateNewProduct: React.FC = () => {
     const dispatch = useDispatch();
 
@@ -197,23 +198,94 @@ const CreateNewProduct: React.FC = () => {
 
     };
 
+    const CustomLabel = ({ children }) => {
+        const theme =useTheme()
+        return (
+          <Typography style={{ color: theme.palette.text.primary, marginBottom: '0.2rem' }}>
+            {children}
+          </Typography>
+        );
+      };
 
+function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSelected, handleFileChange, handleUpload, imageLoading }) {
+    const dragAreaRef = useRef(null);
+  
+    useEffect(() => {
+      if (dragAreaRef.current) {
+        new Sortable(dragAreaRef.current, {
+          animation: 350,
+          onEnd: function (evt) {
+            const newOrder = this.toArray();
+            const reorderedImages = newOrder.map((index) => selectedImages[index]);
+            setSelectedImages(reorderedImages);
+          },
+        });
+      }
+    }, [dragAreaRef, selectedImages]);
+  
+    return (
+      <div>
+        <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary', mb: '10px' }}>Product Images</Typography>
+        <div className="flex gap-2 overflow-x-auto h-32 border rounded" ref={dragAreaRef}>
+          {uploadedImages?.length > 0 ? (
+            uploadedImages.map((imageUrl, index) => (
+              <img key={index} src={`${imageUrl?.imageUrl}`} alt={`Uploaded ${index}`} />
+            ))
+          ) : (
+            selectedImages.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto h-32 border rounded">
+                {selectedImages.map((file, index) => (
+                  <div key={index} className="relative" data-id={index}>
+                    <img src={file.preview} alt={`Selected ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <Button
+                      variant="contained"
+                      sx={{ height: '100%', padding: '12px 24px' }} // Adjust padding as needed
+                      className="absolute top-0 right-0 bg-red-400 text-white rounded-full cursor-pointer"
+                      onClick={() => handleRemoveSelected(index)}
+                    >
+                      X
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )
+          )}
+        </div>
+        {imageLoading && <div className='absolute top-10'>Loading...</div>}
+  
+        <div className='flex items-center justify-center gap-4 w-full'>
+          <TextField
+            type="file"
+            name="images"
+            inputProps={{ multiple: true, accept: 'image/*' }}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <Button type="button" variant="contained" sx={{ height: '100%', padding: '12px 24px' }} onClick={handleUpload}>
+            {imageLoading ? "Uploading..." : "Upload"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
     return (
         <>
             <div className="mb-8 flex-col items-start justify-center mx-auto w-full">
-                <form onSubmit={newProductSubmitHandler} className="flex flex-col sm:flex-row rounded-lg shadow-xl p-4  mx-10" id="mainform" encType="multipart/form-data" >
+                <form onSubmit={newProductSubmitHandler} className="flex flex-col sm:flex-row rounded-lg shadow-xl p-4 gap-x-10 mx-10" id="mainform" encType="multipart/form-data" >
 
                     <div className="flex flex-col gap-3 m-2 sm:w-1/2">
+                    <CustomLabel>Name</CustomLabel>
                         <TextField
-                            label="Name"
+                            // label="Name"
                             variant="outlined"
                             size="small"
                             required
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
+                          <CustomLabel>Description</CustomLabel>
                         <TextField
-                            label="Description"
+                            // label="Description"
                             multiline
                             rows={3}
                             // required
@@ -222,6 +294,7 @@ const CreateNewProduct: React.FC = () => {
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
+                                            <CustomLabel>Category</CustomLabel>
                         <Autocomplete
                             options={categories}
                             getOptionLabel={(option) => option.name}
@@ -229,6 +302,7 @@ const CreateNewProduct: React.FC = () => {
                             value={selectedCategory}
                             renderInput={(params) => <TextField {...params} label="Category" />}
                         />
+                         <CustomLabel>Price</CustomLabel>
                         <TextField
                             label="Price"
                             type="number"
@@ -247,13 +321,15 @@ const CreateNewProduct: React.FC = () => {
 
 
                         <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-center">
-                                <TextField value={highlightInput} onChange={(e) => setHighlightInput(e.target.value)} type="text" placeholder="Highlight" className="px-2 flex-1 outline-none border-none bg-transparent" />
+                            
+                            <CustomLabel>Highlights</CustomLabel>
+                            <div className="flex  justify-between items-center">
+                                <TextField size='small' value={highlightInput} onChange={(e) => setHighlightInput(e.target.value)} type="text" placeholder="Highlight" className="px-2 flex-1 outline-none border-none bg-transparent" />
                                 <Button
                                     onClick={() => addHighlight()}
                                     variant="contained"
                                     className="py-2 px-6 rounded-r hover:shadow-lg cursor-pointer"
-                                    sx={{ height: '100%', padding: '12px 24px' }} // Adjust padding as needed
+                                    // sx={{ height: '100%'} // Adjust padding as needed
                                 >
                                     Add
                                 </Button>
@@ -321,7 +397,14 @@ const CreateNewProduct: React.FC = () => {
 
                             </div>
                         </div>
-
+                        <ImageUploadComponent
+      uploadedImages={uploadedImages}
+      selectedImages={selectedImages}
+      handleRemoveSelected={handleRemoveSelected}
+      handleFileChange={handleFileChange}
+      handleUpload={handleUpload}
+      imageLoading={imageLoading}
+    />
                         <div className='mt-7 justify-center items-center w-full '>
                         <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary' ,mb:"10px"}}>Product Video</Typography>
                             <div className="flex gap-2 overflow-x-auto h-32 border rounded">

@@ -12,6 +12,7 @@ import { Product } from '../../types/product';
 
 import { useGetPaymentsQuery } from '../../redux/Api/payment';
 import Label from '../Label';
+import FilterPayment from './FilterPayment';
 
 const PaymentTable: React.FC = () => {
     const [sortOrder, setSortOrder] = useState('desc');
@@ -232,7 +233,7 @@ const PaymentTable: React.FC = () => {
             <div className="overflow-auto flex item-center justify-center shadow-xl">
                 <Card className='p-5' elevation={2}>
                     <CardHeader sx={{mb:5}} title={"Payments Table"} />
-                    {/* <FilterOrder
+                 {/* <FilterPayment
                                             search={orderNumber}
                                             paymentStatus={paymentStatus}
                                             sortOrder={sortOrder}
@@ -245,7 +246,7 @@ const PaymentTable: React.FC = () => {
                                             handleOrderStatusChange={(e) => handleOrderStatus(e)}
                                              handlePaymentTypeChange={(e) => handlePaymentMethod(e)}
                                              handlePaymentStatusChange={(e) => handlePaymentStatus(e)}
-                              /> */}
+                              />  */}
                     <TableContainer  component={Paper} className="overflow-auto mx-auto ">
                         <Table aria-label="product table" className="border-collapse align-center justify-center mx-auto">
                             <TableHead >
