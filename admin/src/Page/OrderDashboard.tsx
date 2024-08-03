@@ -75,17 +75,11 @@ const OrderDashboard = () => {
       key: 'selection'
     }
   ]);
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isOrderLoading, setIsOrderLoading] = useState(true);
-  const [iscancelOrderLoading, setIsCancelOrderLoading] = useState(true);
-
-  const [totalUserCount, setTotalUserCount] = useState<number | undefined>(0);
-  const [totalOrderCount, setTotalOrderCount] = useState<number | undefined>(undefined);
-  const [totalCancelOrderCount, setTotalCancelOrderCount] = useState<number | undefined>(undefined);
-  const [newOrderData, setNewOrderData] = useState([]);
-  const [newCancelOrderData, setNewCancelOrderData] = useState([]);
-  const [userCounts, setUserCounts] = useState([]);
+  const complateOrderref = useRef(null);
+  const cancelOrderref = useRef(null);
+  const orderbtchashref = useRef(null);
+  const orderbyonlieref = useRef(null);
+  const totaltransation = useRef(null);
 
 
   useEffect(() => {
@@ -349,26 +343,26 @@ const OrderDashboard = () => {
     <Container maxWidth={themeStretch ? false : 'xl'}>
          <Grid container spacing={2}>
           <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
-            <ComplateOrder anotherComponentRef={anotherComponentRef} />
+            <ComplateOrder anotherComponentRef={complateOrderref} />
           </Grid>
           <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
-            <CancelOrder anotherComponentRef={anotherComponentRef}/>
+            <CancelOrder anotherComponentRef={complateOrderref}/>
           </Grid>
           <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
-         <CashOrder/>
+         <CashOrder anotherComponentRef={orderbyonlieref}/>
           </Grid>
           <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
-         <OnlineOrder/>
+         <OnlineOrder anotherComponentRef={orderbyonlieref}/>
           </Grid>
           <Grid  lg={4} md={4} xl={4} xs={12} item  justifyContent="center">
-         <TotalTransaction/>
+         <TotalTransaction anotherComponentRef={orderbyonlieref}/>
           </Grid>
         </Grid>
       <Grid container spacing={3} mt={5}>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
           <AllOrderStatus OrderStatus={OrderStatus} handleFilterOFStatusChange={handleFilterOFStatusChange} filterOfStatus={filterOfStatus} />
         </Grid>
-        <Grid item xs={12} md={6} lg={6}>
+        <Grid item xs={12} md={6} lg={6}  ref={complateOrderref}>
           <MemoizedCancelAndComplatedOrder
             OrderStatus={cancelAndComplated}
             handleFilterOFStatusChange={handlesetCancelVsComppated}
@@ -377,7 +371,7 @@ const OrderDashboard = () => {
 
         </Grid>
 
-        <Grid item xs={12} md={6} lg={6}>
+        <Grid item xs={12} md={6} lg={6} ref={orderbyonlieref}>
           <MemoizedCashAndOnine
             OrderStatus={cashVsOnline}
             handleFilterOFStatusChange={handlesetCashVsOnline}

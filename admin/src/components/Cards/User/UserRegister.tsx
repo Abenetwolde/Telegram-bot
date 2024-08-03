@@ -47,10 +47,10 @@ if(error)
   const series = [
     {
       name: 'Total',
-      data: data?.newUserCounts?.map(point => point.total),
+      data: data?.newUserCounts?.map(point => point?.total),
     },
   ];
-  console.log("user register",data)
+  
   const handleViewMore = () => {
     if (anotherComponentRef.current) {
       anotherComponentRef.current.scrollIntoView({ behavior: 'smooth' });

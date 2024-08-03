@@ -678,7 +678,7 @@ export const getOrderbyCashandOnline = async (req: Request, res: Response) => {
                 },
                 {
                     $group: {
-                        _id: { status: '$paymentType', createdAt: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } },
+                        _id: { status: '$paymentType', createdAt: { $dateToString: { format: "%d", date: "$createdAt" } } },
                         count: { $sum: 1 }
                     }
                 },

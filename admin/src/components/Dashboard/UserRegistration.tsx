@@ -233,7 +233,7 @@ return(
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           dataKey="_id"
-          tickFormatter={(date) => (filter === "perYear" ? date : date)}
+          // tickFormatter={(date) => (filter === "perYear" ? date : date)}
           interval="preserveStartEnd"
         />
         <YAxis />

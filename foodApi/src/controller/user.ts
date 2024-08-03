@@ -248,7 +248,7 @@ export const NewuserCustomRange = async (req: Request, res: Response): Promise<v
             {
                 $group: {
                     _id: {
-                        date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                        date: { $dateToString: { format: "%d-%m", date: "$createdAt" } },
                         from: "$from"
                     },
                     count: { $sum: 1 }
@@ -355,7 +355,7 @@ if(interval==="perWeek"||interval==="perMonth"){
             {
                 $group: {
                     _id: {
-                        date: { $dateToString: { format: "%d-%m", date: "$createdAt" } },
+                        date: { $dateToString: { format: "%d", date: "$createdAt" } },
                         from: "$from"
                     },
                     count: { $sum: 1 }

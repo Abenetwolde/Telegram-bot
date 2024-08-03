@@ -21,10 +21,14 @@ interface ImagePreview {
     preview: string;
 }
 interface VideoPreview {
+    length: number;
     file: File;
     preview: string;
 }
+import { Upload as UploadIcon } from '@mui/icons-material';
 import Sortable from 'sortablejs';
+import axios from 'axios';
+import Iconify from '../Iconify';
 const CreateNewProduct: React.FC = () => {
     const dispatch = useDispatch();
 
@@ -43,10 +47,10 @@ const CreateNewProduct: React.FC = () => {
     const [imagesPreview, setImagesPreview] = useState([]);
     const [selectedVideo, setSelectedVideo] = useState<VideoPreview | null>(null);
     const [uploadedVideo, setUploadedVideo] = useState<any>(null);
-    const [ createProduct,{isLoading}]=useCreateProductMutation()
-    const [ uploadImageProduct,{isLoading:imageLoading}]=useUploadImageProductMutation()
-    const [ uploadVedioProduct,{isLoading:vedioLoading}]=useUploadVedioProductMutation()
-    const { data:categoryData, isLoading:categoryLoading, error } = useGetAllCategoriesQuery({ page: 1, pageSize: 10 });
+    const [createProduct, { isLoading }] = useCreateProductMutation()
+    const [uploadImageProduct, { isLoading: imageLoading }] = useUploadImageProductMutation()
+    const [uploadVedioProduct, { isLoading: vedioLoading }] = useUploadVedioProductMutation()
+    const { data: categoryData, isLoading: categoryLoading, error } = useGetAllCategoriesQuery({ page: 1, pageSize: 10 });
     const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -55,11 +59,11 @@ const CreateNewProduct: React.FC = () => {
                 preview: URL.createObjectURL(file),
             });
         }
-    };  useEffect(() => {
+    }; useEffect(() => {
         if (categoryData) {
-          setCategories(categoryData.categorys);
+            setCategories(categoryData.categorys);
         }
-      }, [categoryData]);
+    }, [categoryData]);
 
     // Function to upload the selected video file
     const handleUploadVideo = async () => {
@@ -68,7 +72,7 @@ const CreateNewProduct: React.FC = () => {
             const formData = new FormData();
             formData.append('video', selectedVideo.file);
             try {
-                const response =await uploadVedioProduct(formData)
+                const response = await uploadVedioProduct(formData)
                 // const response = await api.post('product/upload-video', formData);
                 setSelectedVideo(null)
                 setUploadedVideo(response.data.files[0]);
@@ -126,7 +130,7 @@ const CreateNewProduct: React.FC = () => {
             }
 
             try {
-                const imageresponse=await uploadImageProduct(formData)
+                const imageresponse = await uploadImageProduct(formData)
 
                 // const response = await api.post('product/upload', formData);
                 // console.log('Images uploaded successfully!', response.data.imageUrl);
@@ -161,8 +165,8 @@ const CreateNewProduct: React.FC = () => {
         console.log("images................", images)
         // const response = await createProduct(productData)
         // dispatch(createProductSuccess(response));
-        const response =await createProduct(productData)
-        if(response){
+        const response = await createProduct(productData)
+        if (response) {
             toast.success('Product successfully!');
             setSelectedImages("")
             setUploadedImages("")
@@ -176,7 +180,7 @@ const CreateNewProduct: React.FC = () => {
             setDescription('')
             setPrice(0)
         }
-       
+
 
     };
     const ClearValue = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -197,84 +201,40 @@ const CreateNewProduct: React.FC = () => {
 
 
     };
-
+    const handleRemoveVideo = () => {
+  
+        setSelectedVideo(null);
+    };
     const CustomLabel = ({ children }) => {
-        const theme =useTheme()
+        const theme = useTheme()
         return (
-          <Typography style={{ color: theme.palette.text.primary, marginBottom: '0.2rem' }}>
-            {children}
-          </Typography>
+            <Typography style={{ color: theme.palette.text.primary, marginBottom: '0.2rem' }}>
+                {children}
+            </Typography>
         );
-      };
+    };
+    //   useEffect(() => {
+    //     const el = document.getElementById('image-list');
+    //     if (el) {
+    //         Sortable.create(el, {
+    //             onEnd: (evt) => {
+    //                 const newOrder = [...selectedImages];
+    //                 const [movedItem] = newOrder.splice(evt.oldIndex, 1);
+    //                 newOrder.splice(evt.newIndex, 0, movedItem);
+    //                 setSelectedImages(newOrder);
+    //             },
+    //         });
+    //     }
+    // }, [selectedImages]);
 
-function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSelected, handleFileChange, handleUpload, imageLoading }) {
-    const dragAreaRef = useRef(null);
-  
-    useEffect(() => {
-      if (dragAreaRef.current) {
-        new Sortable(dragAreaRef.current, {
-          animation: 350,
-          onEnd: function (evt) {
-            const newOrder = this.toArray();
-            const reorderedImages = newOrder.map((index) => selectedImages[index]);
-            setSelectedImages(reorderedImages);
-          },
-        });
-      }
-    }, [dragAreaRef, selectedImages]);
-  
-    return (
-      <div>
-        <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary', mb: '10px' }}>Product Images</Typography>
-        <div className="flex gap-2 overflow-x-auto h-32 border rounded" ref={dragAreaRef}>
-          {uploadedImages?.length > 0 ? (
-            uploadedImages.map((imageUrl, index) => (
-              <img key={index} src={`${imageUrl?.imageUrl}`} alt={`Uploaded ${index}`} />
-            ))
-          ) : (
-            selectedImages.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto h-32 border rounded">
-                {selectedImages.map((file, index) => (
-                  <div key={index} className="relative" data-id={index}>
-                    <img src={file.preview} alt={`Selected ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <Button
-                      variant="contained"
-                      sx={{ height: '100%', padding: '12px 24px' }} // Adjust padding as needed
-                      className="absolute top-0 right-0 bg-red-400 text-white rounded-full cursor-pointer"
-                      onClick={() => handleRemoveSelected(index)}
-                    >
-                      X
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )
-          )}
-        </div>
-        {imageLoading && <div className='absolute top-10'>Loading...</div>}
-  
-        <div className='flex items-center justify-center gap-4 w-full'>
-          <TextField
-            type="file"
-            name="images"
-            inputProps={{ multiple: true, accept: 'image/*' }}
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          <Button type="button" variant="contained" sx={{ height: '100%', padding: '12px 24px' }} onClick={handleUpload}>
-            {imageLoading ? "Uploading..." : "Upload"}
-          </Button>
-        </div>
-      </div>
-    );
-  }
+
     return (
         <>
             <div className="mb-8 flex-col items-start justify-center mx-auto w-full">
                 <form onSubmit={newProductSubmitHandler} className="flex flex-col sm:flex-row rounded-lg shadow-xl p-4 gap-x-10 mx-10" id="mainform" encType="multipart/form-data" >
 
                     <div className="flex flex-col gap-3 m-2 sm:w-1/2">
-                    <CustomLabel>Name</CustomLabel>
+                        <CustomLabel>Name</CustomLabel>
                         <TextField
                             // label="Name"
                             variant="outlined"
@@ -283,7 +243,7 @@ function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSele
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
-                          <CustomLabel>Description</CustomLabel>
+                        <CustomLabel>Description</CustomLabel>
                         <TextField
                             // label="Description"
                             multiline
@@ -294,7 +254,7 @@ function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSele
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
-                                            <CustomLabel>Category</CustomLabel>
+                        <CustomLabel>Category</CustomLabel>
                         <Autocomplete
                             options={categories}
                             getOptionLabel={(option) => option.name}
@@ -302,7 +262,7 @@ function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSele
                             value={selectedCategory}
                             renderInput={(params) => <TextField {...params} label="Category" />}
                         />
-                         <CustomLabel>Price</CustomLabel>
+                        <CustomLabel>Price</CustomLabel>
                         <TextField
                             label="Price"
                             type="number"
@@ -321,7 +281,7 @@ function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSele
 
 
                         <div className="flex flex-col gap-2">
-                            
+
                             <CustomLabel>Highlights</CustomLabel>
                             <div className="flex  justify-between items-center">
                                 <TextField size='small' value={highlightInput} onChange={(e) => setHighlightInput(e.target.value)} type="text" placeholder="Highlight" className="px-2 flex-1 outline-none border-none bg-transparent" />
@@ -329,7 +289,7 @@ function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSele
                                     onClick={() => addHighlight()}
                                     variant="contained"
                                     className="py-2 px-6 rounded-r hover:shadow-lg cursor-pointer"
-                                    // sx={{ height: '100%'} // Adjust padding as needed
+                                // sx={{ height: '100%'} // Adjust padding as needed
                                 >
                                     Add
                                 </Button>
@@ -350,127 +310,168 @@ function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSele
                     {/* ... Other form elements ... */}
 
                     <div className="flex flex-col gap-2 m-2 sm:w-1/2">
-                        <div>
-                            <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary' ,mb:"10px"}}>Product Images</Typography>
-                            <div className="flex gap-2 overflow-x-auto h-32 border rounded">
-                                {uploadedImages?.length > 0 ? (
-                                    uploadedImages?.map((imageUrl: any, index) => (
-                                        <img key={index} src={`${imageUrl?.imageUrl}`} alt={`Uploaded ${index}`} />
-                                    ))
-                                ) : (
-                                    selectedImages?.length > 0 && (
-                                        <div className="flex gap-2 overflow-x-auto h-32 border rounded">
-                                            {selectedImages?.map((file, index) => (
-                                                <div key={index} className="relative">
-                                                    <img src={file.preview} alt={`Selected ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <>
+                            <div>
+                                <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary', mb: "10px" }}>
+                                    Product Images
+                                </Typography>
 
-                                                    <Button
-                                                        variant="contained"
-                                                        sx={{ height: '100%', padding: '12px 24px' }} // Adjust padding as needed
-                                                        className="absolute top-0 right-0 bg-red-400 text-white rounded-full  cursor-pointer"
-                                                        onClick={() => handleRemoveSelected(index)}
-                                                    >
-                                                        X
-                                                    </Button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                            {imageLoading && <div className='absolute top-10'>Loading...</div>}
+                                <div className="relative flex items-center justify-center border rounded h-32 cursor-pointer overflow-hidden "    onClick={handleFileChange}>
+        {uploadedImages?.length === 0 ? (
+            <>
+        
+            <TextField
+                type="file"
+                name="images"
+                inputProps={{ multiple: true, accept: 'image/*' }}
+                onChange={handleFileChange}
+                className="absolute h-full w-full inset-0 opacity-0 cursor-pointer"
+            />
+            <Iconify icon={'icons8:upload-2'} sx={{ fontSize: 60, color: 'text.secondary', position: 'absolute' }} />
+            </>
+        ) : (
+            uploadedImages?.map((url, index) => (
+                <img
+                    key={index}
+                    src={url?.imageUrl}
+                    alt={`Uploaded ${index}`}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+            ))
+        )}
+    </div>
 
-                            <div className='flex items-center justify-center gap-4 w-full'>
-                                {/* <label className="rounded font-medium text-center"> */}
-                                <TextField
-                                    type="file"
-                                    name="images"
-                                    inputProps={{ multiple: true, accept: 'image/*' }}
-                                    onChange={handleFileChange}
-                                    className="hidden"
-                                />
-
-                                <Button type="button" variant="contained"
-                                    sx={{ height: '100%', padding: '12px 24px' }} onClick={handleUpload}>
-                                   {imageLoading? "Uploading...":"Upload"}
-                                </Button>
-
-                            </div>
-                        </div>
-                        <ImageUploadComponent
-      uploadedImages={uploadedImages}
-      selectedImages={selectedImages}
-      handleRemoveSelected={handleRemoveSelected}
-      handleFileChange={handleFileChange}
-      handleUpload={handleUpload}
-      imageLoading={imageLoading}
-    />
-                        <div className='mt-7 justify-center items-center w-full '>
-                        <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary' ,mb:"10px"}}>Product Video</Typography>
-                            <div className="flex gap-2 overflow-x-auto h-32 border rounded">
-                                {selectedVideo && (
-                                    <div>
-                                        <video controls>
-                                            <source src={selectedVideo?.preview} type="video/mp4" />
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    </div>
-                                )}
-                                {vedioLoading && <div>Loading...</div>}
-
-
-                                <div className="flex gap-2 overflow-x-auto h-32 border rounded">
-                                    {uploadedVideo?.videoUrl && (
-                                        <div>
-                                            <video controls>
-                                                <source src={uploadedVideo?.videoUrl} type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-
+                       {  selectedImages.length>0 &&       <div className="flex gap-2 overflow-x-auto h-32 border rounded mt-2">
+                                    {selectedImages.map((image, index) => (
+                                        <div key={index} className="relative w-32 h-32">
+                                            <img
+                                                src={image.preview}
+                                                alt={`Selected ${index}`}
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
                                             <Button
+                                                size='small'
                                                 variant="contained"
-                                                sx={{ height: '100%', padding: '12px 24px' }} // Adjust padding as needed
-                                                className="absolute top-0 right-0 bg-red-400 text-white rounded-full  cursor-pointer"
-                                            // onClick={() => handleRemoveSelected()}
+                                                sx={{
+                                                    height: '24px',
+                                                    width: '24px',
+                                                    padding: '0',
+                                                    minWidth: '24px',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    right: 0,
+                                                    bgcolor: 'red',
+                                                    color: 'white',
+                                                    borderRadius: '50%',
+                                                }}
+                                                onClick={() => handleRemoveSelected(index)}
                                             >
                                                 X
                                             </Button>
                                         </div>
-                                    )}
+                                    ))}
                                 </div>
+}
+                                {imageLoading && <div className='absolute top-10'>Loading...</div>}
 
-
+                                {selectedImages?.length>0&&<div className='flex items-center justify-center gap-4 w-full mt-2'>
+                                    <Button
+                                        type="button"
+                                        variant="contained"
+                                        sx={{ height: '100%', width: '100%' }}
+                                        onClick={handleUpload}
+                                    >
+                                        {imageLoading ? "Uploading..." : "Upload"}
+                                    </Button>
+                                </div>}
                             </div>
-                            {loading && <div className='absolute top-10'>Loading...</div>}
+                          
 
-                            <div className='flex items-center justify-center mt-5 gap-4 w-full'>
-                                {/* <label className="rounded font-medium text-center"> */}
-                                <TextField
-                                    type="file"
-                                    name="images"
-                                    inputProps={{ multiple: true, accept: 'video/*' }}
-                                    onChange={handleVideoFileChange}
-                                    className="hidden"
-                                />
 
-                                <Button type="button" variant="contained"
-                                    sx={{ height: '100%', padding: '12px 24px' }} onClick={handleUploadVideo}>
-                                   { vedioLoading?"Uploading...":"Uplaod"}
-                                </Button>
 
-                            </div>
-                        </div>
-                        <div className="flex gap-5 justify-end ">
+                             {/* Product Videos Section */}
+        <div className="mt-7">
+            <Typography variant="subtitle2" noWrap sx={{ color: 'text.secondary', mb: "10px" }}>
+                Product Video
+            </Typography>
+
+            <div className="relative flex items-center justify-center border rounded h-32 overflow-hidden">
+            {uploadedVideo ? (
+                <video controls className="w-full h-full object-cover">
+                    <source src={uploadedVideo} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            ) : (
+                <>
+                    <TextField
+                        type="file"
+                        name="video"
+                        inputProps={{ accept: 'video/*' }}
+                        onChange={handleVideoFileChange}
+                        className="absolute h-full inset-0 opacity-0 cursor-pointer"
+                    />
+                    <Iconify icon={'icons8:upload-2'} sx={{ fontSize: 60, color: 'text.secondary', position: 'absolute' }} />
+                </>
+            )}
+        </div>
+
+            {selectedVideo && (
+                <div className="flex gap-2 overflow-x-auto h-32 border rounded mt-2">
+                    <div className="relative w-32 h-32">
+                        <video controls className="w-full h-full object-cover">
+                            <source src={selectedVideo?.preview} type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                        <Button
+                            size='small'
+                            variant="contained"
+                            sx={{
+                                height: '24px',
+                                width: '24px',
+                                padding: '0',
+                                minWidth: '24px',
+                                position: 'absolute',
+                                top: 0,
+                                right: 0,
+                                bgcolor: 'red',
+                                color: 'white',
+                                borderRadius: '50%',
+                            }}
+                            onClick={() => handleRemoveVideo()}
+                        >
+                            X
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {vedioLoading && <div className='absolute top-10'>Loading...</div>}
+
+           {selectedVideo?.length>0&& <div className='flex items-center justify-center gap-4 w-full mt-2'>
+                <Button
+                    type="button"
+                    variant="contained"
+                    sx={{ height: '100%', width: '100%' }}
+                    onClick={handleUploadVideo}
+                >
+                    {vedioLoading ? "Uploading..." : "Upload"}
+                </Button>
+            </div>}
+        </div>
+
+                        </>
+
+
+                        <div className="flex mt-10 gap-5 justify-end ">
                             <Button
                                 // onClick={newProductSubmitHandler}
                                 variant='contained'
                                 form="mainform"
                                 type="submit"
-                                sx={{ height: '100%', padding: '12px 24px' }}
-                                className=" bg-green-400 text-white hover:bg-green-500 uppercase w-1/3 p-3 text-blue font-medium rounded shadow hover:shadow-lg cursor-pointer"
+                                size='small'
                                 value="Submit"
                             >
-                                {isLoading?"Creating...":"Create"}
+                                {isLoading ? "Creating..." : "Create"}
 
                             </Button>
                             <Button
@@ -478,8 +479,6 @@ function ImageUploadComponent({ uploadedImages, selectedImages, handleRemoveSele
                                 variant='contained'
                                 form="mainform"
                                 // type="submit"
-                                sx={{ height: '100%', padding: '12px 24px' }}
-                                className=" bg-green-400 text-white hover:bg-green-500 uppercase w-1/3 p-3 text-blue font-medium rounded shadow hover:shadow-lg cursor-pointer"
                             // value="Submit"
                             >
                                 Clear
