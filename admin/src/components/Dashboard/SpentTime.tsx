@@ -6,6 +6,7 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import { useGetUserSpentTimeRangeMutation, useGetUserSpentTimeIntervalQuery } from '../../redux/Api/userKpiSlice';
 import { DateRangePicker } from 'react-date-range';
 import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
+import { useTranslation } from 'react-i18next';
 
 const UserSpentTime = () => {
   const [ref, isVisible] = useIntersectionObserver();
@@ -152,11 +153,12 @@ const UserSpentTime = () => {
       setOpen(false);
     }
   };
+  const { t } = useTranslation();
   const loading = loadingRange || intervalLoading;
   return (
     <Card ref={ref} className='p-3 mt-5'>
       <Box sx={{ mb: 3, textAlign: 'left' }}>
-        <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={`Users Total Time Spent`} />
+        <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={t('users_total_time_spent')} />
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>

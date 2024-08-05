@@ -5,6 +5,7 @@ import { Box, Card, Typography, Stack, useTheme, Skeleton } from '@mui/material'
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
 import { useGetCashOrdersQuery } from '../../../redux/Api/Order';
+import { useTranslation } from 'react-i18next';
 
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
@@ -20,6 +21,7 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 }));
 
 const CashOrder = ({ anotherComponentRef}: any) => {
+  const { t } = useTranslation();
   const { data, error, isLoading } = useGetCashOrdersQuery();
   const theme = useTheme()
   const options :any= {
@@ -65,7 +67,7 @@ const CashOrder = ({ anotherComponentRef}: any) => {
             <Iconify width={30} height={30} icon={'fluent:phone-screen-time-20-regular'} sx={undefined} />
           </IconWrapperStyle>
           <Typography color={"text.secondary"} variant="subtitle2" paragraph>
-            Ordered by Cash per month
+          {t('ordered_by_cash_per_month')}
           </Typography>
         </Box>
 
@@ -92,12 +94,12 @@ const CashOrder = ({ anotherComponentRef}: any) => {
             {isLoading?<Skeleton variant="rectangular"/>:fPercent(data?.percentageChange)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
-            &nbsp;than last month
+            &nbsp;{t('than_last_month')}
           </Typography>
 
         </Stack>
         <Typography variant="body2" component="span" noWrap sx={{ color: theme.palette.info.main, pt: 10, cursor: 'pointer' }} onClick={handleViewMore} >
-          view more
+        {t('more')}
         </Typography>
       </Box>
       <Box sx={{ width: '100%', pl: 3 }} >

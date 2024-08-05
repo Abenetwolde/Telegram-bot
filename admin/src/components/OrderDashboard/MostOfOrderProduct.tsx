@@ -9,6 +9,7 @@ import BaseOptionChart from '../chart/BaseOptionChart';
 import ReactApexChart from 'react-apexcharts';
 import { merge } from 'lodash';
 import useResponsive from '../../hooks/useResponsive';
+import { useTranslation } from 'react-i18next';
 
 export default function MostOfOrderProduct({ data, handleFilterOFStatusChange, filterOfStatus }: any) {
   const theme=useTheme()
@@ -20,7 +21,7 @@ export default function MostOfOrderProduct({ data, handleFilterOFStatusChange, f
   const series= [{
     data: value
   }]
-
+  const { t } = useTranslation();
   const OrdersChart = ({ data }) => {
     const isDesktop = useResponsive('up', 'sm');
     const chartOptions = merge(BaseOptionChart(), {
@@ -107,7 +108,7 @@ export default function MostOfOrderProduct({ data, handleFilterOFStatusChange, f
 
   return (
     <Card className='p-3'>
-      <CardHeader title="Sales Overview" />
+      <CardHeader sx={{textAlign:'left'}}  title={t('top_order_product')} />
       <FilterButtonGroup handlefilter={handleFilterOFStatusChange} filter={filterOfStatus} />
       <Box sx={{ mt: 3, mx: 3 }} dir="ltr">
         <OrdersChart data={data} />

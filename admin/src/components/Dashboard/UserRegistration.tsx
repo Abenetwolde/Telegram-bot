@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useGetNewUserQuery, useGetUserRangeMutation } from '../../redux/Api/userKpiSlice';
 import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
+import { useTranslation } from 'react-i18next';
 const CustomTooltip = ({ label, payload }) => {
   const total = payload.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
@@ -97,7 +98,7 @@ const UserRegistration = () => {
     setFilter(event.target.value);
     refetchNewUser();
   };
-
+  const { t } = useTranslation();
   const [opacity, setOpacity] = useState({
     frombotcount: 1,
     fromchannelcount: 1,
@@ -121,7 +122,7 @@ return(
 
   <Card  className='p-3 mt-10'>
   <Box sx={{ mb: 3, textAlign: 'left' }}>
-  <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={`New User Registraton`}  sx={{ mb: 3 }} />
+  <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={t('new_user_registration')}  sx={{ mb: 3 }} />
 </Box>
   <Box display="flex" justifyContent="flex-end" mb={2}>
     <Box width="260px" mr={2} gap={5}>

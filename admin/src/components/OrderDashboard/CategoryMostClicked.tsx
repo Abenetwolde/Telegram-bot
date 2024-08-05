@@ -4,6 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Box, Link, Card, CardHeader, Typography, Stack, useTheme, Grid } from '@mui/material';
 import Scrollbar from '../Scrollbar';
 import FilterButtonGroup from '../FilterButtonGroup';
+import { useTranslation } from 'react-i18next';
 
 
 // utils
@@ -11,9 +12,10 @@ import FilterButtonGroup from '../FilterButtonGroup';
 
 
 export default function CategoryMostClicked({ data, handleFilterOFStatusChange, filterOfStatus }) {
+    const { t } = useTranslation();
     return (
         <Card className='p-4'>
-            <CardHeader title="Latest Products" />
+            <CardHeader sx={{textAlign:'left'}}  title={t('top_user_clicks_category')} />
             <FilterButtonGroup handlefilter={handleFilterOFStatusChange} filter={filterOfStatus}/>
                      <Stack mt={1} >
                     {data?.products?.map((product) => (

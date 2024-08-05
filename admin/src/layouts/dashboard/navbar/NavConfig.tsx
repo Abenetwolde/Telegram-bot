@@ -36,24 +36,19 @@ const ICONS = {
   {
     subheader: 'analysis',
     items: [
-      { title: t('welcome'), path: PATH_DASHBOARD.analysis.userDashboard, icon: ICONS.userdashboard },
-      { title: 'Order Dashboard', path: PATH_DASHBOARD.analysis.orderdashboard, icon: ICONS.orderdashboard },
+      { title: t('user_analysis'), path: PATH_DASHBOARD.analysis.userDashboard, icon: ICONS.userdashboard },
+      { title: t('order_dashboard'), path: PATH_DASHBOARD.analysis.orderdashboard, icon: ICONS.orderdashboard },
     ]
   },
   {
     subheader: 'Pages',
     items: [
-      { title: 'Users', path: PATH_DASHBOARD.general.users, icon: ICONS.users },
-      // { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
-      { title: 'category', path: PATH_DASHBOARD.general.category, icon: ICONS.category },
-      { title: 'Foods', path: PATH_DASHBOARD.general.foods, icon: ICONS.food },
-      { title: 'Orders', path: PATH_DASHBOARD.general.orders, icon: ICONS.order , },
-      { title: 'Payments', path: PATH_DASHBOARD.general.payments, icon: ICONS.payment },
-      { title: 'Feedback', path: PATH_DASHBOARD.general.feedback, icon: ICONS.feedback },
-      
-      // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics }, //todo uncommitted when ready
-      // { title: 'banking', path: PATH_DASHBOARD.general.banking, icon: ICONS.banking },
-      // { title: 'booking', path: PATH_DASHBOARD.general.booking, icon: ICONS.booking },
+      { title: t('users'), path: PATH_DASHBOARD.general.users, icon: ICONS.users },
+      { title: t('category'), path: PATH_DASHBOARD.general.category, icon: ICONS.category },
+      { title: t('foods'), path: PATH_DASHBOARD.general.foods, icon: ICONS.food },
+      { title: t('orders'), path: PATH_DASHBOARD.general.orders, icon: ICONS.order , },
+      { title: t('payments'), path: PATH_DASHBOARD.general.payments, icon: ICONS.payment },
+      { title: t('feedbacks'), path: PATH_DASHBOARD.general.feedback, icon: ICONS.feedback },
     ],
   },
 

@@ -3,12 +3,14 @@
 import { Box, Card, CardHeader, Skeleton, Typography } from '@mui/material';
 import LanguagePieChart from './LanguagePieChart';
 import { useGetLanguageStatsQuery } from '../../redux/Api/userKpiSlice';
+import { useTranslation } from 'react-i18next';
 
 const LanguageDistributionCard = () => {
+  const { t } = useTranslation();
   const { data: languageData, isLoading } = useGetLanguageStatsQuery();
  return( <Card  className='p-3 mt-10'>
     <Box sx={{ mb: 3, textAlign: 'left' }}>
-  <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={`Language Distribution`}  sx={{ mb: 3 }} />
+  <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={t('language_distribution')}  sx={{ mb: 3 }} />
 </Box>
     {isLoading ? (
       <>

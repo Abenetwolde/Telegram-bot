@@ -5,6 +5,7 @@ import { fPercent } from '../../utils/formatNumber';
 import FilterButtonGroup from '../FilterButtonGroup';
 import { useGetOrderByStatusQuery } from '../../redux/Api/Order';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 // utils
 ;
 
@@ -65,10 +66,11 @@ function SkeletonProgressItem() {
       </Stack>
     );
   }
+  const { t } = useTranslation();
   if (error) return <p>Error fetching data: {error.message}</p>
   return (
     <Card className='p-3'>
-      <CardHeader sx={{ mb: 3, textAlign: 'left' }}  title="All Order Status" />
+      <CardHeader sx={{ mb: 3, textAlign: 'left' }}  title={t('all_order_status')} />
       <FilterButtonGroup handlefilter={handleFilterOFStatusChange} filter={filterOfStatus}/>
       <Stack spacing={4} sx={{ p: 3 }}>
         { isLoading?LoadingIndicator():

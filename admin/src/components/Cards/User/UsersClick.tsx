@@ -5,6 +5,7 @@ import { Box, Card, Typography, Stack, useTheme, Skeleton } from '@mui/material'
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
 import { useGetUserCLickCardQuery } from '../../../redux/Api/userKpiSlice';
+import { useTranslation } from 'react-i18next';
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   width: 24,
@@ -52,6 +53,7 @@ const UsersClickperMonth = ({anotherComponentRef }: any) => {
       anotherComponentRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
+  const { t } = useTranslation();
   return (
     <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
       <Box sx={{ flexGrow: 1 }}>
@@ -66,7 +68,7 @@ const UsersClickperMonth = ({anotherComponentRef }: any) => {
             <Iconify width={30} height={30} icon={'tdesign:gesture-click'} sx={undefined} />
           </IconWrapperStyle>
           <Typography color={"text.secondary"} variant="subtitle2" paragraph>
-            Users Click per month
+           {t('users_click_per_month')}
           </Typography>
      
         </Box>
@@ -91,12 +93,12 @@ const UsersClickperMonth = ({anotherComponentRef }: any) => {
             {isLoading?<Skeleton variant="rectangular"/>:fPercent(data?.percentageChange)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
-            &nbsp;than last month
+            &nbsp;{t('than_last_month')}
           </Typography>
 
         </Stack>
         <Typography variant="subtitle2" paragraph component="span" noWrap sx={{ color: theme.palette.info.main, pt:10, cursor:'pointer' }}   onClick={handleViewMore} >
-          view more
+        {t('more')}
         </Typography>
       </Box>
 

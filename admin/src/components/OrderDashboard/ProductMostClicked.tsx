@@ -2,11 +2,13 @@ import PropTypes from 'prop-types';
 import { Box, Link, Card, CardHeader, Typography, Stack, useTheme, Grid } from '@mui/material';
 
 import FilterButtonGroup from '../FilterButtonGroup';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductMostClicked({ data, handleFilterOFStatusChange, filterOfStatus }) {
+    const { t } = useTranslation();
     return (
         <Card className='p-4'>
-            <CardHeader title="Latest Products" />
+            <CardHeader sx={{textAlign:'left'}}  title={t('top_user_clicks_product')}/>
             <FilterButtonGroup handlefilter={handleFilterOFStatusChange} filter={filterOfStatus} />
             <Stack mt={1} >
                 {data?.products?.map((product) => (
@@ -25,7 +27,7 @@ export default function ProductMostClicked({ data, handleFilterOFStatusChange, f
 function ProductItem({ product }) {
     const { name, image, totalClickCount } = product;
     const theme = useTheme();
-console.log("image",image)
+
     return (
         <Grid columnSpacing={2} pt={2} container alignItems="center">
             <Grid columnSpacing={2} item display={"flex"} flexGrow={1}>

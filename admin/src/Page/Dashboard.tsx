@@ -31,6 +31,8 @@ import UserJoinFromCard from '../components/Dashboard/UserJoinFromCard';
 
 import TopUsersClick from '../components/Dashboard/TopUsersClick';
 import TopUsersTime from '../components/Dashboard/TopUsersTime';
+import { useTranslation } from 'react-i18next';
+
 
 const CHART_HEIGHT = 372;
 const LEGEND_HEIGHT = 72;
@@ -74,8 +76,7 @@ const Dashboard = () => {
       });
   }, []);
 
-
-
+  const { t } = useTranslation();
   const { themeStretch } = useSettings();
 
   const userregister = useRef(null);
@@ -163,7 +164,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
         <Card className="p-4">      
           <Box sx={{ mb: 3, textAlign: 'left' }}>
-               <CardHeader title="    User Lottery Numbers" />
+               <CardHeader title={t('user_lottery_numbers') }/>
                </Box>
             <ResponsiveContainer width="100%" height={300}>
               <UserLottery data={data} loading={loading} />

@@ -6,8 +6,10 @@ import { useGetUserClicksQuery } from '../../redux/Api/User';
 import { useEffect } from 'react';
 import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
 import Iconify from '../Iconify';
+import { useTranslation } from 'react-i18next';
 // utils
  const TopUsersClick=()=>{
+  const { t } = useTranslation();
     const navigate=useNavigate()
   const [ref, isVisible] = useIntersectionObserver();
   const { data, isLoading, error, refetch } = useGetUserClicksQuery(
@@ -41,7 +43,7 @@ import Iconify from '../Iconify';
 
   return (
     <Card ref={ref} className="p-4">
-      <CardHeader title="Top 3 Users Click" />
+      <CardHeader title={t('top_3_users_click')} />
       <Stack mt={1}>
         <Grid container  justifyContent="space-between"spacing={2} sx={{ mb: 2 }}>
           <Grid item xs   justifyContent="space-between">

@@ -8,8 +8,10 @@ import merge from 'lodash/merge';
 import { BaseOptionChart } from '../../components/chart';
 import { useGetUserJoinedByMethodQuery } from '../../redux/Api/userKpiSlice';
 import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
+import { useTranslation } from 'react-i18next';
 
 const UserJoinFromCard = () => {
+    const { t } = useTranslation();
     const [ref, isVisible] = useIntersectionObserver();
     const theme = useTheme();
     const { data, isLoading, refetch } = useGetUserJoinedByMethodQuery(null, { skip: !isVisible });
@@ -18,11 +20,12 @@ const UserJoinFromCard = () => {
             refetch();
         }
     }, [isVisible, refetch]);
+
     if (isLoading) {
         return (
 
             <Card >
-                <CardHeader title="User Join From" />
+                {/* <CardHeader title={t('user_join_from')}/> */}
                 <Box display="flex" justifyContent="center" alignItems="center" p={3} width={"100%"} height={280}>
                     <Skeleton variant="circular" width={"100%"} height={"100%"} />
                 </Box>
@@ -124,7 +127,7 @@ const UserJoinFromCard = () => {
 
     return (
         <Card ref={ref}>
-            <CardHeader title="User Join From" />
+            <CardHeader title={t('user_join_from')}/>
       
             <ChartWrapperStyle dir="ltr" >
                 <ReactApexChart type="pie" series={valueforJoinUser} options={chartOptions} height={280} />

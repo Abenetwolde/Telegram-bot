@@ -6,8 +6,10 @@ import { useGetUserTimesQuery } from '../../redux/Api/User';
 import { useEffect } from 'react';
 import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
 import Iconify from '../Iconify';
+import { useTranslation } from 'react-i18next';
 
 export default function TopUsersTime() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [ref, isVisible] = useIntersectionObserver();
   const { data, isLoading, error, refetch } = useGetUserTimesQuery(
@@ -45,7 +47,7 @@ export default function TopUsersTime() {
 
    
     <Card className="p-4">
-      <CardHeader title="Top 3 Users Time Spent" />
+      <CardHeader title={t('top_3_users_time_spent')} />
       <Stack mt={1}>
         <Grid container justifyContent="space-between" spacing={2} sx={{ mb: 2 }}>
           <Grid item xs>

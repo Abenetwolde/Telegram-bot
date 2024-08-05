@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import merge from 'lodash/merge';
 import ReactApexChart from 'react-apexcharts';
-import api from '../../services/api';
+
 import { Box, Typography, useTheme } from '@mui/material';
 import { BaseOptionChart } from '../chart';
 import { color } from 'framer-motion';

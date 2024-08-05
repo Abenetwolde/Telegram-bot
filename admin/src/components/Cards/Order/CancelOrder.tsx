@@ -6,6 +6,7 @@ import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
 import Skeleton from '@mui/material/Skeleton';
 import { useGetCancelOrdersQuery, useGetCompletedOrdersQuery } from '../../../redux/Api/Order';
+import { useTranslation } from 'react-i18next';
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   width: 24,
@@ -21,7 +22,7 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 
 const CancelOrder = ({anotherComponentRef}:any) => {
   const { data, error, isLoading } = useGetCancelOrdersQuery();
-
+  const { t } = useTranslation();
   const theme = useTheme()
   const options:any = {
     chart: {
@@ -65,7 +66,7 @@ const CancelOrder = ({anotherComponentRef}:any) => {
             <Iconify width={30} height={30} icon={'mdi:register'} sx={undefined} />
           </IconWrapperStyle>
           <Typography  color={"text.secondary"}variant="subtitle2" paragraph>
-          Cancel order per month
+          {t('cancel_order_per_month')}
         </Typography>
         </Box>
         <Typography variant="h3" gutterBottom>
@@ -91,12 +92,12 @@ const CancelOrder = ({anotherComponentRef}:any) => {
             {isLoading?<Skeleton variant="rectangular"/>:fPercent(data?.percentageChange)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
-            &nbsp;than last month
+            &nbsp;{t('than_last_month')}
           </Typography>
 
         </Stack>
         <Typography variant="subtitle2" paragraph component="span" noWrap sx={{ color: theme.palette.info.main, pt:10, cursor:'pointer' }}   onClick={handleViewMore} >
-          view more
+        {t('more')}
         </Typography>
       </Box>
       <Box sx={{ width: '100%',pl:3 }} >

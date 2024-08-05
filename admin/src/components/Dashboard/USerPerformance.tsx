@@ -10,11 +10,13 @@ import UserPerformanceIndicator from './UserPerformanceIndicator';
 import { useNavigate } from 'react-router-dom';
 import { useGetPerformanceQuery } from '../../redux/Api/userKpiSlice';
 import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
+import { useTranslation } from 'react-i18next';
 interface UserPerformanceProps {
     isFalse: boolean;
 }
 
 const UserPerformance: React.FC<UserPerformanceProps> = ({ isFalse=true }) => {
+    const { t } = useTranslation();
     const [ref, isVisible] = useIntersectionObserver();
     const [filterUserPerformanceTable, setFilterUserPerformance] = useState('perMonth');
     const [search, setSearch] = useState('');
@@ -149,7 +151,7 @@ const handleRowsPerPageChange = (event) => {
 
             <Card>
                 <Box sx={{ mb: 3, textAlign: 'left' }}>
-                    <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={!isFalse?`Top 3 Perform User`:`Users Performance`}  sx={{ mb: 3 }} />
+                    <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={!isFalse?t('top_3_perform_user'):`Users Performance`}  sx={{ mb: 3 }} />
                 </Box>
 
 

@@ -9,6 +9,7 @@ import BaseOptionChart from '../chart/BaseOptionChart';
 import ReactApexChart from 'react-apexcharts';
 import { merge } from 'lodash';
 import useResponsive from '../../hooks/useResponsive';
+import { useTranslation } from 'react-i18next';
 
 export default function MostOfOrderCategory({ data, handleFilterOFStatusChange, filterOfStatus }: any) {
   const theme=useTheme()
@@ -80,10 +81,10 @@ export default function MostOfOrderCategory({ data, handleFilterOFStatusChange, 
 
     );
   };
-
+  const { t } = useTranslation();
   return (
     <Card className='p-3'>
-      <CardHeader title="Sales Overview" />
+      <CardHeader sx={{textAlign:'left'}} title={t('top_order_category')}/>
       <FilterButtonGroup handlefilter={handleFilterOFStatusChange} filter={filterOfStatus} />
       <Box sx={{ mt: 3, mx: 3 }} dir="ltr">
         <OrdersChart data={data} />

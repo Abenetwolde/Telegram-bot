@@ -5,9 +5,11 @@ import { fPercent } from '../../utils/formatNumber';
 import FilterButtonGroup from '../FilterButtonGroup';
 
 import Chart from 'react-apexcharts';
+import { useTranslation } from 'react-i18next';
 
 export default function CancelANdComplatedOrder({ OrderStatus, handleFilterOFStatusChange, filterOfStatus }: any) {
   const theme=useTheme()
+  const { t } = useTranslation();
   const isEmpty = OrderStatus?.every(series => series.data.length === 0);
   const OrdersChart = ({ data }) => {
     const options = {
@@ -63,7 +65,7 @@ export default function CancelANdComplatedOrder({ OrderStatus, handleFilterOFSta
 
   return (
     <Card className='p-3'>
-      <CardHeader title="Sales Overview" />
+      <CardHeader title={t('complete_vs_cancel_orders')} />
       <FilterButtonGroup handlefilter={handleFilterOFStatusChange} filter={filterOfStatus} />
       <Box sx={{ mt: 3, mx: 3 }} dir="ltr">
         <OrdersChart data={OrderStatus} />

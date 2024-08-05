@@ -5,6 +5,8 @@ import { Box, Card, Typography, Stack, useTheme, Skeleton } from '@mui/material'
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
 import {  useGetUserRegistrationCardQuery } from '../../../redux/Api/userKpiSlice';
+import { useTranslation } from 'react-i18next';
+
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   width: 24,
   height: 24,
@@ -18,6 +20,7 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 }));
 
 const UserRegister = ({anotherComponentRef }: any) => {
+    const { t } = useTranslation();
 const {data, isLoading,error}=useGetUserRegistrationCardQuery()
 
 if(error)
@@ -56,6 +59,7 @@ if(error)
       anotherComponentRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
   return (
     <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
       <Box sx={{ flexGrow: 1 }}>
@@ -73,7 +77,7 @@ if(error)
           </IconWrapperStyle>
 
           <Typography  color={"text.secondary"}variant="subtitle2" paragraph>
-          New User per month
+         { t('new_users_per_month')}
         </Typography>
         </Box>
         <Typography variant="h3" gutterBottom>
@@ -97,12 +101,12 @@ if(error)
             {isLoading?<Skeleton variant="rectangular"/>:fPercent(data?.percentageChange)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
-            &nbsp;than last month
+            &nbsp;{t('than_last_month')}
           </Typography>
 
         </Stack>
         <Typography variant="subtitle2" paragraph component="span" noWrap sx={{ color: theme.palette.info.main, pt:10, cursor:'pointer' }}   onClick={handleViewMore} >
-          view more
+        {t('more')}
         </Typography>
       </Box>
       <Box sx={{ width: '100%',pl:3 }} >

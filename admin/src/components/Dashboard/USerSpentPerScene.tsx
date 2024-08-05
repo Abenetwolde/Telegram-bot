@@ -5,7 +5,9 @@ import UsersSpentTimePerScene from './UsersSpentTimePerScene';
 import FilterButtonGroup from '../FilterButtonGroup';
 import { useGetTimePerSceneQuery } from '../../redux/Api/userKpiSlice';
 import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserver';
+import { useTranslation } from 'react-i18next';
 const UserClicksSection = () => {
+  const { t } = useTranslation();
   const [ref, isVisible] = useIntersectionObserver();
   const [filter, setfilterClick] = useState("perMonth"); 
   const {data:filterData, isLoading, error ,refetch}:any=useGetTimePerSceneQuery(filter,{ skip: !isVisible })
@@ -35,11 +37,12 @@ const UserClicksSection = () => {
         </Grid>
       );
     }
+
     return(<Grid  ref={ref}  item xs={12} lg={12} textAlign="center">
         <Card className='p-3 mt-5'
   >
            <Box sx={{ mb: 3, textAlign: 'left' }}>
-            <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={" Time Per-Scene "} sx={{ mb: 3 }} />
+            <CardHeader sx={{ mb: 3, textAlign: 'left' }}  title={t('users_time_spent_per_scene')}sx={{ mb: 3 }} />
         </Box>
   
       <Box m={2} >

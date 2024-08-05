@@ -5,6 +5,7 @@ import { Box, Card, Typography, Stack, useTheme, Skeleton } from '@mui/material'
 import { fNumber, fPercent } from "../../../utils/formatNumber";
 import Iconify from "../../Iconify";
 import { useGetUserTimeSpentCardQuery } from '../../../redux/Api/userKpiSlice';
+import { useTranslation } from 'react-i18next';
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   width: 24,
@@ -19,7 +20,7 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 }));
 
 const UsersSpentTime = ({ anotherComponentRef,  }: any) => {
-  
+  const { t } = useTranslation();
   const {data, isLoading,error}=useGetUserTimeSpentCardQuery()
   const percent = 90
   const theme = useTheme()
@@ -66,7 +67,7 @@ const UsersSpentTime = ({ anotherComponentRef,  }: any) => {
             <Iconify width={30} height={30} icon={'fluent:phone-screen-time-20-regular'} sx={undefined} />
           </IconWrapperStyle>
           <Typography color={"text.secondary"} variant="subtitle2" paragraph>
-            Users Spend Time per month
+       {   t('users_spend_time_per_month')}
           </Typography>
         </Box>
 
@@ -91,12 +92,12 @@ const UsersSpentTime = ({ anotherComponentRef,  }: any) => {
             {isLoading?<Skeleton variant="rectangular"/>:fPercent(data?.percentageChange)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
-            &nbsp;than last month
+            &nbsp;{t('than_last_month')}
           </Typography>
 
         </Stack>
         <Typography variant="body2" component="span" noWrap sx={{ color: theme.palette.info.main, pt: 10, cursor: 'pointer' }} onClick={handleViewMore} >
-          view more
+        {t('more')}
         </Typography>
       </Box>
       <Box sx={{ width: '100%', pl: 3 }} >
