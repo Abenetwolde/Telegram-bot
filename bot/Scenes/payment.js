@@ -183,13 +183,16 @@ const updatedOrder=await updateOrder(orderupdate)
 //   summary += `\nTotal Price: <u>${totalPrice} ETB</u>`;
 
   // Send a separate message about the product
-
+  if (ctx.session.isUserRatedTheBot === null) {
+    await ctx.replyWithHTML('Please rate our bot to continue.');
+  }
+  else{
   const message= await ctx.replyWithHTML(`Thank you for your order! 🎉\nPayment received for Order ID: <u>${updatedOrder.orderNumber}</u>. Total Amount: <u>${updatedOrder.totalPrice}</u>\n
   The product will be delivered to you soon.`,Markup.inlineKeyboard([
     Markup.button.callback(
       `View Your Order`,"showOrder")
   ]));
-  await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
+  await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);}
 //   await ctx.replyWithHTML(summary),
   ctx.session.orderInformation={}   
     } catch (error) {

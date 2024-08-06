@@ -152,7 +152,13 @@ mongoClient.connect()
     //     // Handle any uncaught errors
     //   }
     // });
-
+    bot.use(async (ctx, next) => {
+      // Initialize session variables
+      if (!ctx.session.isUserRatedTheBot) {
+          ctx.session.isUserRatedTheBot = null;  // or false, depending on your logic
+      }
+      await next();
+  });
     bot.use((ctx, next) => {
       // if (!ctx.session) {
       //   ctx.session = {};

@@ -74,6 +74,10 @@ const userSchema = new mongoose.Schema({
   //     default: Date.now,
   //   },
   // }],
+  isUserRatedTheBot: {
+    type: String,  // This will store the rating value (1-5)
+    default: null
+},
   createdAt: { type: Date, default: Date.now },
 });
 

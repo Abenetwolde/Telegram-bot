@@ -9,6 +9,7 @@ const UserKPI=require("../Model/KpiUser");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 const { updateClicks } = require("../Utils/calculateClicks");
 const { createPayment } = require("../Database/payment");
+const user = require("../Model/user");
 const noteScene = new Scenes.BaseScene("NOTE_SCENE")
 noteScene.enter(async (ctx) => {
     const enterTime = new Date();
@@ -281,6 +282,15 @@ noteScene.action("make_order", async (ctx) => {
     } catch (error) {
         console.log(error)
     }
+    if (ctx.session.isUserRatedTheBot === null) {
+        await ctx.replyWithHTML('Please rate our bot to continue.', Markup.inlineKeyboard([
+            [Markup.button.callback('⭐', 'rate_1'), Markup.button.callback('⭐⭐', 'rate_2')],
+            [Markup.button.callback('⭐⭐⭐ ', 'rate_3'), Markup.button.callback('⭐⭐', 'rate_4')],
+            [Markup.button.callback('⭐⭐⭐⭐', 'rate_5')],
+            [Markup.button.callback('No thanks', 'rate_nothanks'), Markup.button.callback('Later', 'rate_later')]
+        ]));
+    }
+   else{
   const message=  await ctx.replyWithHTML(`Thank you for your order!\nPayment received for Order ID: <u>${orderJsonParse.orderNumber}</u>\n.Total Amount: <u>${order.totalPrice}</u> ETB\nThe product will be delivered to you soon.`,Markup.inlineKeyboard([
     Markup.button.callback(
       `View Your Order`,"showOrder")
@@ -288,6 +298,7 @@ noteScene.action("make_order", async (ctx) => {
   await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
 
     ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' }) 
+}
  } catch (error) {
     ctx.answerCbQuery(`Error Occured`);
      console.log(error);
@@ -307,6 +318,27 @@ noteScene.action("showOrder",async(ctx)=>{
     await ctx.scene.enter("myOrderScene")
       
     await updateClicks(ctx,"note","note")
+})
+noteScene.action(/rate_(\d)/,async(ctx)=>{
+    const userId = ctx.from.id;
+    const rating = parseInt(ctx.match[1]);
+
+    // Update user's rating in the database
+    await user.findOneAndUpdate(
+        { telegramid: userId },
+        { isUserRatedTheBot: rating },
+        { new: true }
+    );
+ctx.session.isUserRatedTheBot=rating
+    // Send confirmation message
+    await ctx.replyWithHTML(`Thank you for your feedback! You rated us ${rating} star(s).`);
+    const message=  await ctx.replyWithHTML(`Thank you for your order!\nPayment received for Order ID: <u>${orderJsonParse.orderNumber}</u>\n.Total Amount: <u>${order.totalPrice}</u> ETB\nThe product will be delivered to you soon.`,Markup.inlineKeyboard([
+        Markup.button.callback(
+          `View Your Order`,"showOrder")
+      ]));
+      await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
+     
+        ctx.session.cleanUpState.push({ id: message.message_id, type: 'note' }) 
 })
 //cart
 
