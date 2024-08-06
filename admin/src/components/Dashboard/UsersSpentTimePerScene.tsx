@@ -27,15 +27,15 @@ const options =merge(BaseOptionChart(), {
     enabled: true,
     textAnchor: 'start',
     style: {
-      colors: ['#fff']
+      colors: ['#000']
     },
     formatter: function (val, opt) {
-      return   `${Number(val).toFixed(2)} minute`
+      return   `${Number(val).toFixed(2)} min`
     },
-    offsetX: 0,
-    dropShadow: {
-      enabled: true
-    }
+    // offsetX: 0,
+    // dropShadow: {
+    //   enabled: true
+    // }
   },
   stroke: {
     width: 1,

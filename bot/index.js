@@ -20,7 +20,7 @@ const { createUser, updateUserLanguage } = require('./Database/UserController.js
 const UserKPI = require("./Model/KpiUser");
 const bot = new Telegraf("6372866851:AAE3TheUZ4csxKrNjVK3MLppQuDnbw2vdaM", {
   timeout: Infinity
-});
+}); 
 require("dotenv").config();
 const connectDatabase = require('./config/database.js');
 const { getSingleProduct, getAllProducts } = require('./Database/productcontroller.js');

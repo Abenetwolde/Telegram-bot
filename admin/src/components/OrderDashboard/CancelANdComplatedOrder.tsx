@@ -17,7 +17,7 @@ export default function CancelANdComplatedOrder({ OrderStatus, handleFilterOFSta
         type: 'spline',
       },
       xaxis: {
-        type: 'datetime',
+        // type: 'datetime',
         categories: data[0]?.data?.map(point => point.x),
       },
       yaxis: {

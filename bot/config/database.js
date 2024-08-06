@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const MONGO_URI= 'mongodb+srv://abnet:80110847@cluster0.hpovgrl.mongodb.net/?retryWrites=true&w=majority'
 const connectDatabase = (retryAttempts = 5, retryInterval = 5000) => {
     let attempts = 0;
-
+ 
     const connectWithRetry = () => {
         mongoose.connect(MONGO_URI, { 
             useNewUrlParser: true,

@@ -6,7 +6,6 @@ const clickKpi = require("../Model/ClickKpi");
 
 module.exports = {
     updateClicks: async function (ctx,sceneName,type) {
-        console.log("reach updateSceneDuration")
         
         try {
            

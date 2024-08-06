@@ -1,6 +1,6 @@
 // UserAnalysisCard.js
 
-import { Card, Typography, Box, TextField, InputAdornment, IconButton, FormControl, Select, MenuItem, Skeleton, CardHeader } from '@mui/material';
+import { Card, Typography, Box, TextField, InputAdornment, IconButton, FormControl, Select, MenuItem, Skeleton, CardHeader, useTheme } from '@mui/material';
 import { DateRangePicker } from 'react-date-range';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
@@ -110,7 +110,7 @@ const UserRegistration = () => {
     setOpacity({ ...opacity, [dataKey]: 0.5 });
   };
   
-
+const theme=useTheme()
   const handleMouseLeave = (o) => {
     const { dataKey } = o;
     setOpacity({ ...opacity, [dataKey]: 1 });
@@ -240,9 +240,9 @@ return(
         <YAxis />
         <Tooltip content={<CustomTooltip label={undefined} payload={undefined} />} />
         <Legend onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
-        <Bar dataKey="frombotcount" stackId="a" fill="#00E7FF" name="Bot" fillOpacity={opacity.frombotcount} />
-        <Bar dataKey="fromchannelcount" stackId="a" fill="#7091F5" name="Channel" fillOpacity={opacity.fromchannelcount} />
-        <Bar dataKey="frominvitation" stackId="a" fill="#FA541C" name="Referral" fillOpacity={opacity.frominvitation} />
+        <Bar dataKey="frombotcount" stackId="a" fill={theme.palette.info.main} name="Bot" fillOpacity={opacity.frombotcount} />
+        <Bar dataKey="fromchannelcount" stackId="a" fill={theme.palette.secondary.main} name="Channel" fillOpacity={opacity.fromchannelcount} />
+        <Bar dataKey="frominvitation" stackId="a" fill={theme.palette.warning.main} name="Referral" fillOpacity={opacity.frominvitation} />
       </BarChart>
     )}
   </ResponsiveContainer>
