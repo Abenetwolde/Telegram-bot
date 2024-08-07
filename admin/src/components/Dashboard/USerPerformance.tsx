@@ -146,7 +146,7 @@ const handleRowsPerPageChange = (event) => {
         }
       }, [isVisible, refetch]);
     return (
-        <div className='mt-5'>
+        <div >
 
 
             <Card>

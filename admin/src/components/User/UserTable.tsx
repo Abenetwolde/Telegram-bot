@@ -13,6 +13,7 @@ import DeleteProduct from './DeleteUser';
 import { useGetUsersQuery } from '../../redux/Api/User';
 import UserFilter from './UserFilter.tsx';
 import Label from '../Label.tsx';
+import { StarIcon } from '../../theme/overrides/CustomIcons.tsx';
 // import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 const UserTable: React.FC = () => {
@@ -45,6 +46,21 @@ const UserTable: React.FC = () => {
     const handleRoleChange = (event) => {
         setRole(event.target.value);
     };
+    const renderRating = (value) => {
+        if (value === "6") {
+          return "No thanks";
+        } else if (value === "7") {
+          return "Later";
+        } else {
+          return (
+            <div className="flex items-center">
+              {Array.from({ length: Number(value) }, (_, index) => (
+                <StarIcon key={index} style={{ color: 'gold' }} />
+              ))}
+            </div>
+          );
+        }
+      };
     const theme = useTheme();
     const isLight = theme.palette.mode === 'light';
     const columns = [
@@ -68,15 +84,7 @@ const UserTable: React.FC = () => {
                 </div>
             ),
         },
-        {
-            accessor: 'Last Name',
-            Header: 'last_name',
-            Cell: ({ value }: any) => (
-                <div className="flex items-center">
-                    {value && value}
-                </div>
-            ),
-        },
+   
         {
             accessor: 'username',
             Header: 'User Name',
@@ -111,6 +119,12 @@ const UserTable: React.FC = () => {
                 {value }
             </Label>
             ),
+        },
+        {
+            accessor: 'isUserRatedTheBot',
+            Header: 'Rated',
+            Cell: ({ value }: any) => renderRating(value)
+         
         },
 
         {

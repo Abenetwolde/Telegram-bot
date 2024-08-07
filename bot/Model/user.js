@@ -64,16 +64,7 @@ const userSchema = new mongoose.Schema({
     },
   },
   timestamp: { type: Date, default: Date.now },
-  // spentTime: [{
-  //   duration: {
-  //     type: Number,
-  //     default: 0,
-  //   },
-  //   date: {
-  //     type: Date,
-  //     default: Date.now,
-  //   },
-  // }],
+
   isUserRatedTheBot: {
     type: String,  // This will store the rating value (1-5)
     default: null

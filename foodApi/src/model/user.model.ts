@@ -62,6 +62,8 @@ export interface IUser extends Document {
       // required: true,
     },
   },
+  isUserRatedTheBot: String,
+
   createdAt:Date
 }
 
@@ -130,6 +132,10 @@ const userSchema = new Schema<IUser>({
       // required: true,
     },
   },
+  isUserRatedTheBot: {
+    type: String,  // This will store the rating value (1-5)
+    default: null
+},
   createdAt: { type: Date, default: Date.now },
 });
 

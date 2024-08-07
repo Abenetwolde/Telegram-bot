@@ -8,7 +8,26 @@ import clickKpi from '../model/UserClicks';
 import { userInfo } from 'os';
 import Order from '../model/order.model';
 
- 
+export const getRatingCounts = async (req: Request, res: Response) => {
+    console.log("get-users-rating'")
+    try {
+      const ratings = await User.aggregate([
+        { $match: { isUserRatedTheBot: { $ne: null } } },
+        { $group: { _id: '$isUserRatedTheBot', count: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]);
+  
+      const ratingCounts = ratings.reduce((acc, rating) => {
+        acc[rating._id] = rating.count;
+        return acc;
+      }, {});
+  
+      res.status(200).json(ratingCounts);
+    } catch (error) {
+      console.error('Error getting rating counts:', error);
+      res.status(500).json({ message: 'Internal server error.' });
+    }
+  };
 export const getUsersCountAndPercentageChange = async (req: Request, res: Response): Promise<void> => {
     try {
         

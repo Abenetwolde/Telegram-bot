@@ -1,7 +1,7 @@
 // categoryRoutes.ts
 import express from 'express';
 
-import { GetTimeSpentPerScene,getUsersCountAndPercentageChange, GetUSerSpentTime, dateRangeSpentTime, getUserTotalClicksPerName, getUsersJoinedByMethodPerTimeInterval, getUsersPerformance, spendTimePerScene, totalNumberofClicks,getUsersLotterandInvitedUserData, getUSerSpentTimeCountAndPercentageChange, getTotalNumberofClicksCountAndPercentageChange } from '../controller/UserKPI';
+import { GetTimeSpentPerScene,getUsersCountAndPercentageChange, GetUSerSpentTime, dateRangeSpentTime, getUserTotalClicksPerName, getUsersJoinedByMethodPerTimeInterval, getUsersPerformance, spendTimePerScene, totalNumberofClicks,getUsersLotterandInvitedUserData, getUSerSpentTimeCountAndPercentageChange, getTotalNumberofClicksCountAndPercentageChange, getRatingCounts } from '../controller/UserKPI';
 
 
 const router = express.Router();
@@ -20,6 +20,7 @@ router.route('/get-user-time-spent-per-scene').get(GetTimeSpentPerScene);
 router.route('/get-users-total-clicks-per-name').get(getUserTotalClicksPerName);
 router.route('/get-users-performance').get(getUsersPerformance);
 router.route('/get-users-with-lottery-numbers').get(getUsersLotterandInvitedUserData);
+router.route('/get-users-rating').get(getRatingCounts);
 // GET /api/categories 
  
 

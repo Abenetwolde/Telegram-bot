@@ -32,6 +32,7 @@ import UserJoinFromCard from '../components/Dashboard/UserJoinFromCard';
 import TopUsersClick from '../components/Dashboard/TopUsersClick';
 import TopUsersTime from '../components/Dashboard/TopUsersTime';
 import { useTranslation } from 'react-i18next';
+import UserRates from '../components/Dashboard/Rate';
 
 
 const CHART_HEIGHT = 372;
@@ -112,36 +113,44 @@ const Dashboard = () => {
       </Grid>
 
       <Grid container spacing={3} mt={5} ref={userrefTime}>
-        <Grid item xs={12} md={6} lg={8} width="100%" textAlign="center">
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
         <UserSpentTime /> 
         </Grid>
-
-        <Grid item xs={12} md={6} lg={4} width="100%" textAlign="center">
-
-        <UserJoinFromCard />
+     
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <UserClicksChart
+            />
+            
         </Grid>
+     
       </Grid>
 
       <Grid container spacing={3} mt={5}  ref={userCLick}>
+
+<Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <UserRates
+            />
+            
+        </Grid>
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
           {/* <UserPerformance isFalse={false} /> */}
           <UserClicksSection
         />
         </Grid>
-
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-        <UserClicksChart
-            />
+
+<UserJoinFromCard />
+</Grid>
+<Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+        <TopUsersClick
+        />
         </Grid>
       </Grid>
       
 
       
       <Grid container spacing={3} mt={5}>
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-        <TopUsersClick
-        />
-        </Grid>
+   
 
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
         <TopUsersTime
@@ -149,7 +158,10 @@ const Dashboard = () => {
             
         </Grid>
 
-    
+        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <UserPerformance isFalse={false} />
+        </Grid>
+
     
 
    
@@ -157,10 +169,7 @@ const Dashboard = () => {
 
       
       <Grid container spacing={3} mt={5}>
-        <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
-          <UserPerformance isFalse={false} />
-        </Grid>
-
+       
         <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
         <Card className="p-4">      
           <Box sx={{ mb: 3, textAlign: 'left' }}>
@@ -171,6 +180,9 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </Card>
         </Grid>
+        {/* <Grid item xs={12} md={6} lg={6} width="100%" textAlign="center">
+          <UserRates />
+        </Grid> */}
       </Grid>
    
     </Container >

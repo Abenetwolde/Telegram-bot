@@ -3,6 +3,7 @@ import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 import LoadingScreen from '../components/LoadingScreen.tsx';
 // import DashboardLayout from '../layouts/dashboard/index.tsx';
 import { PATH_AFTER_LOGIN } from '../config.ts';
+import LogoOnlyLayout from '../layouts/LogoOnlyLayout.tsx';
 
 // import ProdcutPage from '../Page/ProdcutPage.tsx';
 // components
@@ -63,7 +64,19 @@ export default function Router() {
       ],
     },
 
-
+    {
+      path: '*',
+      element: <LogoOnlyLayout />,
+      children: [
+        // { path: 'coming-soon', element: <ComingSoon /> },
+        // { path: 'maintenance', element: <Maintenance /> },
+        // { path: 'pricing', element: <Pricing /> },
+        // { path: 'payment', element: <Payment /> },
+        { path: '500', element: <Page500 /> },
+        { path: '404', element: <NotFound /> },
+        { path: '*', element: <Navigate to="/404" replace /> },
+      ],
+    },
 
     // // Dashboard Routes
     {
@@ -235,6 +248,8 @@ const PaymentPage = Loadable(lazy(() => import('../Page/PaymentPage.tsx')));
 const UsersPage = Loadable(lazy(() => import('../Page/User.tsx')));
 const FeedBackPage = Loadable(lazy(() => import('../Page/Feedback.tsx')));
 const DashboardLayout = Loadable(lazy(() => import('../layouts/dashboard/index.tsx')));
+const Page500 = Loadable(lazy(() => import('../Page/500')));
+const NotFound = Loadable(lazy(() => import('../Page/404')));
 // const ResetPassword = Loadable(lazy(() => import('../pages/auth/ResetPassword')));
 // const VerifyCode = Loadable(lazy(() => import('../pages/auth/VerifyCode')));
 // // Dashboard

@@ -13,6 +13,7 @@ const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 const { updateClicks } = require("../Utils/calculateClicks");
 const { createUser } = require("../Database/UserController");
 const { checkUserToken } = require("../Utils/checkUserToken");
+const user = require("../Model/user");
 homeScene.enter(async (ctx) => {
     try {
         if (ctx.session.cleanUpState) {
@@ -90,8 +91,8 @@ homeScene.enter(async (ctx) => {
 
             let keyboard = [
                 [ctx.i18next.t('Search'), ctx.i18next.t('cart')],
-                [ctx.i18next.t('order'), ctx.i18next.t('Language')],
-                [ctx.i18next.t('aboutus'), ctx.i18next.t('invite'), ctx.i18next.t('feedback')]
+                [ctx.i18next.t('order'),ctx.i18next.t('invite'),],
+                [ctx.i18next.t('aboutus'),  ,ctx.i18next.t('feedback'), ctx.i18next.t('Language'),ctx.i18next.t('rate')]
             ];
             if (showkey) {
 
@@ -217,7 +218,31 @@ homeScene.hears(match('Search'), async (ctx) => {
     await ctx.scene.enter("searchProduct")
     await updateClicks(ctx,"home_scene","home_scene")
 })
+homeScene.hears(match('rate'), async (ctx) => {
+    await ctx.replyWithHTML('Please rate our bot to continue.', Markup.inlineKeyboard([
+        [Markup.button.callback('⭐', 'rate_1'), Markup.button.callback('⭐⭐', 'rate_2')],
+        [Markup.button.callback('⭐⭐⭐ ', 'rate_3'), Markup.button.callback('⭐⭐⭐⭐', 'rate_4')],
+        [Markup.button.callback('⭐⭐⭐⭐', 'rate_5')],
+        [Markup.button.callback('No thanks', 'rate_6'), Markup.button.callback('Later', 'rate_7')]
+    ]));
+    await updateClicks(ctx,"home_scene","home_scene")
+})
+homeScene.action(/rate_(\d)/,async(ctx)=>{
+    const userId = ctx.from.id;
+    const rating = ctx.match[1];
+console.log("rating", rating) 
 
+    // Update user's rating in the database
+    await user.findOneAndUpdate(
+        { telegramid: userId },
+        { isUserRatedTheBot: rating },
+        { new: true }
+    );
+ctx.session.isUserRatedTheBot=rating
+    // Send confirmation message
+    await ctx.reply(`Thank you for your feedback! You rated us ${rating} star(s).`);
+    await ctx.scene.reenter()
+})
 homeScene.hears(match('cart'), async (ctx) => {
     await ctx.scene.enter("cart")
     await updateClicks(ctx,"home_scene","home_scene")

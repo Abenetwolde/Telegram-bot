@@ -14,6 +14,7 @@ const UserKPI=require("../Model/KpiUser");
 const { match } = require("telegraf-i18next");
 const { updateSceneDuration } = require("../Utils/calculateTimeSpent");
 const { updateClicks } = require("../Utils/calculateClicks");
+const user = require("../Model/user");
 
 paymentScene.enter(async (ctx) => {
     const enterTime = new Date();
@@ -183,16 +184,14 @@ const updatedOrder=await updateOrder(orderupdate)
 //   summary += `\nTotal Price: <u>${totalPrice} ETB</u>`;
 
   // Send a separate message about the product
-  if (ctx.session.isUserRatedTheBot === null) {
-    await ctx.replyWithHTML('Please rate our bot to continue.');
-  }
-  else{
+
+
   const message= await ctx.replyWithHTML(`Thank you for your order! 🎉\nPayment received for Order ID: <u>${updatedOrder.orderNumber}</u>. Total Amount: <u>${updatedOrder.totalPrice}</u>\n
   The product will be delivered to you soon.`,Markup.inlineKeyboard([
     Markup.button.callback(
       `View Your Order`,"showOrder")
   ]));
-  await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);}
+  await ctx.telegram.pinChatMessage(ctx.chat.id, message.message_id);
 //   await ctx.replyWithHTML(summary),
   ctx.session.orderInformation={}   
     } catch (error) {
@@ -216,9 +215,35 @@ paymentScene.on("message", async (ctx) => {
     }
 })
 paymentScene.action("showOrder",async(ctx)=>{
-    await ctx.scene.enter("myOrderScene")
+    if (ctx.session.isUserRatedTheBot === null) {
+        await ctx.replyWithHTML('Please rate our bot to continue.', Markup.inlineKeyboard([
+            [Markup.button.callback('⭐', 'rate_1'), Markup.button.callback('⭐⭐', 'rate_2')],
+            [Markup.button.callback('⭐⭐⭐ ', 'rate_3'), Markup.button.callback('⭐⭐⭐⭐', 'rate_4')],
+            [Markup.button.callback('⭐⭐⭐⭐', 'rate_5')],
+            [Markup.button.callback('No thanks', 'rate_6'), Markup.button.callback('Later', 'rate_7')]
+        ]));
+    }else{
+        await ctx.scene.enter("myOrderScene")
+    }
+ 
        
     await updateClicks(ctx,"payment","payment")
+})
+paymentScene.action(/rate_(\d)/,async(ctx)=>{
+    const userId = ctx.from.id;
+    const rating = ctx.match[1];
+console.log("rating", rating) 
+    // Update user's rating in the database
+
+    await user.findOneAndUpdate(
+        { telegramid: userId },
+        { isUserRatedTheBot: rating },
+        { new: true }
+    );
+ctx.session.isUserRatedTheBot=rating
+    // Send confirmation message
+    await ctx.reply(`Thank you for your feedback! You rated us ${rating} star(s).`);
+    await ctx.scene.enter("myOrderScene")
 })
 paymentScene.leave(async (ctx) => {
     console.log("Cleaning payment scene")

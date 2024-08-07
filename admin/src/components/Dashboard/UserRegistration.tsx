@@ -240,9 +240,9 @@ return(
         <YAxis />
         <Tooltip content={<CustomTooltip label={undefined} payload={undefined} />} />
         <Legend onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
-        <Bar dataKey="frombotcount" stackId="a" fill={theme.palette.info.main} name="Bot" fillOpacity={opacity.frombotcount} />
-        <Bar dataKey="fromchannelcount" stackId="a" fill={theme.palette.secondary.main} name="Channel" fillOpacity={opacity.fromchannelcount} />
-        <Bar dataKey="frominvitation" stackId="a" fill={theme.palette.warning.main} name="Referral" fillOpacity={opacity.frominvitation} />
+        <Bar dataKey="frombotcount" stackId="a" fill={theme.palette.info.light} name="Bot" fillOpacity={opacity.frombotcount} />
+        <Bar dataKey="fromchannelcount" stackId="a" fill={theme.palette.success.main} name="Channel" fillOpacity={opacity.fromchannelcount} />
+        <Bar dataKey="frominvitation" stackId="a" fill={theme.palette.secondary.main} name="Referral" fillOpacity={opacity.frominvitation} />
       </BarChart>
     )}
   </ResponsiveContainer>
