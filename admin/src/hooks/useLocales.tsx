@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 // '@mui
 import { enUS, deDE, frFR } from '@mui/material/locale';
 import amET from '../locales/am.json'
+import AMlogo from '../assets/am.jpeg'
+import ENlogo from '../assets/en.jpeg'
 // ----------------------------------------------------------------------
 console.log("amharic language .........",amET)
 const LANGS = [
@@ -9,13 +11,13 @@ const LANGS = [
     label: 'English',
     value: 'en',
     systemValue: enUS,
-    icon: 'https://wiki2.railml.org/images/b/b8/UK_flag.png',
+    icon: ENlogo
   },
   {
     label: 'Amharic',
     value: 'am',
     systemValue: amET,
-    icon: 'https://freepngdesign.com/content/uploads/images/ethiopia-large-flag-3534.png', // Assuming you have an Amharic flag icon
+    icon: AMlogo
   },
 ];
 

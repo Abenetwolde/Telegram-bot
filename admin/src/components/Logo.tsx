@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
-
+import logoImage from '../assets/logo.png'
 
 // ----------------------------------------------------------------------
 
@@ -21,17 +21,17 @@ export default function Logo({ disabledLink = false, sx ,isDisplay=true}) {
 
   const logo = (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ...sx }}>
-      <Box sx={{ width: 40, height: 40 }}>
+      <Box sx={{ width: 200, height: 100 }}>
         <img
-          src='https://th.bing.com/th/id/OIP.fyCCXwkRz9vrY_TsNRq5rgHaHa?rs=1&pid=ImgDetMain'
+          src={logoImage}
           height="100%"
           width="100%"
           alt="Logo"
         />
       </Box>
-     {isDisplay&& <Typography variant="h6" sx={{ color: PRIMARY_LIGHT }}>
+     {/* {isDisplay&& <Typography variant="h6" sx={{ color: PRIMARY_LIGHT }}>
         Logo
-      </Typography>}
+      </Typography>} */}
     </Box>
   );
 

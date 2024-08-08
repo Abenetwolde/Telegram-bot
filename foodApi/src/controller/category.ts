@@ -212,7 +212,7 @@ export const getAllCategories = async (req: Request, res: Response) => {
       const product = await Category.findById(result._id).select('name icon').lean();
       return {
           name: product ? product?.name : 'Unknown Category',
-          icon: product ? product?.icon : 'Unknown Icon',
+          icon: product ? product?.icon : '',
           totalClickCount: result?.totalCount
       };
   }));

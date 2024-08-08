@@ -62,7 +62,7 @@ homeScene.enter(async (ctx) => {
         ctx.session.cleanUpState = ctx.session.cleanUpState || [];
 
         const categories = await getAllCategories();
-
+// console.log("category....", categories)
         const pairs = categories?.categories.reduce((result, value, index, array) => {
             if (index % 2 === 0)
                 result.push(array.slice(index, index + 2));
