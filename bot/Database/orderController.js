@@ -28,7 +28,7 @@ exports.createOrder = async (userid, userId, orderInformation, cartItems) => {
         product: cartItem.product._id,
         quantity: cartItem.quantity,
       })),
-      totalPrice:totalPrice*100,
+      totalPrice:totalPrice,
       paymentType: orderInformation?.paymentType||null,
       orderfromtelegram: true,
       shippingInfo: {

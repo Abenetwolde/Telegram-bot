@@ -9,7 +9,7 @@ import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserv
 import { useTranslation } from 'react-i18next';
 
 const UserSpentTime = () => {
-  const [ref, isVisible] = useIntersectionObserver();
+
   const theme = useTheme();
   const refOne = useRef(null);
   const [open, setOpen] = useState(false);
@@ -31,7 +31,13 @@ const UserSpentTime = () => {
     setFilter(event.target.value);
     refetchTime()
   };
-
+  console.log("range............",range)
+  useEffect(() => {
+    if (intervalData) {
+      setUserTime(intervalData?.userTime);
+      setTotalTime(intervalData?.totalDurationInMinutes);
+    }
+  }, [intervalData]);
   // React Query hooks
   const [getTimeRange] = useGetUserSpentTimeRangeMutation() 
   useEffect(() => {
@@ -52,25 +58,16 @@ const UserSpentTime = () => {
     };
 
     fetchData();
-  }, [range,getTimeRange,isVisible, refetchTime]);
-  useEffect(() => {
-    if (isVisible) {
-      refetchTime();
-    }
-  }, [isVisible, refetchTime]);
-  useEffect(() => {
-    if (intervalData) {
-      setUserTime(intervalData?.userTime);
-      setTotalTime(intervalData?.totalDurationInMinutes);
-    }
-  }, [intervalData]);
+  }, [range,getTimeRange, refetchTime]);
+
+
   // const series = userTime ? [{
   //   name: 'Time Spent',
   //   data: userTime.map(item => item?.totalDurationInMinutes),
   // }] : [];
   const series = userTime ? [{
     name: 'Time Spent',
-    data: userTime.map(item => ({
+    data: userTime?.map(item => ({
       x: item._id, // Format the date
       y: item.totalDurationInMinutes
     })),
@@ -82,20 +79,7 @@ const UserSpentTime = () => {
         autoScaleYaxis: false,
       },
     },
-    // annotations: {
-    //   yaxis: [{
-    //     y: 30,
-    //     borderColor: '#999',
-    //     label: {
-    //       show: true,
-    //       text: 'Daily Goal',
-    //       style: {
-    //         color: "#fff",
-    //         background: '#00E396',
-    //       },
-    //     },
-    //   }],
-    // },
+ 
     dataLabels: {
       enabled: false,
     },
@@ -156,7 +140,7 @@ const UserSpentTime = () => {
   const { t } = useTranslation();
   const loading = loadingRange || intervalLoading;
   return (
-    <Card ref={ref} className='p-3 mt-5'>
+    <Card className='p-3 mt-5'>
       <Box sx={{ mb: 3, textAlign: 'left' }}>
         <CardHeader sx={{ mb: 3, textAlign: 'left' }} title={t('users_total_time_spent')} />
       </Box>

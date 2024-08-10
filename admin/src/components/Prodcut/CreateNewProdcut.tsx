@@ -9,7 +9,7 @@ import { createProduct } from '../../services/product';
 import { useDispatch } from 'react-redux';
 import { createProductSuccess, fetchProductSuccess } from '../../redux/productSlice';
 import { Category } from '../../types/product';
-import { Autocomplete, Typography, useTheme } from '@mui/material';
+import { Autocomplete, Box, Typography, useTheme } from '@mui/material';
 import { getCategoryList } from '../../services/category';
 import { ApiResponse, CategoryApi } from '../../types/Category';
 import { Height } from '@mui/icons-material';
@@ -38,7 +38,7 @@ const CreateNewProduct: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [description, setDescription] = useState<string>('');
-    const [price, setPrice] = useState<number>(0);
+    const [price, setPrice] = useState<number>();
     const [selectedImages, setSelectedImages] = useState<ImagePreview[]>([]);
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -213,19 +213,7 @@ const CreateNewProduct: React.FC = () => {
             </Typography>
         );
     };
-    //   useEffect(() => {
-    //     const el = document.getElementById('image-list');
-    //     if (el) {
-    //         Sortable.create(el, {
-    //             onEnd: (evt) => {
-    //                 const newOrder = [...selectedImages];
-    //                 const [movedItem] = newOrder.splice(evt.oldIndex, 1);
-    //                 newOrder.splice(evt.newIndex, 0, movedItem);
-    //                 setSelectedImages(newOrder);
-    //             },
-    //         });
-    //     }
-    // }, [selectedImages]);
+
 
 
     return (
@@ -268,11 +256,7 @@ const CreateNewProduct: React.FC = () => {
                             type="number"
                             variant="outlined"
                             size="small"
-                            InputProps={{
-                                inputProps: {
-                                    min: 0
-                                }
-                            }}
+                       
                             // required
                             value={price}
                             onChange={(e: any) => setPrice(e.target.value)}
@@ -326,8 +310,21 @@ const CreateNewProduct: React.FC = () => {
                 inputProps={{ multiple: true, accept: 'image/*' }}
                 onChange={handleFileChange}
                 className="absolute h-full w-full inset-0 opacity-0 cursor-pointer"
+                style={{
+                    position: 'absolute',
+                    top: 20,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    opacity: 0,
+                    cursor: 'pointer',
+                  }}
+                
             />
-            <Iconify icon={'icons8:upload-2'} sx={{ fontSize: 60, color: 'text.secondary', position: 'absolute' }} />
+            {/* <Box  onClick={handleFileChange}> */}
+            <Iconify icon={'icons8:upload-2'}   onClick={handleFileChange}  sx={{ fontSize: 60, color: 'text.secondary', position: 'absolute' }} />
+            {/* </Box> */}
+           
             </>
         ) : (
             uploadedImages?.map((url, index) => (

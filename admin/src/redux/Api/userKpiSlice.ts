@@ -51,7 +51,7 @@ export const userKpiApi = createApi({
     getUserSpentTimeRange: builder.mutation({
       query: ({ startDate, endDate }) => ({
         url: 'kpi/get-user-spent-range',
-        method: 'GET',
+        method: 'POST',
         body: { startDate, endDate },
       }),
     }),

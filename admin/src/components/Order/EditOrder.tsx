@@ -94,9 +94,9 @@ const EditOrder: React.FC<any> = ({ isOpen, handleClose, editedRow, setEditedRow
                         <div>
                             <p>Total Price</p>
                             <TextField
-                                disabled
+                                // disabled
                                 value={editedRow.totalPrice || ''}
-                                // onChange={(e) => setEditedRow((prev) => (prev ? { ...prev, totalPrice: e.target.value } : null))}
+                            onChange={(e) => setEditedRow((prev) => (prev ? { ...prev, totalPrice: e.target.value } : null))}
                                 fullWidth
                                 margin="dense"
                             />

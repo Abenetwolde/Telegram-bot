@@ -11,24 +11,20 @@ import { useTranslation } from 'react-i18next';
  const TopUsersClick=()=>{
   const { t } = useTranslation();
     const navigate=useNavigate()
-  const [ref, isVisible] = useIntersectionObserver();
+  // const [ref, isVisible] = useIntersectionObserver();
   const { data, isLoading, error, refetch } = useGetUserClicksQuery(
     { page: 1, pageSize: 3, interval: 'perMonth', search: '' },{refetchOnMountOrArgChange: true, },
-    { skip: !isVisible }
+
   );
 
-  useEffect(() => {
-    if (isVisible) {
-      refetch();
-    }
-  }, [isVisible, refetch]);
+
   const handleViewMoreClick = () => {
     navigate('/pages/users');
   };
   if (isLoading) {
     return (
       <Grid item xs={12} lg={12} textAlign="center">
-        <Card ref={ref} className="p-4">
+        <Card  className="p-4">
           <Skeleton variant="text" width={200} height={40} />
           <Stack mt={1}>
             {[...Array(3)].map((_, i) => (
@@ -42,7 +38,7 @@ import { useTranslation } from 'react-i18next';
   }
 
   return (
-    <Card ref={ref} className="p-4">
+    <Card className="p-4">
       <CardHeader title={t('top_3_users_click')} />
       <Stack mt={1}>
         <Grid container  justifyContent="space-between"spacing={2} sx={{ mb: 2 }}>
@@ -111,7 +107,7 @@ function ProductItem({ product }) {
               mr: 2,
             }}
           >
-            {first_name.charAt(0)}
+            {first_name?.charAt(0)}
           </Box>
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 'text.secondary' }}>

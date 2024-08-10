@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
-import { Box, Stack, Drawer } from '@mui/material';
+import { Box, Stack, Drawer, Divider } from '@mui/material';
 import useResponsive from '../../../hooks/useResponsive';
 import useCollapseDrawer from '../../../hooks/useCollapseDrawer';
 import cssStyles from '../../../utils/cssStyles';
@@ -13,6 +13,7 @@ import { NavSectionVertical } from '../../../components/nav-section';
 import getNavConfig from './NavConfig';
 import NavbarAccount from './NavbarAccount';
 import CollapseButton from './CollapseButton';
+import { useSelector } from 'react-redux';
 
 const RootStyle = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('lg')]: {
@@ -35,7 +36,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
   const isDesktop = useResponsive('up', 'lg');
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } = useCollapseDrawer();
-
+  const user = useSelector((state: any) => state.auth.token);
   useEffect(() => {
     if (isOpenSidebar) {
       onCloseSidebar();
@@ -66,8 +67,9 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
           <Logo />
           {isDesktop && !isCollapse && <CollapseButton onToggleCollapse={onToggleCollapse} collapseClick={collapseClick} />}
         </Stack>
-        <NavbarAccount isCollapse={isCollapse} />
+        {user&&<NavbarAccount isCollapse={isCollapse} />}
       </Stack>
+      <Divider/>
       <NavSectionVertical navConfig={navConfig} isCollapse={isCollapse} />
       <Box sx={{ flexGrow: 1 }} />
     </Box>

@@ -4,6 +4,7 @@ import LoadingScreen from '../components/LoadingScreen.tsx';
 // import DashboardLayout from '../layouts/dashboard/index.tsx';
 import { PATH_AFTER_LOGIN } from '../config.ts';
 import LogoOnlyLayout from '../layouts/LogoOnlyLayout.tsx';
+import AuthGuard from '../guard/AuthGuard.tsx';
 
 // import ProdcutPage from '../Page/ProdcutPage.tsx';
 // components
@@ -83,97 +84,26 @@ export default function Router() {
       path: 'dashboard',
       element: (
         // <RoledGuard>
-        //   <AuthGuard>
+          // <AuthGuard>
         <DashboardLayout />
-        /* </AuthGuard>
-      </RoledGuard> */
+          // </AuthGuard>
+      // </RoledGuard> 
       ),
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         { path: 'user-analysis', element: <Dashboard /> },
         { path: 'order-analysis', element: <OrderDashboard /> },
 
-        // { path: 'ecommerce', element: <GeneralEcommerce /> },
-        // { path: 'analytics', element: <GeneralAnalytics /> },
-        // { path: 'banking', element: <GeneralBanking /> },
-        // { path: 'booking', element: <GeneralBooking /> },
-
-        // {
-        //   path: 'e-commerce',
-        //   children: [
-        //     { element: <Navigate to="/dashboard/e-commerce/shop" replace />, index: true },
-        //     { path: 'shop', element: <EcommerceShop /> },
-        //     { path: 'product/:id', element: <EcommerceProductDetails /> },
-        //     { path: 'list', element: <EcommerceProductList /> },
-        //     { path: 'product/new', element: <EcommerceProductCreate /> },
-        //     { path: 'product/edit/:id', element: <EcommerceProductCreate /> },
-        //     { path: 'checkout', element: <EcommerceCheckout /> },
-        //     { path: 'invoice', element: <EcommerceInvoice /> },
-        //   ],
-        // },
-        // {
-        //   path: 'shop',
-        //   children: [
-        //     { element: <Navigate to="/dashboard/shop" replace />, index: true },
-        //     { path: 'dates-khejur', element: <EcommerceShop category={"datesKhejur"} /> },
-        //     { path: 'fresh-fruit', element: <EcommerceShop category={"freshFruit"} /> },
-        //     { path: 'meat', element: <EcommerceShop category={"meat"} /> },
-        //     { path: 'frozen-fish', element: <EcommerceShop category={"frozenFish"} /> },
-
-        //   ],
-        // },
-
-        // {
-        //   path: 'user',
-        //   children: [
-        //     { element: <Navigate to="/dashboard/user/profile" replace />, index: true },
-        //     { path: 'profile', element: <UserProfile /> },
-        //     { path: 'cards', element: <UserCards /> },
-        //     { path: 'list', element: <UserList /> },
-        //     { path: 'new', element: <UserCreate /> },
-        //     { path: 'edit/:id', element: <UserCreate /> },
-        //     { path: 'account', element: <UserAccount /> },
-        //   ],
-        // },
-        // {
-        //   path: 'blog',
-        //   children: [
-        //     { element: <Navigate to="/dashboard/blog/posts" replace />, index: true },
-        //     { path: 'posts', element: <BlogPosts /> },
-        //     { path: 'post/:id', element: <BlogPost /> },
-        //     { path: 'new-post', element: <BlogNewPost /> },
-        //   ],
-        // },
-        // {
-        //   path: 'mail',
-        //   children: [
-        //     { element: <Navigate to="/dashboard/mail/all" replace />, index: true },
-        //     { path: 'label/:customLabel', element: <Mail /> },
-        //     { path: 'label/:customLabel/:mailId', element: <Mail /> },
-        //     { path: ':systemLabel', element: <Mail /> },
-        //     { path: ':systemLabel/:mailId', element: <Mail /> },
-        //   ],
-        // },
-        // {
-        //   path: 'chat',
-        //   children: [
-        //     { element: <Chat />, index: true },
-        //     { path: 'new', element: <Chat /> },
-        //     { path: ':conversationKey', element: <Chat /> },
-        //   ],
-        // },
-        // { path: 'calendar', element: <Calendar /> },
-        // { path: 'kanban', element: <Kanban /> },
       ],
     },
     {
       path: 'pages',
       element: (
         // <RoledGuard>
-        //   <AuthGuard>
+          <AuthGuard>
         <DashboardLayout />
-        /* </AuthGuard>
-      </RoledGuard> */
+         </AuthGuard>
+      // </RoledGuard> 
       ),
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },

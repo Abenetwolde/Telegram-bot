@@ -27,7 +27,7 @@ const options =merge(BaseOptionChart(), {
     enabled: true,
     textAnchor: 'start',
     style: {
-      colors: ['#000']
+      colors: [theme.palette.info.dark]
     },
     formatter: function (val, opt) {
       return   `${Number(val).toFixed(2)} min`
@@ -55,9 +55,9 @@ const options =merge(BaseOptionChart(), {
   xaxis: {
     categories: label,
   },
-  colors:theme.palette.primary.light
+  colors:theme.palette.info.main
 });
-
+ 
   return (
     <div style={{ height: "100%", flexGrow: 1 }}>
 <ReactApexChart type="bar" series={CHART_DATA} options={options} height={"100%"} />

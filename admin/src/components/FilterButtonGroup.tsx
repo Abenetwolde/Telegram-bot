@@ -12,7 +12,13 @@ const FilterButtonGroup = ({ handlefilter,filter }) => {
         setActiveButton(filter);
         handlefilter(filter);
     };
-
+// const CustomButtonGroup = styled(ButtonGroup)(({ theme }) => ({
+//   border: `1px solid ${theme.palette.info.light}`,
+//   borderRadius: theme.shape.borderRadius,
+//   '& .MuiButtonGroup-grouped': {
+//     borderColor: theme.palette.info.light,
+//   },
+// }));
     const buttonStyles = (isActive) => ({
         // border: 'none',
         // '&:hover': {
@@ -30,8 +36,8 @@ const FilterButtonGroup = ({ handlefilter,filter }) => {
 
     return (
     
-                <Box display="flex" justifyContent={{ xs: 'center', md: 'flex-end' }}>
-                    <ButtonGroup variant="outlined" aria-label="Basic button group">
+                <Box display="flex" justifyContent={{ xs: 'flex-end', md: 'flex-end' }}>
+                    <ButtonGroup  variant="outlined" aria-label="Basic button group">
                         {['perWeek', 'perMonth', 'perYear'].map((filter) => (
                             <Button
                                 key={filter}

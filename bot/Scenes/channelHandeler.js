@@ -7,10 +7,10 @@ const { t, match } = require('telegraf-i18next');
 const { updateSceneDuration } = require('../Utils/calculateTimeSpent');
 const { updateClicks } = require('../Utils/calculateClicks');
 const channelHandeler = new Scenes.BaseScene('channelHandeler');
-
+   
 // Add a keyboard to the admin scene
 channelHandeler.enter(async(ctx) => {
-  const enterTime = new Date();
+  const enterTime = new Date(); 
   ctx.scene.state.enterTime = enterTime;
     const product = ctx.scene.state.pid;
     ctx.session.productID = product;
@@ -25,7 +25,7 @@ channelHandeler.enter(async(ctx) => {
            
           // If the user doesn't exist, create a new user document
           newuser = await User.create({
-            telegramid: ctx.from.id,
+             telegramid: ctx.from.id,
             first_name: ctx.from.first_name,
             last_name: ctx.from.last_name,
             username: ctx.from.username || null,

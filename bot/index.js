@@ -152,13 +152,7 @@ mongoClient.connect()
     //     // Handle any uncaught errors
     //   }
     // });
-    bot.use(async (ctx, next) => {
-      // Initialize session variables
-      if (!ctx.session.isUserRatedTheBot) {
-          ctx.session.isUserRatedTheBot = null;  // or false, depending on your logic
-      }
-      await next();
-  });
+
     bot.use((ctx, next) => {
       // if (!ctx.session) {
       //   ctx.session = {};
@@ -169,18 +163,19 @@ mongoClient.connect()
       return next();
     });
 
-
+/*     bot.use(async (ctx, next) => {
+      if (ctx.session) {
+        if (typeof ctx.session.isUserRatedTheBot === 'undefined') {
+          ctx.session.isUserRatedTheBot = null;  // or false, depending on your logic
+        }
+      }
+      await next();
+    }); */
     bot.use(stage.middleware())
 
 
 
 
-    bot.use(async (ctx, next) => {
-      // Save user start time to the context
-      ctx.session.startTime = new Date().getTime();
-      // Continue with the next middleware
-      await next();
-    });
     const calculateDuration = (startTime, endTime) => {
       return new Date(endTime) - new Date(startTime);
     };
@@ -349,7 +344,7 @@ mongoClient.connect()
             user = new User({
               telegramid: ctx.from.id,
               first_name: ctx.from.first_name,
-              last_name: ctx.from.last_name,
+              last_name: ctx.from?.last_name,
               username: ctx.from.username || null,
               is_bot: ctx.from.is_bot || false,
               from: "Refferal",
@@ -357,10 +352,10 @@ mongoClient.connect()
             });
 
           }
-          if (telegramid && user.invitedBy == null) {
+          if (telegramid && user?.invitedBy == null) {
             user.invitedBy = telegramid;
-            if (user.invitedBy) {
-              const inviter = await User.findOne({ telegramid: user.invitedBy });
+            if (user?.invitedBy) {
+              const inviter = await User.findOne({ telegramid: user?.invitedBy });
 
               if (inviter) {
                 await User.findOneAndUpdate(

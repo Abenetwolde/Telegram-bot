@@ -8,18 +8,14 @@ import useIntersectionObserver from '../../redux/Api/utils/useIntersectionObserv
 import { useTranslation } from 'react-i18next';
 const UserClicksSection = () => {
   const { t } = useTranslation();
-  const [ref, isVisible] = useIntersectionObserver();
+
   const [filter, setfilterClick] = useState("perMonth"); 
-  const {data:filterData, isLoading, error ,refetch}:any=useGetTimePerSceneQuery(filter,{ skip: !isVisible })
+  const {data:filterData, isLoading, error ,refetch}:any=useGetTimePerSceneQuery(filter)
   const handlefilterScene = (newFilter) => {
       setfilterClick(newFilter);
   
     };
-    useEffect(() => {
-      if (isVisible) {
-        refetch();
-      }
-    }, [isVisible, refetch]);
+
     if (isLoading) {
       return (
         <Grid item xs={12} lg={12} textAlign="center">
@@ -38,7 +34,7 @@ const UserClicksSection = () => {
       );
     }
 
-    return(<Grid  ref={ref}  item xs={12} lg={12} textAlign="center">
+    return(<Grid   item xs={12} lg={12} textAlign="center">
         <Card className='p-3 mt-5'
   >
            <Box sx={{ mb: 3, textAlign: 'left' }}>

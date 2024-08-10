@@ -11,17 +11,13 @@ import { useTranslation } from 'react-i18next';
 export default function TopUsersTime() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [ref, isVisible] = useIntersectionObserver();
+  // const [ref, isVisible] = useIntersectionObserver();
   const { data, isLoading, error, refetch } = useGetUserTimesQuery(
     { page: 1, pageSize: 3, interval: 'perMonth', search: '' },{refetchOnMountOrArgChange: true, },
-    { skip: !isVisible }
+
   );
 
-  useEffect(() => {
-    if (isVisible) {
-      refetch();
-    }
-  }, [isVisible, refetch]);
+
 
   const handleViewMoreClick = () => {
     navigate('/dashboard/users');
@@ -43,7 +39,7 @@ export default function TopUsersTime() {
   }
 
   return (
-    <div  ref={ref} >
+    <div >
 
    
     <Card className="p-4">

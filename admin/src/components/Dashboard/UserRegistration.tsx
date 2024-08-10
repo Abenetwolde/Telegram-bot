@@ -27,7 +27,7 @@ const CustomTooltip = ({ label, payload }) => {
 };
 const UserRegistration = () => {
   const [filter, setFilter] = useState('perMonth');
-  const [ref, isVisible] = useIntersectionObserver();
+
   const [loadingRange, setLoading] = useState(false); 
   const [range, setRange] = useState([
     {
@@ -67,7 +67,7 @@ const UserRegistration = () => {
     };
 
     fetchData();
-  }, [range, getUserRange,isVisible, refetchNewUser]);
+  }, [range, getUserRange, refetchNewUser]);
   useEffect(() => {
     document.addEventListener("keydown", hideOnEscape, true)
     document.addEventListener("click", hideOnClickOutside, true)
@@ -78,11 +78,11 @@ const UserRegistration = () => {
       setTotalUserCount(newUserCounts?.totalUsers);
     }
   }, [newUserCounts]);
-  useEffect(() => {
-    if (isVisible) {
-      refetchNewUser();
-    }
-  }, [isVisible, refetchNewUser]);
+  // useEffect(() => {
+  //   if (isVisible) {
+  //     refetchNewUser();
+  //   }
+  // }, [, refetchNewUser]);
   const hideOnEscape = (e) => {
     // console.log(e.key)
     if (e.key === "Escape") {
@@ -117,7 +117,7 @@ const theme=useTheme()
   };
   const loading = loadingRange || isLoadingNewUser;
 return(
-  <div ref={ref}>
+  <div>
 
 
   <Card  className='p-3 mt-10'>

@@ -12,14 +12,10 @@ import { useTranslation } from 'react-i18next';
 
 const UserJoinFromCard = () => {
     const { t } = useTranslation();
-    const [ref, isVisible] = useIntersectionObserver();
+    // const [ref, isVisible] = useIntersectionObserver();
     const theme = useTheme();
-    const { data, isLoading, refetch } = useGetUserJoinedByMethodQuery(null, { skip: !isVisible });
-    useEffect(() => {
-        if (isVisible) {
-            refetch();
-        }
-    }, [isVisible, refetch]);
+    const { data, isLoading, refetch } = useGetUserJoinedByMethodQuery();
+
 
     if (isLoading) {
         return (
@@ -126,7 +122,7 @@ const UserJoinFromCard = () => {
     });
 
     return (
-        <Card ref={ref}>
+        <Card >
             <CardHeader title={t('user_join_from')}/>
       
             <ChartWrapperStyle dir="ltr" >

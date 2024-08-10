@@ -7,7 +7,7 @@ const WARNING_NAME = ['P', 'E', 'R', 'S', 'C', 'U', '6', '7'];
 const ERROR_NAME = ['V', 'W', 'X', 'M', 'Z'];
 
 function getFirstCharacter(name) {
-  return name && name.charAt(0).toUpperCase();
+  return name && name?.charAt(0).toUpperCase();
 }
 
 function getAvatarColor(name) {

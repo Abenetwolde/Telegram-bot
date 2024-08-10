@@ -36,7 +36,7 @@ module.exports = {
     },
 
     sendProduct: async function (ctx, productId, product, iscart) {
-        // console.log("reach", productId) 
+         console.log("reach", productId) 
 
         // console.log("reach prodcut", product)
         const formatTelegramMessage = (product) => {

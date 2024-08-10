@@ -31,7 +31,7 @@ export default function AllOrderStatus({handleFilterOFStatusChange,filterOfStatu
     const totalCount: any = Object.values(statusCounts).reduce((acc, count) => acc + count, 0);
 
     return Object.entries(statusCounts).map(([status, count]: any) => ({
-      label: `Total ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+      label: `Total ${status?.charAt(0).toUpperCase() + status.slice(1)}`,
       amount: count,
       value: ((count / totalCount) * 100).toFixed(2) // Calculate percentage
     }));
@@ -70,7 +70,7 @@ function SkeletonProgressItem() {
   if (error) return <p>Error fetching data: {error.message}</p>
   return (
     <Card className='p-3'>
-      <CardHeader sx={{ mb: 3, textAlign: 'left' }}  title={t('all_order_status')} />
+      <CardHeader sx={{ textAlign: 'left' }}  title={t('all_order_status')} />
       <FilterButtonGroup handlefilter={handleFilterOFStatusChange} filter={filterOfStatus}/>
       <Stack spacing={4} sx={{ p: 3 }}>
         { isLoading?LoadingIndicator():

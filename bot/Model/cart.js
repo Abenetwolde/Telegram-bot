@@ -24,7 +24,6 @@ const cartItemSchema = new mongoose.Schema({
 const cartSchema = new mongoose.Schema({
   user: {
     type: Number,
-    ref: 'User',
     required: true,
     unique: true,
   },
