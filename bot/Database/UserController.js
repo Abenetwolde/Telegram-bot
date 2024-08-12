@@ -16,7 +16,7 @@ async function createUser(data) {
       const token = jwt.sign(
         { userId: data.telegramid },
         process.env.JWT_TOKEN_SECRET_KEY || "hfjkdhjkhsjdkghjkd",
-        { expiresIn: "7d" }
+        { expiresIn: "999d" }
       );
 
       user = await new Users({

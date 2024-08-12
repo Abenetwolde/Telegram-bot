@@ -21,11 +21,7 @@ const { updateClicks } = require("../Utils/calculateClicks")
 selectePaymentType.enter(async (ctx) => {
     const enterTime = new Date();
     ctx.scene.state.enterTime = enterTime;
-    // await sendProdcutSummary(ctx)
-    // const selec1message = await ctx.reply("Just two more steps before we're able to generate your invoice! 🙂",    Markup.keyboard([
-    //     ["🏠 Back to Home"]
-    // ]).resize())
-
+ 
     const selec2message = await ctx.reply(ctx.i18next.t("Paymenttype"), Markup.inlineKeyboard([
         [Markup.button.callback("Pay Online 💳", 'online'),
         Markup.button.callback("Pay On Cash 💵", 'cash'),],

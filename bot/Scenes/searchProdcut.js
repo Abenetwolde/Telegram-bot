@@ -5,8 +5,7 @@ const { replace } = require("lodash");
 const { getAllProducts, searchProducts } = require("../Database/productcontroller");
 const { getProducts } = require("../Services/prodcut");
 const searchProduct = new Scenes.BaseScene('searchProduct');
-const itemsPerPage = 10;
-const apiUrl = " http://localhost:5000"
+
 const cloudinary = require('cloudinary').v2;
 // Importing spawn from child_process
 
@@ -28,7 +27,7 @@ async function generateThumbnail(videoUrl) {
   return new Promise((resolve, reject) => {
     const thumbnailPath = `thumbnail_${Date.now()}.jpg`;
     const ffmpegProcess = spawn(ffmpeg, ['-i', videoUrl, '-ss', '00:00:05', '-vframes', '1', thumbnailPath]);
-console.log("thumbnailPath",thumbnailPath)
+
     ffmpegProcess.on('close', async(code) => {
       if (code === 0) {
         try {
@@ -55,7 +54,7 @@ searchProduct.enter(async (ctx) => {
   const enterTime = new Date();
   ctx.scene.state.enterTime = enterTime;
   ctx.session.viewMoreSearch=null
-  console.log("reach serach scene")
+
   let message = `
   🔍 Click the search button below to find a food item.
 `;
@@ -77,32 +76,20 @@ searchProduct.enter(async (ctx) => {
 searchProduct.on('inline_query', async (ctx) => {
  
   await updateClicks(ctx,"search_scene","search_scene")
-  console.log("inline_query")
+
   let input = ctx.inlineQuery.query
   if (!input) {
     return;
   }
 
   try {
-    // Extract pagination parameters from the inline query offset
-    // const offset = parseInt(ctx.inlineQuery.offset) || 0;
-    // const page = Math.floor(offset / pageSize) + 1;
-    // Fetch product data from the backend API
-    // const response = await axios.get('http://localhost:5000/api/getproducts', {
-    //   params: {
-    //     search: input,
-    //     // page: page,
-    //     pageSize: 10,
-    //     // Add any other query parameters as needed
-    //   },
-    // });
 
     const response = await searchProducts({
       search: input,
     });
 
     const products = JSON.parse(JSON.stringify(response));
-console.log("pro......search", products)
+
 if (products.products.length === 0) {
   // If no products found, send "No results found" message
   await ctx.answerInlineQuery([{
@@ -272,145 +259,7 @@ searchProduct.action(/(add|remove)Quantity_(.+)/, async (ctx) => {
   }
 });
 
-// // Function to generate data
-// const generateData = (count) => {
-//     let items = [];
-//     for (let i = 0; i < count; i++) {
-//       items.push({
-//         title: `Item ${i}`,
-//         description: `Description for item ${i}`,
-//         id: `${i}`
-//       });
-//     }
-//     return items;
-//   };
 
-//   searchProduct.enter(async (ctx) => {
-// //  ctx.replyWithChatAction('sending Prodcuts');
-//        ctx.reply(
-//       `You are now viewing our serarchproducts.`,
-//     //   Markup.keyboard([
-//     //     ['Home', 'Category'],
-//     //     ['Checkout']
-//     //   ]).resize(),
-//     );
-
-
-// });
-
-//   // Inline query handler
-//   bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
-//     const offset = parseInt(inlineQuery.offset) || 0;
-//     const itemsPerPage = 10;
-//     const data = generateData(100);
-
-//     let results = data.slice(offset, offset + itemsPerPage).map((item) => ({
-//       type: 'article',
-//       id: item.id,
-//       title: item.title,
-//       description: item.description,
-//       input_message_content: {
-//         message_text: `*${item.title}*\n${item.description}`,
-//         parse_mode: 'Markdown'
-//       },
-//       reply_markup: {
-//         inline_keyboard: [[{ text: 'More info', callback_data: `moreinfo:${item.id}` }]]
-//       }
-//     }));
-
-//     return answerInlineQuery(results, {
-//       is_personal: true,
-//       next_offset: offset + results.length,
-//       cache_time: 10
-//     });
-//   });
-
-//   // Callback query handler
-//   searchProduct.on('callback_query', async (ctx) => {
-//     const callbackData = ctx.callbackQuery.data.split(':');
-//     if (callbackData[0] === 'moreinfo') {
-//       const itemId = callbackData[1];
-//       await ctx.answerCbQuery(`More info for item ${itemId}`);
-//     }
-//   });
-//   searchProduct.leave(async (ctx) => {
-//     await ctx.scene.leave();
-//  })
-//  module.exports = {
-//     searchProduct
-//  }
-
-// const searchProduct = new Scenes.BaseScene('productSearchScene');
-
-// searchProduct.enter(async (ctx) => {
-//   await ctx.reply('Please enter a search query to find products:', Markup.forceReply());
-// });
-
-// searchProduct.on('text', async (ctx) => {
-//   const query = ctx.message.text;
-
-//   // Retrieve search results from external API
-//   const response = await axios.get(`${apiUrl}/api/search?q=${query}`);
-
-//   // Store search results in session
-//   ctx.session.searchResults = response.data.products;
-
-//   // Send search results
-//   for (const product of response.data) {
-//     await ctx.replyWithPhoto(
-//       product.images[0],
-//       { caption: `${product.name}\n${product.description}`,
-//         reply_markup: Markup.inlineKeyboard([
-//           [Markup.button.callback('View More', `view_more_${product.id}`)],
-//         ])
-//       }
-//     );
-//   }
-// });
-
-// searchProduct.on('inline_query', async (ctx) => {
-//    const query = ctx.inlineQuery.query;
-//    const offset = parseInt(ctx.inlineQuery.offset) || 0;
-
-//    // Retrieve search results from external API
-//    const response = await axios.get(`${apiUrl}/api/search?q=${query}&offset=${offset}&limit=${itemsPerPage}`);
-
-//    // Generate inline query results
-//    const results = response.data.map(product => ({
-//      type: 'article',
-//      id: product._id,
-//      title: product.name,
-//      description: product.description??product.description,
-//      thumb_url: product.images[0],
-//      input_message_content: {
-//        message_text: `${product.name}\n${product.description??product.description}`,
-//      },
-//     ...Markup.inlineKeyboard([
-//        [Markup.button.callback('View More', `view_more_${product._id}`)],
-//      ]),
-//    }));
-
-//    // Answer inline query
-//    await ctx.answerInlineQuery(results, {
-//      next_offset: offset + itemsPerPage,
-//    });
-// });
-
-// searchProduct.action(/view_more_(.+)/, async (ctx) => {
-//    const productId = parseInt(ctx.match[1]);
-//    const productIndex = ctx.session.searchResults.findIndex(product => product.id === productId);
-//    const product = ctx.session.searchResults[productIndex];
-
-//    await ctx.replyWithPhoto(
-//      product.images[0],
-//      { caption: `${product.name}\n${product.description}\nPrice: ${product.price}\n\nAdditional information:\n${product.additionalInformation}`,
-//        reply_markup: Markup.inlineKeyboard([
-//          [Markup.button.callback('-', `decrease_quantity_${product.id}`), Markup.button.callback(`${product.quantity}`, `quantity_${product.id}`), Markup.button.callback('+', `increase_quantity_${product.id}`)],
-//          [Markup.button.callback('Buy', `buy_${product.id}`)],
-//        ])
-//      }
-//    );
-// });
 module.exports = {
   searchProduct
 }

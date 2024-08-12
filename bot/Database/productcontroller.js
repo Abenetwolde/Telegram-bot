@@ -10,25 +10,7 @@ async function getAllProducts(data) {
     if (data?.search) {
         filter.name = { $regex: data.search, $options: 'i' };
     }
-    // const sortBy = data.sortBy||"latest";
-
-    // let sortQuery; 
-    // switch (sortBy) {
-    //   case 'latest':
-    //     sortQuery = { createdAt: -1 };
-    //     break;
-    //   case 'popular':
-    //     sortQuery = { countInStock: -1 };
-    //     break;
-    //   default:
-    //     sortQuery = {};
-    // }
-    // if (req.query.search) {
-    //     filter.$text = { $search: req.query.search };
-    // }
-
-
-    // Parse the page and pageSize query parameters
+    
     const page = parseInt(data?.page) || null;
    
     const pageSize = parseInt(data?.pageSize) || null;

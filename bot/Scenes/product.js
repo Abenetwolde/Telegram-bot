@@ -23,7 +23,7 @@ productSceneTest.enter(async (ctx) => {
     const product = ctx.scene.state.product;
     const sortBy = ctx.scene.state.sortBy;
     ctx.session.shouldContinueSending = true;
-    console.log(category)
+  
     ctx.session.cleanUpState = [];
     ctx.session.currentImageIndex = {};
     // Initialize the viewMore object in the session data
@@ -33,12 +33,7 @@ productSceneTest.enter(async (ctx) => {
     ctx.session.quantity = {};
     ctx.session.currentPage = 1;
     ctx.session.products = []
-   // Default reply text
-// const prodcutfirst= await ctx.reply("sendmessage")
-// await ctx.session.cleanUpState.push({
-//     id: prodcutfirst.message_id,
-//     type: 'first'  
-// })
+
     if (category && category.name) {
         replyText = `You are now viewing our selection of ${category?.name}${category?.icon} Items.`;
     } else if (sortBy) {
@@ -55,7 +50,7 @@ productSceneTest.enter(async (ctx) => {
  
     await ctx.sendChatAction('typing');
 
-    console.log("prodcutKeuboard......................", ctx.session.cleanUpState)
+    // console.log("prodcutKeuboard......................", ctx.session.cleanUpState)
 
 
     ctx.session.products = simplifiedProducts;
@@ -87,24 +82,7 @@ productSceneTest.hears(match('cart'), async (ctx) => {
 });
 productSceneTest.action('Home', async (ctx) => {
     try {
-        // try {
-        //     if (ctx.session.cleanUpState) {
-        //         ctx.session.cleanUpState.forEach(async (message) => {
-        //             if (message?.type === 'product' || message?.type === 'pageNavigation' || message?.type === 'productKeyboard'/* && message.type === 'summary' */) {
-        //                 try {
-        //                     await ctx.telegram.deleteMessage(ctx.chat.id, message.id);
-        //                 }
-        //                 catch (error) {
-        //                     console.log(error)
-        //                 }
-
-        //             }
-
-        //         });
-        //     }
-        // } catch (error) {
-        //     ctx.reply(error)
-        // }
+       
         await new Promise(resolve => setTimeout(resolve, 1000));
         await ctx.scene.enter('homeScene');
     } catch (error) {
@@ -146,40 +124,12 @@ productSceneTest.hears(match('Home'), async (ctx) => {
     ctx.session.shouldContinueSending = false
 
 });
-productSceneTest.hears('Category', async (ctx) => {
-    try {
-        try {
-            if (ctx.session.cleanUpState) {
-                ctx.session.cleanUpState.forEach(async (message) => {
-                    if (message?.type === 'product' || message?.type === 'pageNavigation' || message?.type === 'productKeyboard'/* && message.type === 'summary' */) {
-                        try {
-                            await ctx.telegram.deleteMessage(ctx.chat.id, message.id);
-                        }
-                        catch (error) {
-                            console.log(error)
-                        }
-                        // await ctx.telegram.deleteMessage(ctx.chat.id, message.id);
-                    }
 
-                });
-            }
-        } catch (error) {
-            ctx.reply(error)
-        }
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        await ctx.scene.enter('category');
-    } catch (error) {
-        await ctx.reply(error)
-
-    }
-    ctx.session.shouldContinueSending = false
-
-});
 productSceneTest.action('Checkout', async (ctx) => {
     // await ctx.scene.leave();
-    ctx.session.shouldContinueSending = false
+    // ctx.session.shouldContinueSending = false
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // await new Promise(resolve => setTimeout(resolve, 1000));
     await ctx.scene.enter('cart');
     await updateClicks(ctx,"product","product")
 
@@ -220,7 +170,7 @@ productSceneTest.action(/size_(.+)_([^_]+)/, async (ctx) => {
 
 // When the user clicks on a "Next" inline button, update the current image productId for that product and send an updated message using the sendProduct function
 productSceneTest.action(/next_(.+)/, async(ctx) => {
-    console.log(ctx.session.currentImageIndex)
+    // console.log(ctx.session.currentImageIndex)
     const productId = ctx.match[1];
     const products = ctx.session.products;
     const product = products?.filter((p) => p._id == productId)
@@ -257,19 +207,15 @@ productSceneTest.action(/previous_(.+)/, async(ctx) => {
 });
 
 productSceneTest.action(/viewMore_(.+)/,async (ctx) => {
-    console.log("reach...viewmore")
+    // console.log("reach...viewmore")
     const productId = ctx.match[1];
     ctx.session.viewMore[productId] = true;
     const products = ctx.session.products;
     const product = products.filter((p) => p._id == productId)
-    console.log("is prodcut found", ctx.session)
+    // console.log("is prodcut found", ctx.session)
     sendProduct(ctx, productId, product[0]);
     const userId = ctx.from.id
-    let clickCount = await KpiProducts.findOne({
-     product: productId,
-      
-    });
-    console.log("clickCount", clickCount);
+  
     await updateClicks(ctx,"product",productId)
 });
 
@@ -301,7 +247,7 @@ productSceneTest.action(/buy_(.+)/, async (ctx) => {
         const cartJson = JSON.stringify(cartItem);
         const CartData = await JSON.parse(cartJson)
         const cartArg = { ...CartData.product, quantity: CartData.quantity };
-        console.log("cartItem..........................", cartArg)
+        // console.log("cartItem..........................", cartArg)
         // Send the product information to the user
         sendProduct(ctx, productId, cartArg);
         // const userId = ctx.from.id
@@ -330,7 +276,7 @@ productSceneTest.action(/addQuantity_(.+)/, async (ctx) => {
         // Fetch product data
         // const productData = await Product.findById(product._id).populate('category');
         const productArg = { ...product, quantity };
-console.log("productArg", productArg)        // Send the product information to the user
+// console.log("productArg", productArg)        // Send the product information to the user
         sendProduct(ctx, productId, productArg);
         // const userId = ctx.from.id
         await updateClicks(ctx,"product",productId)
@@ -449,7 +395,7 @@ async function sendPage(ctx) {
                 })
                 return;
             }
-            const productsData = products.products;
+            const productsData = products?.products;
             console.log("Product data:", productsData);
             const simplifiedProducts = await productsData.map(product => ({
                 ...product,
@@ -472,7 +418,7 @@ async function sendPage(ctx) {
 }
 
 productSceneTest.leave(async (ctx) => {
-    console.log("ctx.session.cleanUpState =>", ctx.session.cleanUpState)
+    // console.log("ctx.session.cleanUpState =>", ctx.session.cleanUpState)
     try {
         ctx.session.product=[]
         if (ctx.session.cleanUpState) {
@@ -513,7 +459,7 @@ productSceneTest.leave(async (ctx) => {
 async function sendPageNavigation(ctx) {
     let totalPages = ctx.session.totalPages
     let pageSizeNumber = ctx.session.page
-    console.log("pageSizeNumber", pageSizeNumber)
+    // console.log("pageSizeNumber", pageSizeNumber)
     // const response = await axios.get(`${apiUrl}/api/getproducts?page=${ctx.session.currentPage}&pageSize=${pageSize}`);
     // console.log("ctx.session.currentPage", ctx.session.currentPage + 1)
     // console.log("response.data.totalPages", Math.floor(response / pageSize))

@@ -12,9 +12,6 @@ contactus.enter(async (ctx) => {
 
    
 
-    // ctx.session.cleanUpState.push({ id: aboutme.message_id, type: 'addressOnline' });
-    // ctx.session.cleanUpState.push({ id: note1message2.message_id, type: 'addressOnline' });
-    // ctx.session.cleanUpState.push(summaymessage);
 
 })
 
